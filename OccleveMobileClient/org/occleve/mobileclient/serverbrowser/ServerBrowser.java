@@ -73,12 +73,10 @@ public class ServerBrowser implements Runnable
         System.out.println("Successfully opened and closed dummy HttpConnection");
         */
 
-        Gauge gauge = new Gauge(null, false, Gauge.INDEFINITE,
-                                Gauge.CONTINUOUS_RUNNING);
         m_ProgressAlert = new Alert(null, "Reading list of tests from server...",
                                     null, null);
         m_ProgressAlert.setTimeout(Alert.FOREVER);
-        m_ProgressAlert.setIndicator(gauge);
+        StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
         HttpConnection hc = (HttpConnection)Connector.open(Config.LIST_OF_TESTS_URL);

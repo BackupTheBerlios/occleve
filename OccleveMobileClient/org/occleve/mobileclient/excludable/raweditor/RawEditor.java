@@ -314,10 +314,10 @@ implements CommandListener,Excludable,ItemCommandListener
             {
                 m_FileChooserForMovingChunks =
                         new FileChooserForm( false);
-                m_FileChooserForMovingChunks.setExternalItemCommandListener(this);
+                m_FileChooserForMovingChunks.setExternalCommandListener(this);
 
                 Command moveTo = new Command("Move to",Command.OK,0);
-                m_FileChooserForMovingChunks.addCommandToAllItems(moveTo);
+                m_FileChooserForMovingChunks.addCommand(moveTo);
             }
 
             OccleveMobileMidlet.getInstance().setCurrentForm(m_FileChooserForMovingChunks);

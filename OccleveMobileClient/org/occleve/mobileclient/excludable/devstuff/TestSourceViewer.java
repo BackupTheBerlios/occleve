@@ -67,7 +67,7 @@ public class TestSourceViewer extends Form implements CommandListener
         {
             String sLine = (String)vTestSource.elementAt(i) + Constants.NEWLINE;
             StringItem si = new StringItem(null,sLine);
-            si.setFont(OccleveMobileFonts.SMALL_FONT);
+            StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
             append(si);
         }
     }

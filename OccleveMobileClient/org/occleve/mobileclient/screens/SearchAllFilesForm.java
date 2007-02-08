@@ -74,11 +74,9 @@ implements CommandListener,Runnable
     updating of the UI while the search is in progress. */
     protected void startSearch() throws Exception
     {
-        Gauge gauge = new Gauge(null, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
         m_ProgressAlert = new Alert(null, "Searching...", null, null);
         m_ProgressAlert.setTimeout(Alert.FOREVER);
-        m_ProgressAlert.setIndicator(gauge);
-
+        StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
         OccleveMobileMidlet.getInstance().displayAlert(m_ProgressAlert,this);
 
         new Thread(this).start();

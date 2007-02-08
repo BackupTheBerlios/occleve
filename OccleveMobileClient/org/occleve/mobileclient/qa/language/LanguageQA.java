@@ -229,14 +229,14 @@ public abstract class LanguageQA extends QA
     {
         int i;
 
-        for (i=0; i<=m_vSecondeseEntities.size(); i++)
+        for (i=0; i<m_vSecondeseEntities.size(); i++)
         {
             LanguageEntity cle =
                 (LanguageEntity)m_vSecondeseEntities.elementAt(i);
             if (cle.entityContainsString(s)) return true;
         }
 
-        for (i=0; i<=m_vFirsteseEntities.size(); i++)
+        for (i=0; i<m_vFirsteseEntities.size(); i++)
         {
             LanguageEntity eng = (LanguageEntity)m_vFirsteseEntities.elementAt(i);
             String sEnglish = eng.getRomanForm(false);

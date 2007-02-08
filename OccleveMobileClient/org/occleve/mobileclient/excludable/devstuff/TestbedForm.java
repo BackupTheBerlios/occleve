@@ -58,31 +58,31 @@ public class TestbedForm extends Form implements CommandListener
         StringItem si;
 
       si = new StringItem(null, "Monospace Small Plain" + Constants.NEWLINE);
-      si.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN,Font.SIZE_SMALL));
+      StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN,Font.SIZE_SMALL));
       append(si);
 
        si = new StringItem(null,"System Small Plain" + Constants.NEWLINE);
-       si.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL));
+       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL));
        append(si);
 
        si = new StringItem(null,"System Large Plain" + Constants.NEWLINE);
-       si.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
+       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
        append(si);
 
        si = new StringItem(null,"System Med Plain" + Constants.NEWLINE);
-       si.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
+       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
        append(si);
 
        si = new StringItem(null,"System Med Bold" + Constants.NEWLINE);
-       si.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
+       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
        append(si);
 
        si = new StringItem(null,"System Med Italic" + Constants.NEWLINE);
-       si.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
+       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
        append(si);
 
        si = new StringItem(null,"System Med Underlined" + Constants.NEWLINE);
-       si.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_UNDERLINED, Font.SIZE_MEDIUM));
+       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_UNDERLINED, Font.SIZE_MEDIUM));
        append(si);
    }
 

@@ -36,7 +36,7 @@ public class JumpToForm extends Form implements CommandListener
         m_TestController = mtc;
 
         StringItem si = new StringItem(null,"Jump to:");
-        si.setFont(OccleveMobileFonts.TITLE_FONT);
+        StaticHelpers.safeSetFont(si,OccleveMobileFonts.TITLE_FONT);
         append(si);
 
         m_TextField = new TextField("Question number:","1",10,TextField.ANY);

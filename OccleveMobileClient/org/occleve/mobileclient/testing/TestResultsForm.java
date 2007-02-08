@@ -40,13 +40,13 @@ public class TestResultsForm extends Form implements CommandListener
         text = "Total keypresses = " + testResults.getTotalKeypressCount() +
                Constants.NEWLINE;
         si = new StringItem(null,text);
-        si.setFont(OccleveMobileFonts.DETAILS_FONT);
+        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
         append(si);
 
         text = "Wrong keypresses = " + testResults.getWrongKeypressCount() +
                Constants.NEWLINE;
         si = new StringItem(null,text);
-        si.setFont(OccleveMobileFonts.DETAILS_FONT);
+        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
         append(si);
 
         text =
@@ -54,7 +54,7 @@ public class TestResultsForm extends Form implements CommandListener
             testResults.getAccuracyPercentage() + "%" +
             Constants.NEWLINE;
         si = new StringItem(null,text);
-        si.setFont(OccleveMobileFonts.DETAILS_FONT);
+        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
         append(si);
 
         addCommand(new Command("New test", Command.BACK, 0));

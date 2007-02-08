@@ -102,7 +102,7 @@ public class VocabViewerScreen extends Form implements CommandListener
                 sQuestionNo + ". " + currentQA.getEntireContentsAsString() +
                 Constants.NEWLINE + Constants.NEWLINE;
             StringItem si = new StringItem(null,qaContents);
-            si.setFont(OccleveMobileFonts.SMALL_FONT);
+            StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
             append(si);
         }
     }
@@ -135,19 +135,19 @@ public class VocabViewerScreen extends Form implements CommandListener
         else if (c==m_ScrollToStartCommand)
         {
             Item qaItem = get(0);
-            Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(qaItem);
+            StaticHelpers.safeSetCurrentItem(qaItem);
         }
         else if (c==m_ScrollToMiddleCommand)
         {
             int iIndex = (size()-1) / 2;
             Item qaItem = get(iIndex);
-            Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(qaItem);
+            StaticHelpers.safeSetCurrentItem(qaItem);
         }
         else if (c==m_ScrollToEndCommand)
         {
             int iLastItemIndex = size()-1;
             Item qaItem = get(iLastItemIndex);
-            Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(qaItem);
+            StaticHelpers.safeSetCurrentItem(qaItem);
         }
         else if (c==m_EditCommand)
         {
@@ -180,7 +180,7 @@ public class VocabViewerScreen extends Form implements CommandListener
                 // System.out.println("Matching QA index = " + i);
 
                 Item qaItem = get(i);
-                Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(qaItem);
+                StaticHelpers.safeSetCurrentItem(qaItem);
                 return true;
             }
         }

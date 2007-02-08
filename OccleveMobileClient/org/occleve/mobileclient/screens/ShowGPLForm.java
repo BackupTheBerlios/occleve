@@ -33,9 +33,12 @@ public class ShowGPLForm extends Form implements CommandListener
     {
         super("This program's license");
 
-        String sLicenseText = StaticHelpers.readUnicodeFile("/COPYING");
+        String sLicenseText = "(c) 2000-2007 Contributors. All rights reserved. ";
+        sLicenseText += Constants.NEWLINE + Constants.NEWLINE;
+        sLicenseText += StaticHelpers.readUnicodeFile("/COPYING");
+
         StringItem si = new StringItem(null,sLicenseText);
-        si.setFont(OccleveMobileFonts.DETAILS_FONT);
+        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
         append(si);
 
         m_NewTestCommand = new Command("New test", Command.BACK, 0);

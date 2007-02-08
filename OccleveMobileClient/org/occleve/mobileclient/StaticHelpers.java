@@ -24,6 +24,7 @@ package org.occleve.mobileclient;
 
 import java.io.*;
 import java.util.*;
+import javax.microedition.lcdui.*;
 
 public class StaticHelpers
 {
@@ -33,8 +34,10 @@ public class StaticHelpers
         InputStream is = null;
         InputStreamReader isr = null;
 
-        String dummy = "";
-        Class c = dummy.getClass();
+        // We are reading files from the OccleveMobileClient jar,
+        // therefore call getResourceAsStream() on the midlet class
+        // in order to ensure that the correct JAR is read from.
+        Class c = OccleveMobileMidlet.getInstance().getClass();
         is = c.getResourceAsStream(filename);
         if (is == null)
         {
@@ -197,6 +200,50 @@ public class StaticHelpers
         } while ((ch!=-1) && (ch!=FIRST_NEWLINE_CHAR));
 
         return buffer.toString();
+    }
+
+    /**The microemulator applet throws a
+    "java.lang.RuntimeException: Not implemented"
+    when StringItem.setFont is called. So this function is
+    designed to silently fail if that happens.*/
+    public static void safeSetFont(StringItem si,Font font)
+    {
+        try
+        {
+            si.setFont(font);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Call to StringItem.setFont failed");
+        }
+    }
+
+    /**Another function designed to benignly fail in the microemulator applet.*/
+    public static void safeAddGaugeToAlert(Alert alert)
+    {
+        try
+        {
+            Gauge gauge = new Gauge(null, false, Gauge.INDEFINITE,Gauge.CONTINUOUS_RUNNING);
+            alert.setIndicator(gauge);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Failed to add Gauge to Alert");
+        }
+    }
+
+    /**Another function designed to benignly fail in the microemulator applet.*/
+    public static void safeSetCurrentItem(Item item)
+    {
+        try
+        {
+            OccleveMobileMidlet mid = OccleveMobileMidlet.getInstance();
+            Display.getDisplay(mid).setCurrentItem(item);
+        }
+        catch (Exception e)
+        {
+            System.err.println("Call to setCurrentItem() failed");
+        }
     }
 }
 

@@ -34,7 +34,7 @@ public class MessageForm extends Form
         super(null);
 
         m_StringItem = new StringItem(null, sContents);
-        m_StringItem.setFont(OccleveMobileFonts.PROMPT_FONT);
+        StaticHelpers.safeSetFont(m_StringItem,OccleveMobileFonts.PROMPT_FONT);
         append(m_StringItem);
     }
 

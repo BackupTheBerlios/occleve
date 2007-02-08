@@ -31,15 +31,15 @@ import org.occleve.mobileclient.serverbrowser.*;
 import org.occleve.mobileclient.screens.options.*;
 import org.occleve.mobileclient.testing.*;
 
-public class FileChooserForm extends Form
-implements ItemCommandListener
+public class FileChooserForm extends List
+implements CommandListener
 {
     protected ListOfTests m_ListOfTests;
 
-    protected ItemCommandListener m_ExternalItemCommandListener;
-    public void setExternalItemCommandListener(ItemCommandListener icl)
+    protected CommandListener m_ExternalCommandListener;
+    public void setExternalCommandListener(CommandListener cl)
     {
-        m_ExternalItemCommandListener = icl;
+        m_ExternalCommandListener = cl;
     }
 
     /**Stored as a member so that the options are remembered between
@@ -64,7 +64,7 @@ implements ItemCommandListener
     public FileChooserForm(boolean bAddCommands)
     throws Exception
     {
-        super(Constants.PRODUCT_NAME);
+        super(Constants.PRODUCT_NAME,List.IMPLICIT);
 
         if (bAddCommands)
         {
@@ -74,15 +74,29 @@ implements ItemCommandListener
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
             m_PauseCommand = new Command("Pause", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
+            m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
             m_EditCommand = new Command("Edit", Command.ITEM, 2);
             m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
-            m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
+
+            // Disabled until it's finished...
+            /////addCommand(m_BrowseServerCommand);
+
+            addCommand(m_TestCommand);
+            addCommand(m_ViewCommand);
+            addCommand(m_SearchAllTestsCommand);
+            addCommand(m_PauseCommand);
+            addCommand(m_DevStuffScreenCommand);
+            addCommand(m_ShowLicenseCommand);
+            addCommand(m_EditCommand);
+            addCommand(m_RapidAddCommand);
         }
 
         populateWithFilenames();
 
         m_SimpleTestOptionsScreen = new SimpleTestOptionsScreen();
         m_ChineseTestOptionsScreen = new ChineseTestOptionsScreen();
+
+        setCommandListener(this);
     }
 
     public void populateWithFilenames() throws Exception
@@ -91,26 +105,17 @@ implements ItemCommandListener
         deleteAll();
 
         // See whether keypresses are supported
-        FileChooserCustomItem fcciTest = new FileChooserCustomItem(this);
-        boolean bKeypressesSupported = fcciTest.areKeypressesSupported();
+        ///FileChooserCustomItem fcciTest = new FileChooserCustomItem(this);
+        ///boolean bKeypressesSupported = fcciTest.areKeypressesSupported();
 
-        ListOfTests list = new ListOfTests();
-        for (int i=0; i<list.getSize(); i++)
+        m_ListOfTests = new ListOfTests();
+        for (int i=0; i<m_ListOfTests.getSize(); i++)
         {
-            String sFilename = list.getFilename(i);
-            Integer recordStoreID = list.getRecordStoreID(sFilename);
+            String sFilename = m_ListOfTests.getFilename(i);
+            Integer recordStoreID = m_ListOfTests.getRecordStoreID(sFilename);
 
-            String sFileExtension = ".txt";
-            String sDisplayText;
-            if (sFilename.endsWith(sFileExtension))
-            {
-                int iChars = sFilename.length() - sFileExtension.length();
-                sDisplayText = sFilename.substring(0,iChars);
-            }
-            else
-            {
-                sDisplayText = sFilename;
-            }
+            String sDisplayText = StaticHelpers.stripEnding(sFilename,".txt");
+            sDisplayText = StaticHelpers.stripEnding(sDisplayText,".xml");
 
             if (recordStoreID!=null) sDisplayText = "* " + sDisplayText;
 
@@ -124,45 +129,25 @@ implements ItemCommandListener
             //    append(fcci);
             //}
 
-            FilenameItem item =
-               new FilenameItem(sDisplayText + Constants.NEWLINE,sFilename,recordStoreID);
-            item.setFont(OccleveMobileFonts.DETAILS_FONT);
+            ///FilenameItem item =
+            ///new FilenameItem(sDisplayText + Constants.NEWLINE,sFilename,recordStoreID);
+            ///StaticHelpers.safeSetFont(item,OccleveMobileFonts.DETAILS_FONT);
 
-            item.addCommandIfExists(m_BrowseServerCommand);
-            item.addCommandIfExists(m_TestCommand);
-            item.addCommandIfExists(m_ViewCommand);
-            item.addCommandIfExists(m_SearchAllTestsCommand);
-            item.addCommandIfExists(m_PauseCommand);
-            item.addCommandIfExists(m_DevStuffScreenCommand);
-            item.addCommandIfExists(m_ShowLicenseCommand);
-
-            if (recordStoreID!=null)
-            {
-                item.addCommandIfExists(m_EditCommand);
-                item.addCommandIfExists(m_RapidAddCommand);
-            }
-
-            if (m_TestCommand!=null)
-            {
-                item.setDefaultCommand(m_TestCommand);
-            }
-
-            item.setItemCommandListener(this);
-            append(item);
+            append(sDisplayText,null);
         }
     }
 
-    /*Implementation of ItemCommandListener.*/
-    public void commandAction(Command c,Item item)
+    /*Implementation of CommandListener.*/
+    public void commandAction(Command c,Displayable d)
     {
         try
         {
-            if (m_ExternalItemCommandListener!=null)
+            if (m_ExternalCommandListener!=null)
             {
-                m_ExternalItemCommandListener.commandAction(c,item);
+                m_ExternalCommandListener.commandAction(c,d);
             }
 
-            commandAction_Inner(c,item);
+            commandAction_Inner(c,d);
         }
         catch (Exception e)
         {
@@ -171,17 +156,11 @@ implements ItemCommandListener
     }
 
     /*Subfunction for code clarity.*/
-    public void commandAction_Inner(Command c,Item item) throws Exception
+    public void commandAction_Inner(Command c,Displayable d) throws Exception
     {
-        FilenameItem fnItem = (FilenameItem)item;
-        String sFilename = fnItem.getFilename();
-
-        // Make sure the filename doesn't end in a newline.
-        if (sFilename.endsWith(Constants.NEWLINE))
-        {
-            sFilename =
-               sFilename.substring(0, sFilename.length() - Constants.NEWLINE_LENGTH);
-        }
+        int iSelIndex = getSelectedIndex();
+        String sFilename = m_ListOfTests.getFilename(iSelIndex);
+        Integer iRSID = m_ListOfTests.getRecordStoreIDByIndex(iSelIndex);
 
         if (c==m_BrowseServerCommand)
         {
@@ -189,16 +168,15 @@ implements ItemCommandListener
         }
         else if (c==m_TestCommand)
         {
-            displayTestOptions(sFilename,fnItem.getRecordStoreID());
+            displayTestOptions(sFilename,iRSID);
         }
         else if (c==m_ViewCommand)
         {
-            OccleveMobileMidlet.getInstance().displayTest(sFilename,fnItem.getRecordStoreID());
+            OccleveMobileMidlet.getInstance().displayTest(sFilename,iRSID);
         }
         else if (c==m_DevStuffScreenCommand)
         {
-            ExcludableHooks.displayDevStuffScreen(sFilename,
-                                                  fnItem.getRecordStoreID());
+            ExcludableHooks.displayDevStuffScreen(sFilename,iRSID);
         }
         else if (c==m_SearchAllTestsCommand)
         {
@@ -211,22 +189,17 @@ implements ItemCommandListener
         }
         else if (c==m_EditCommand)
         {
-            int iRecordID = fnItem.getRecordStoreID().intValue();
-            Screen screenToReturnTo = this;
-
-            ExcludableHooks.editQA(fnItem.getFilename(),
-                                   new Integer(iRecordID),null,
-                                   screenToReturnTo);
+            Screen returnTo = this;
+            ExcludableHooks.editQA(sFilename,iRSID,null,returnTo);
         }
         else if (c==m_RapidAddCommand)
         {
-            Integer iRecordID = fnItem.getRecordStoreID();
-            ExcludableHooks.displayRapidAdd(fnItem.getFilename(),iRecordID);
+            ExcludableHooks.displayRapidAdd(sFilename,iRSID);
         }
         else if (c==m_ShowLicenseCommand)
         {
-            Displayable d = new ShowGPLForm();
-            OccleveMobileMidlet.getInstance().setCurrentForm(d);
+            Displayable gplForm = new ShowGPLForm();
+            OccleveMobileMidlet.getInstance().setCurrentForm(gplForm);
         }
         else
         {
@@ -238,7 +211,6 @@ implements ItemCommandListener
     protected void displayTestOptions(String sFilename,Integer iRecordStoreID)
     throws Exception
     {
-       // Test theTest = new Test("/" + sFilename);
        Test theTest = new Test(sFilename,iRecordStoreID);
 
        QA firstQA = theTest.getQA(0);
@@ -252,17 +224,20 @@ implements ItemCommandListener
        }
     }
 
+    /*
     public void addCommandToAllItems(Command c)
     {
         final int iItemCount = size();
         for (int i=0; i<iItemCount; i++)
         {
-            get(i).addCommand(c);
+            /////get(i).addCommand(c);
         }
     }
+    */
 
     public void jumpToFilename(char cJumpToThis)
     {
+        /*
         FilenameItem fi = (FilenameItem)get(0);
 
         final int iItemCount = size();
@@ -273,6 +248,7 @@ implements ItemCommandListener
         }
 
         Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(fi);
+        */
     }
 }
 

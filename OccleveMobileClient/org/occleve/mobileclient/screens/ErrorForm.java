@@ -39,11 +39,11 @@ public class ErrorForm extends Form implements CommandListener
         super("Occleve");
 
         StringItem si = new StringItem(null,"ERROR!" + Constants.NEWLINE);
-        si.setFont(OccleveMobileFonts.TITLE_FONT);
+        StaticHelpers.safeSetFont(si,OccleveMobileFonts.TITLE_FONT);
         append(si);
 
         StringItem details = new StringItem(null,sError + Constants.NEWLINE);
-        details.setFont(OccleveMobileFonts.DETAILS_FONT);
+        StaticHelpers.safeSetFont(details,OccleveMobileFonts.DETAILS_FONT);
         append(details);
 
         m_NewTestCommand = new Command("New test", Command.BACK, 0);
