@@ -94,8 +94,8 @@ implements CommandListener,Runnable
 
             if (m_sAnnouncement!=null)
             {
-                Alert alert = new Alert("Error",m_sAnnouncement,
-                                        null,AlertType.ERROR);
+                Alert alert = new Alert("Latest news",m_sAnnouncement,
+                                        null,AlertType.INFO);
                 alert.setTimeout(Alert.FOREVER);
                 OccleveMobileMidlet.getInstance().displayAlert(alert, this);
             }
