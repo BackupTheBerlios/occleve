@@ -125,13 +125,14 @@ implements CommandListener,Runnable
                     setString("");
                 }
             }
-        }
 
-        try
-        {
-            Thread.sleep(50);
+            // Brief pause to prevent this thread hogging CPU time.
+            try
+            {
+                Thread.sleep(50);
+            }
+            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
 }

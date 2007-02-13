@@ -26,8 +26,26 @@ package org.occleve.mobileclient;
 file downloaded from the wiki.*/
 public class Config
 {
-    //////String sURL = "http://www.wikia.com/wiki/Main_Page";
+    // 0.9.2 in a form that can be used for comparisons: 000902
+    public static final long VERSION = 902;
 
-    public static String SERVER_URL = "http://localhost:8080/wiki/index.php/";
-    public static String LIST_OF_TESTS_URL = "http://localhost:8080/wiki/index.php?title=EN-ZH-ListOfTests&action=raw";
+    public static final String MIN_RELEASE_DIRECTIVE = "!MIN_RELEASE=";
+
+    public static final String ANNOUNCEMENT_DIRECTIVE = "!ANNOUNCEMENT=";
+
+    public static final String SERVER_URL =
+       "http://occleve.berlios.de/wiki/index.php/";
+
+    public static final String PAGE_URL_STUB =
+       "http://occleve.berlios.de/wiki/index.php?title=";
+
+    public static final String PAGE_URL_SUFFIX = "&action=raw";
+
+    public static final String LIST_OF_TESTS_URL =
+       "http://occleve.berlios.de/wiki/index.php?title=ListOfTests&action=raw";
+
+    /**The default encoding for talking to the wiki, storing the tests
+    in the recordstore, etc etc.*/
+    public static final String ENCODING = "UTF-8";
 }
+

@@ -68,7 +68,7 @@ implements CommandListener
 
         if (bAddCommands)
         {
-            m_BrowseServerCommand = new Command("Browse server", Command.ITEM, 2);
+            m_BrowseServerCommand = new Command("Download tests", Command.ITEM, 2);
             m_TestCommand = new Command("Test", Command.ITEM, 1);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
@@ -78,9 +78,7 @@ implements CommandListener
             m_EditCommand = new Command("Edit", Command.ITEM, 2);
             m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
 
-            // Disabled until it's finished...
-            /////addCommand(m_BrowseServerCommand);
-
+            addCommand(m_BrowseServerCommand);
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
             addCommand(m_SearchAllTestsCommand);

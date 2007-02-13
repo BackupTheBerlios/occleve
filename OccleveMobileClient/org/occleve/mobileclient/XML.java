@@ -25,13 +25,15 @@ package org.occleve.mobileclient;
 public class XML
 {
     public static final String TEST = "Test";
-    public static final String QA = "QA";
+    public static final String QA = "LQA";
 
+    /*
     public static final String EN = "EN";
     public static final String EN_CLOSE = "/EN";
-
     public static final String ZH = "ZH";
     public static final String ZH_CLOSE = "/ZH";
+    */
+
     public static final String ZH_CNOUN = "ZhCNoun";
 
     public static final String ROMAN = "Roman";

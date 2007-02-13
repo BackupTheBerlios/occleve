@@ -120,7 +120,7 @@ public class PlainQA extends QA
         sb.append(Constants.NEWLINE);
 
         ///////////////////////////////////////////////////
-        XML.appendStartTag(sb,XML.EN);
+        XML.appendStartTag(sb,"EN");
         sb.append(Constants.NEWLINE);
 
         XML.appendStartTag(sb,XML.UNKNOWN);
@@ -134,11 +134,11 @@ public class PlainQA extends QA
         XML.appendEndTag(sb,XML.UNKNOWN);
         sb.append(Constants.NEWLINE);
 
-        XML.appendEndTag(sb,XML.EN);
+        XML.appendEndTag(sb,"EN");
         sb.append(Constants.NEWLINE);
 
         ///////////////////////////////////////////////////
-        XML.appendStartTag(sb,XML.ZH);
+        XML.appendStartTag(sb,"ZH");
         sb.append(Constants.NEWLINE);
 
         XML.appendStartTag(sb,XML.UNKNOWN);
@@ -152,7 +152,7 @@ public class PlainQA extends QA
         XML.appendEndTag(sb,XML.UNKNOWN);
         sb.append(Constants.NEWLINE);
 
-        XML.appendEndTag(sb,XML.ZH);
+        XML.appendEndTag(sb,"ZH");
         sb.append(Constants.NEWLINE);
 
         XML.appendEndTag(sb,XML.QA);

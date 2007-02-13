@@ -68,22 +68,32 @@ public class Test
         m_QuestionAskedFlags = new Vector();
         m_QAs = new Vector();
 
-        String sLowerFilename = sTestFilename.toLowerCase();
-        if (sLowerFilename.endsWith(".xml"))
+        //String sLowerFilename = sTestFilename.toLowerCase();
+        //if (sLowerFilename.endsWith(".xml"))
+
+        if (sTestSource.indexOf(XML.TEST) != -1)
         {
-            xmlLoadQuestions(sTestSource);
+            xmlLoadQuestions(sTestFilename,sTestSource);
         }
         else
         {
+            System.out.println("Loading old format test...");
             Vector vFileContents = StaticHelpers.stringToVector(sTestSource);
             Test_OldFormatLoader.oldFormatLoadQuestions(this,vFileContents);
         }
     }
 
     /**Load an XML test.*/
-    public void xmlLoadQuestions(String sTestSource)
+    public void xmlLoadQuestions(String sTestFilename,String sTestSource)
     throws Exception
     {
+        int iFirstHyphenIndex = sTestFilename.indexOf('-');
+        int iSecondHyphenIndex = sTestFilename.indexOf('-',iFirstHyphenIndex+1);
+
+        String sFirsteseISOCode = sTestFilename.substring(0,iFirstHyphenIndex);
+        String sSecondeseISOCode = sTestFilename.substring(iFirstHyphenIndex+1,
+                                                           iSecondHyphenIndex);
+
         Xparse parser = new Xparse();
         Node root = parser.parse(sTestSource);
         int[] first = {1};
@@ -100,8 +110,10 @@ public class Test
 
             if (qaNode!=null)
             {
-                LanguageQA cqa = new ChineseQA(qaNode);
-                m_QAs.addElement(cqa);
+                ////LanguageQA cqa = new ChineseQA(qaNode);
+                LanguageQA lqa = new LanguageQA(qaNode,sFirsteseISOCode,
+                                                sSecondeseISOCode);
+                m_QAs.addElement(lqa);
             }
         } while (qaNode!=null);
 

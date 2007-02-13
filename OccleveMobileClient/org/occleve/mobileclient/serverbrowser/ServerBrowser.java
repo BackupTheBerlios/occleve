@@ -23,24 +23,46 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.serverbrowser;
 
 import java.io.*;
-import javax.microedition.io.*;
+import java.util.*;
 import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
 
 /**Connects to the wiki, downloads the list of available tests, and
 displays them.*/
-public class ServerBrowser implements Runnable
+public class ServerBrowser extends javax.microedition.lcdui.List
+implements CommandListener,Runnable
 {
-    ////protected String m_sServerURL;
     protected Alert m_ProgressAlert;
+    protected Vector m_vTestPageNames = new Vector();
 
-    public ServerBrowser() ////// ,String sServerURL)
+    /**Announcement from ListOfTests page on the server.
+    Cached here and displayed when the list has finished loading.*/
+    protected String m_sAnnouncement;
+
+    protected Command m_DownloadTestCommand;
+    protected Command m_MyTestsCommand;
+
+    protected int m_iThreadAction;
+    protected final int GET_LIST = 0;
+    protected final int DOWNLOAD_TEST = 1;
+
+    public ServerBrowser()
     {
-        /////m_sServerURL = sServerURL;
+        super(Constants.PRODUCT_NAME,
+              javax.microedition.lcdui.List.IMPLICIT);
+
+        m_DownloadTestCommand = new Command("Download", Command.ITEM, 1);
+        m_MyTestsCommand = new Command("Your tests", Command.ITEM, 1);
+
+        addCommand(m_DownloadTestCommand);
+        addCommand(m_MyTestsCommand);
+        setCommandListener(this);
 
         try
         {
+            m_iThreadAction = GET_LIST;
             Thread toPreventBlocking = new Thread( this );
             toPreventBlocking.start();
         }
@@ -48,93 +70,133 @@ public class ServerBrowser implements Runnable
         {
             OccleveMobileMidlet.getInstance().onError(e);
         }
+
     }
 
     public void run()
     {
+        // Instantiate the WikiConnection here so the exception
+        // handler can call close() on it if need be.
+        WikiConnection wc = new WikiConnection();
+
         try
         {
-            fetchListOfTests();
+            m_sAnnouncement = null;
+
+            if (m_iThreadAction==GET_LIST)
+            {
+                fetchListOfTests(wc);
+            }
+            else if (m_iThreadAction==DOWNLOAD_TEST)
+            {
+                downloadTest(wc);
+            }
+
+            if (m_sAnnouncement!=null)
+            {
+                Alert alert = new Alert("Error",m_sAnnouncement,
+                                        null,AlertType.ERROR);
+                alert.setTimeout(Alert.FOREVER);
+                OccleveMobileMidlet.getInstance().displayAlert(alert, this);
+            }
+            else
+            {
+                OccleveMobileMidlet.getInstance().setCurrentForm(this);
+            }
         }
         catch (Exception e)
         {
+            try
+            {
+                wc.close();
+            }
+            catch (Exception e2) {System.err.println(e2);}
+
             OccleveMobileMidlet.getInstance().onError(e);
         }
     }
 
-    protected void fetchListOfTests() throws Exception
+    protected void fetchListOfTests(WikiConnection wc) throws Exception
     {
-        // Open and close a dummy connection, to force the display of the
-        // permissions dialog for internet access.
-        // Otherwise, on some phones it will foul up the progress alert.
-        /*
-        HttpConnection hc = (HttpConnection) Connector.open(m_sServerURL);
-        hc.close();
-        System.out.println("Successfully opened and closed dummy HttpConnection");
-        */
-
-        m_ProgressAlert = new Alert(null, "Reading list of tests from server...",
+        m_ProgressAlert = new Alert(null, "Reading list of tests from wiki...",
                                     null, null);
         m_ProgressAlert.setTimeout(Alert.FOREVER);
         StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
-        HttpConnection hc = (HttpConnection)Connector.open(Config.LIST_OF_TESTS_URL);
-        trace("Called Connection.open with " + Config.LIST_OF_TESTS_URL);
-
-        // Getting the response code will open the connection,
-        // send the request, and read the HTTP response headers.
-        // The headers are stored until requested.
-        int rc = hc.getResponseCode();
-        if (rc != HttpConnection.HTTP_OK)
-        {
-            throw new IOException("HTTP response code indicates failure: " + rc);
-        }
-
-        ////hc.setRequestMethod(HttpConnection.POST);
-        ////trace("Set request method to POST");
-
-        InputStream istream = hc.openInputStream();
-        trace("Opened InputStream ok");
-        InputStreamReader reader = new InputStreamReader(istream,"UTF-8");
-
-        // Get the ContentType
-        String type = hc.getType();
-
-        int length = (int)hc.getLength();
-        System.out.println("Length = " + length);
-
-        System.out.println("reader.ready() = " + reader.ready());
-
-///        int firstChar = istream.read();
-///        System.out.println("istream.read() = " + firstChar);
-
+        InputStreamReader reader = wc.open(Config.LIST_OF_TESTS_URL,
+                                           m_ProgressAlert);
         do
         {
             String sLine = StaticHelpers.readFromISR(reader,true);
             System.out.println(sLine);
+            processLineInListOfTests(sLine);
         } while (reader.ready());
 
-        /*
-        String sMsg = "Sent " + list.getSize() + " over the Internet";
-        Alert alert = new Alert(null, sMsg, null, null);
-       OccleveMobileMidlet.getInstance().displayAlertThenFileChooser(alert);
-        */
-
-       reader.close();
-       istream.close();
-       hc.close();
-       trace("Closed everything ok");
-
-       OccleveMobileMidlet.getInstance().displayFileChooser();
+        wc.close();
+        m_ProgressAlert.setString("Closed connection to wiki");
     }
 
+    /**Format of line is CategoryName,EN-ZH-TestName.*/
+    private void processLineInListOfTests(String sLine) throws Exception
+    {
+        sLine = sLine.trim();
+        if (sLine.equals("")) return;
+        if (sLine.indexOf("<pre>")!=-1) return;
+        if (sLine.indexOf("</pre>")!=-1) return;
+
+        // Directives start with !
+        if (sLine.startsWith("!"))
+        {
+            if (sLine.startsWith(Config.ANNOUNCEMENT_DIRECTIVE))
+            {
+                m_sAnnouncement =
+                   StaticHelpers.stripBeginning(sLine,Config.ANNOUNCEMENT_DIRECTIVE);
+                return;
+            }
+            else if (sLine.startsWith(Config.MIN_RELEASE_DIRECTIVE))
+            {
+                String sMinRelease =
+                   StaticHelpers.stripBeginning(sLine,Config.MIN_RELEASE_DIRECTIVE);
+                long lMinRelease = Long.parseLong(sMinRelease);
+
+                if (Config.VERSION < lMinRelease)
+                {
+                    throw new Exception("This version of the software is too " +
+                                        "old to access the wiki. Please " +
+                                        "upgrade to the latest version.");
+                }
+            }
+        }
+
+        // Try to make sure the line is correctly formatted.
+        int iCommaIndex = sLine.indexOf(',');
+        int iFirstHyphenIndex = sLine.indexOf('-');
+        int iSecondHyphenIndex = sLine.indexOf('-',iFirstHyphenIndex+1);
+
+        if ((iCommaIndex!=-1) && (iSecondHyphenIndex!=-1))
+        {
+            // Parse the category but for now ignore it.
+            // Next release will have a category screen which
+            // allows you to descend into each category.
+            String sCategory = sLine.substring(0,iCommaIndex);
+
+            String sLangPairAndTestName = sLine.substring(iCommaIndex+1);
+
+            m_vTestPageNames.addElement(sLangPairAndTestName);
+            append(sLangPairAndTestName,null);
+        }
+    }
+
+    /*
     private void trace(String s)
     {
         m_ProgressAlert.setString(s);
         pause();
     }
+    */
 
+    /*
     private void pause()
     {
         try
@@ -146,5 +208,69 @@ public class ServerBrowser implements Runnable
             OccleveMobileMidlet.getInstance().onError(e);
         }
     }
+    */
+
+    /*Implementation of CommandListener.*/
+    public void commandAction(Command c,Displayable d)
+    {
+        try
+        {
+            if (c==m_MyTestsCommand)
+            {
+                OccleveMobileMidlet.getInstance().displayFileChooser(true);
+            }
+            else if (c==m_DownloadTestCommand)
+            {
+                m_iThreadAction = DOWNLOAD_TEST;
+                Thread toPreventBlocking = new Thread(this);
+                toPreventBlocking.start();
+            }
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
+    }
+
+    private void downloadTest(WikiConnection wc) throws Exception
+    {
+        int iSelIndex = getSelectedIndex();
+        String sPageName = getString(iSelIndex);
+            ////m_vTestPageNames.elementAt(iSelIndex);
+
+        m_ProgressAlert = new Alert(null, "Getting test from server...",
+                                    null, null);
+        m_ProgressAlert.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
+        OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
+
+        String sPageNameUnderscores = sPageName.replace(' ','_');
+        String sURL = Config.PAGE_URL_STUB + sPageNameUnderscores +
+                      Config.PAGE_URL_SUFFIX;
+        System.out.println("Page URL = " + sURL);
+        InputStreamReader reader = wc.open(sURL,m_ProgressAlert);
+
+        StringBuffer sbSource = new StringBuffer();
+        do
+        {
+            String sLine = StaticHelpers.readFromISR(reader,true);
+
+            int iPreIndex = sLine.indexOf("<pre>");
+            int iClosingPreIndex = sLine.indexOf("</pre>");
+
+            if ((iPreIndex==-1) && (iClosingPreIndex==-1))
+            {
+                //System.out.println(sLine);
+                sbSource.append(sLine + Constants.NEWLINE);
+            }
+        } while (reader.ready());
+
+        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        mgr.createFileInRecordStore(sPageName,sbSource.toString(),false);
+
+        wc.close();
+        m_ProgressAlert.setString("Closed connection to wiki");
+    }
+
 }
 

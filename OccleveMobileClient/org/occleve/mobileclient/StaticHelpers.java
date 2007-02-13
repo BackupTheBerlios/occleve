@@ -166,16 +166,29 @@ public class StaticHelpers
                    && (Character.isDigit(c)==false)   );
     }
 
-    public static String stripEnding(String sFilename,String sEnding)
+    public static String stripBeginning(String s,String sBeginning)
     {
-        if (sFilename.endsWith(sEnding))
+        if (s.startsWith(sBeginning))
         {
-            int iChars = sFilename.length() - sEnding.length();
-            return sFilename.substring(0, iChars);
+            int iChars = sBeginning.length();
+            return s.substring(iChars);
         }
         else
         {
-            return sFilename;
+            return s;
+        }
+    }
+
+    public static String stripEnding(String s,String sEnding)
+    {
+        if (s.endsWith(sEnding))
+        {
+            int iChars = s.length() - sEnding.length();
+            return s.substring(0, iChars);
+        }
+        else
+        {
+            return s;
         }
     }
 

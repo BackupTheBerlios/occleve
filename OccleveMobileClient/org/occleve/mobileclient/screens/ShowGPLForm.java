@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
+import java.util.*;
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 
@@ -31,15 +32,28 @@ public class ShowGPLForm extends Form implements CommandListener
 
     public ShowGPLForm() throws Exception
     {
-        super("This program's license");
+        super("Copyright and license");
 
-        String sLicenseText = "(c) 2000-2007 Contributors. All rights reserved. ";
-        sLicenseText += Constants.NEWLINE + Constants.NEWLINE;
-        sLicenseText += StaticHelpers.readUnicodeFile("/COPYING");
-
-        StringItem si = new StringItem(null,sLicenseText);
-        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
+        String sCopyright =
+            "Copyright (C) 2007 Joe Gittings, except for: " + Constants.NEWLINE +
+            "Floating point classes copyright " +
+            "(C) 2003, 2004 David Clausen " + Constants.NEWLINE +
+            "XML parser copyright " +
+            "(C) 2000 Michael Claﬂen " + Constants.NEWLINE +
+            "All rights reserved. ";
+        sCopyright += Constants.NEWLINE + Constants.NEWLINE;
+        StringItem si = new StringItem(null,sCopyright);
         append(si);
+
+        String sLicense = StaticHelpers.readUnicodeFile("/COPYING");
+        Vector vLicense = StaticHelpers.stringToVector(sLicense);
+        for (int i=0; i<vLicense.size(); i++)
+        {
+            String sLine = (String)vLicense.elementAt(i);
+            si = new StringItem(null,sLine);
+            StaticHelpers.safeSetFont(si, OccleveMobileFonts.DETAILS_FONT);
+            append(si);
+        }
 
         m_NewTestCommand = new Command("New test", Command.BACK, 0);
         addCommand(m_NewTestCommand);

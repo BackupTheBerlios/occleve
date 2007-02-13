@@ -32,7 +32,7 @@ import org.occleve.mobileclient.qa.*;
 
 /**A QA class designed specifically for learning languages, with
 separate fields for the romanized form, native script form, etc.*/
-public abstract class LanguageQA extends QA
+public class LanguageQA extends QA
 {
     /**Eg. EN*/
     protected String m_sFirsteseCode;
@@ -51,17 +51,17 @@ public abstract class LanguageQA extends QA
         m_sFirsteseCode = sFirsteseCode;
         m_sSecondeseCode = sSecondeseCode;
 
-        trace("Entering CQA constructor");
+        trace("Entering LanguageQA constructor");
         trace("With qaNode.name = " + qaNode.name);
 
-        Node englishNode = qaNode.findFirst(sFirsteseCode);
-        trace("English node = " + englishNode);
+        Node firsteseNode = qaNode.findFirst(sFirsteseCode);
+        trace("Firstese node = " + firsteseNode);
 
-        Node chineseNode = qaNode.findFirst(sSecondeseCode);
-        trace("Chinese node = " + chineseNode);
+        Node secondeseNode = qaNode.findFirst(sSecondeseCode);
+        trace("Secondese node = " + secondeseNode);
 
         // Process English entities
-        Vector vChildren = englishNode.getContents();
+        Vector vChildren = firsteseNode.getContents();
         for (int i=0; i<vChildren.size(); i++)
         {
             Node child = (Node)vChildren.elementAt(i);
@@ -70,19 +70,19 @@ public abstract class LanguageQA extends QA
             // with null names... hence this check.
             if (child.name!=null)
             {
-                if (XML.isClosingTag(child.name,XML.EN)==false)
+                if (XML.isClosingTag(child.name,sFirsteseCode)==false)
                 {
-                    trace("English child.name = " + child.name);
+                    trace("Firstese child.name = " + child.name);
                     LanguageEntity entity =
-                            LanguageEntity.make(child,englishNode);
-                    trace("Made english entity " + entity);
+                            LanguageEntity.make(child,firsteseNode);
+                    trace("Made firstese entity " + entity);
                     m_vFirsteseEntities.addElement(entity);
                 }
             }
         }
 
-        // Process Chinese entities
-        vChildren = chineseNode.getContents();
+        // Process Secondese entities
+        vChildren = secondeseNode.getContents();
         for (int i=0; i<vChildren.size(); i++)
         {
             Node child = (Node)vChildren.elementAt(i);
@@ -91,13 +91,13 @@ public abstract class LanguageQA extends QA
             // with null names... hence this check.
             if (child.name!=null)
             {
-                trace("Chinese: child.name = " + child.name);
-                if (XML.isClosingTag(child.name,XML.ZH)==false)
+                trace("Secondese: child.name = " + child.name);
+                if (XML.isClosingTag(child.name,sSecondeseCode)==false)
                 {
                     LanguageEntity entity =
-                            LanguageEntity.make(child,chineseNode);
+                            LanguageEntity.make(child,secondeseNode);
                     m_vSecondeseEntities.addElement(entity);
-                    trace("Made chinese entity " + entity);
+                    trace("Made Secondese entity " + entity);
                 }
             }
         }
@@ -121,7 +121,7 @@ public abstract class LanguageQA extends QA
         if (cqaDir.isQuestionPinyin())
             return getAllRomanForms(bIncludeMW);
         else if (cqaDir.isQuestionEnglish())
-            return getAllEnglish(bIncludeMW);
+            return getAllFirsteseRoman(bIncludeMW);
         else if (cqaDir.isQuestionChars())
             return getAllCharacters(bIncludeMW);
         else if (cqaDir.isQuestionCharsAndPinyin())
@@ -143,7 +143,7 @@ public abstract class LanguageQA extends QA
         if (cqaDir.isAnswerPinyin())
             return getAllRomanForms(bIncludeMW);
         else if (cqaDir.isAnswerEnglish())
-            return getAllEnglish(bIncludeMW);
+            return getAllFirsteseRoman(bIncludeMW);
         else if (cqaDir.isAnswerChars())
             return getAllCharacters(bIncludeMW);
         else if (cqaDir.isAnswerCharsAndPinyin())
@@ -320,7 +320,7 @@ public abstract class LanguageQA extends QA
 
     /**TO DO: Need to move the code that adds indefinite articles to nouns,
     and "to" to verb, out of here and to a more elegant home.*/
-    protected Vector getAllEnglish(boolean bIncludeMeasureWords)
+    protected Vector getAllFirsteseRoman(boolean bIncludeMeasureWords)
     {
         // FUDGE: FOR NOW, LOOK AT THE FIRST LanguageEntity TO DETERMINE
         // IF THIS IS A NOUN OR VERB.
@@ -359,7 +359,7 @@ public abstract class LanguageQA extends QA
 
     public String getEntireContentsAsString()
     {
-        Vector vEnglish = getAllEnglish(true);
+        Vector vEnglish = getAllFirsteseRoman(true);
         Vector vChinese = getAllPinyinCharsAndLiteralTranslations(true);
 
         StringBuffer sb = new StringBuffer();

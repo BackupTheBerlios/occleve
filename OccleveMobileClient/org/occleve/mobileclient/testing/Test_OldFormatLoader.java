@@ -56,7 +56,7 @@ public class Test_OldFormatLoader
     private static void oldFormatLoadQuestions_DoOneLanguageQA(Test test,
             VectorReader in) throws Exception
     {
-        LanguageQA cqa = new ChineseQA(in);
+        LanguageQA cqa = new LanguageQA(in);
         test.m_QAs.addElement(cqa);
     }
 

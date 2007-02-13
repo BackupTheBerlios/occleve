@@ -25,16 +25,18 @@ package org.occleve.mobileclient.qa.language;
 import com.exploringxml.xml.*;
 import org.occleve.mobileclient.*;
 
-public class ChineseQA extends LanguageQA
+//// DEFUNCT CLASS
+public class ChineseQA ///////extends LanguageQA
 {
+    /*
     public ChineseQA(Node qaNode) throws Exception
     {
         // Firstese is English, Secondese is Chinese.
         super(qaNode,XML.EN,XML.ZH);
     }
-
     public ChineseQA(VectorReader in) throws Exception
     {
         super(in);
     }
+    */
 }

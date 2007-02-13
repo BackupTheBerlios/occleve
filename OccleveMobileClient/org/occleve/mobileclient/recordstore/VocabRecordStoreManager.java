@@ -209,22 +209,54 @@ public class VocabRecordStoreManager
         flexiWriteUTF(baos,sContents);
         byte[] byteArray = baos.toByteArray();
 
-        // Add it to the record store
+        // Check whether the filename already exists.
         RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
-        int recordID = rs.addRecord(byteArray,0,byteArray.length);
-        rs.closeRecordStore();
-
-        if (bDoUserInterfaceStuff)
+        Integer iExistingRSID = findRecordByFilename(rs,sFilename);
+        if (iExistingRSID!=null)
         {
-            // Display confirmation
-            String sMsg = "Vocab file " + sFilename + " successfully " +
-                          "created in recordstore with " +
-                          "record id = " + recordID;
-            Alert alert = new Alert(null, sMsg, null, null);
-
-            OccleveMobileMidlet.getInstance().repopulateFileChooser();
-            OccleveMobileMidlet.getInstance().displayAlertThenFileChooser(alert);
+            rs.setRecord(iExistingRSID.intValue(),byteArray,0,byteArray.length);
+            rs.closeRecordStore();
         }
+        else
+        {
+            // Add it to the record store
+            int recordID = rs.addRecord(byteArray,0,byteArray.length);
+            rs.closeRecordStore();
+
+            if (bDoUserInterfaceStuff)
+            {
+                // Display confirmation
+                String sMsg = "Vocab file " + sFilename + " successfully " +
+                              "created in recordstore with " +
+                              "record id = " + recordID;
+                Alert alert = new Alert(null, sMsg, null, null);
+
+                OccleveMobileMidlet.getInstance().repopulateFileChooser();
+                OccleveMobileMidlet.getInstance().displayAlertThenFileChooser(alert);
+            }
+        }
+    }
+
+    /**Returns the record ID of the specified filename, or null
+    if it isn't found.*/
+    public Integer findRecordByFilename(RecordStore rs,String sFindMe)
+    throws Exception
+    {
+        boolean keepUpdated = false;
+        RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
+
+        while (recEnum.hasNextElement())
+        {
+            int recID = recEnum.nextRecordId();
+            byte[] recData = rs.getRecord(recID);
+            String sFilename = getFilenameFromRecordData(recData);
+            if (sFilename.equals(sFindMe))
+            {
+                return new Integer(recID);
+            }
+        }
+
+        return null;
     }
 
     /*
