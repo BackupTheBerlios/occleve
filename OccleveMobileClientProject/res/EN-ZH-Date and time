@@ -1,5 +1,5 @@
 <Test>
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>9:30</Roman>
@@ -10,9 +10,9 @@
 <Roman>jiu3 dian3 san1shi2 fen1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>a minute</Roman>
@@ -23,9 +23,9 @@
 <Roman>yi4 fen1zhong1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>half-past nine</Roman>
@@ -36,9 +36,9 @@
 <Roman>jiu3 dian3 ban4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>a quarter past six</Roman>
@@ -49,9 +49,9 @@
 <Roman>liu4 dian3 yi1 ke4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>a quarter to eight</Roman>
@@ -62,9 +62,9 @@
 <Roman>qi1 dian3 san1 ke4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>yesterday</Roman>
@@ -75,9 +75,9 @@
 <Roman>zuo2tian1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>day after tomorrow</Roman>
@@ -88,9 +88,9 @@
 <Roman>hou4tian1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>day before yesterday</Roman>
@@ -101,9 +101,9 @@
 <Roman>qian2tian1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>before</Roman>
@@ -114,9 +114,9 @@
 <Roman>qian2</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>after</Roman>
@@ -127,9 +127,9 @@
 <Roman>hou4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>morning</Roman>
@@ -140,9 +140,9 @@
 <Roman>zao3shang4, zao3chen2</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>noon</Roman>
@@ -153,9 +153,9 @@
 <Roman>zhong1wu3</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>afternoon</Roman>
@@ -166,9 +166,9 @@
 <Roman>xia4wu3</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>evening</Roman>
@@ -180,9 +180,9 @@
 <LiteralTranslation>later on</LiteralTranslation>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>good afternoon</Roman>
@@ -193,9 +193,9 @@
 <Roman>xia4wu3 hao3</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>breakfast</Roman>
@@ -206,9 +206,9 @@
 <Roman>zao3fan4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>lunch</Roman>
@@ -219,9 +219,9 @@
 <Roman>zhong1fan4, wu3fan4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>afternoon tea</Roman>
@@ -232,9 +232,9 @@
 <Roman>xia4wu3fan4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>dinner</Roman>
@@ -245,9 +245,9 @@
 <Roman>wan3fan4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>week</Roman>
@@ -258,9 +258,9 @@
 <Roman>xing1qi1, zhou1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>monday</Roman>
@@ -271,9 +271,9 @@
 <Roman>xing1qi1 yi1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>tuesday</Roman>
@@ -284,9 +284,9 @@
 <Roman>xing1qi1 er4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>sunday</Roman>
@@ -297,9 +297,9 @@
 <Roman>xing1qi1 tian1, zhou1ri4, xing1qi1 ri4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>weekend</Roman>
@@ -310,9 +310,9 @@
 <Roman>zhou1mo4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>what day is today?</Roman>
@@ -323,9 +323,9 @@
 <Roman>jin1tian1 xing1qi1 ji3?</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>month</Roman>
@@ -336,9 +336,9 @@
 <Roman>yue4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>january</Roman>
@@ -349,9 +349,9 @@
 <Roman>yi1 yue4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>february</Roman>
@@ -362,9 +362,9 @@
 <Roman>er4 yue4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>what's the date today?</Roman>
@@ -375,9 +375,9 @@
 <Roman>jin1tian1 (ji3 yue4) ji3 hao4?</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>may 12th</Roman>
@@ -388,9 +388,9 @@
 <Roman>wu3 yue4 shi2er4 hao4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>they lived in shanghai 5 years ago</Roman>
@@ -401,9 +401,9 @@
 <Roman>ta1men wu3 nian2 qian2 zai4 Shang4hai3 zhu4 guo4</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>this wednesday we'll go to Nanjing</Roman>
@@ -414,9 +414,9 @@
 <Roman>zhe4 wu3 tian1 wo3men hui4 qu4 nan2jing1</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>birthday</Roman>
@@ -427,9 +427,9 @@
 <Roman>sheng1ri4</Roman>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>when is your birthday?</Roman>
@@ -440,9 +440,9 @@
 <Roman>ni3 shen2me shi2hou4 sheng1ri4?</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>mo4</Roman>
@@ -453,9 +453,9 @@
 <Roman>end</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>year's end</Roman>
@@ -466,9 +466,9 @@
 <Roman>nian2 mo4,nian2 di3</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>month's end</Roman>
@@ -479,9 +479,9 @@
 <Roman>yue4 mo4,yue4 di3</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>bottom</Roman>
@@ -492,9 +492,9 @@
 <Roman>di3</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Unknown>
 <Roman>1983</Roman>
@@ -505,9 +505,9 @@
 <Roman>yi1 jiu3 ba1 san1 nian2</Roman>
 </Unknown>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <Phrase>
 <Roman>my birthday is on august fifth, 1970</Roman>
@@ -518,7 +518,7 @@
 <Roman>wo3de sheng1ri4 shi4 yi1 jiu3 qi1 ling2 nian2 ba1 yue4 wu3 hao4</Roman>
 </Phrase>
 </ZH>
-</QA>
+</LQA>
 
 </Test>
 

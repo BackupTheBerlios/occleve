@@ -1,5 +1,5 @@
 ﻿<Test>
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>africa</Roman>
@@ -11,9 +11,9 @@
 <Script>非洲</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>south africa</Roman>
@@ -25,9 +25,9 @@
 <Script>南非</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>japan</Roman>
@@ -39,9 +39,9 @@
 <Script>日本</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>china</Roman>
@@ -53,9 +53,9 @@
 <Script>中国</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>brazil</Roman>
@@ -67,9 +67,9 @@
 <Script>巴西</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>france</Roman>
@@ -81,9 +81,9 @@
 <Script>法国</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>italy</Roman>
@@ -95,9 +95,9 @@
 <Script>意大利</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>spain</Roman>
@@ -109,9 +109,9 @@
 <Script>西班牙</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>portugal</Roman>
@@ -123,9 +123,9 @@
 <Script>葡萄牙</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>switzerland</Roman>
@@ -137,9 +137,9 @@
 <Script>瑞士</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>sweden</Roman>
@@ -151,9 +151,9 @@
 <Script>瑞典</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>norway</Roman>
@@ -165,9 +165,9 @@
 <Script>挪威</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>USA</Roman>
@@ -185,9 +185,9 @@
 <Script>美国</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>canada</Roman>
@@ -199,9 +199,9 @@
 <Script>加拿大</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>mexico</Roman>
@@ -213,9 +213,9 @@
 <Script>墨西哥</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>germany</Roman>
@@ -227,9 +227,9 @@
 <Script>德国</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>austria</Roman>
@@ -241,9 +241,9 @@
 <Script>奥地利</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>australia</Roman>
@@ -255,9 +255,9 @@
 <Script>奥大利亚</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
-<QA>
+<LQA>
 <EN>
 <UNoun>
 <Roman>belgium</Roman>
@@ -269,7 +269,7 @@
 <Script>比利时</Script>
 </UNoun>
 </ZH>
-</QA>
+</LQA>
 
 </Test>
 
