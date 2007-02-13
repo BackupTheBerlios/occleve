@@ -45,14 +45,33 @@ public class ShowGPLForm extends Form implements CommandListener
         StringItem si = new StringItem(null,sCopyright);
         append(si);
 
+        String sPreamble =
+            "This program is free software; you can redistribute it and/or " +
+            "modify it under the terms of the GNU General Public License " +
+            "as published by the Free Software Foundation; either version 2 " +
+            "of the License, or (at your option) any later version. " +
+            "This program is distributed in the hope that it will be useful, " +
+            "but WITHOUT ANY WARRANTY; without even the implied warranty of " +
+            "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the " +
+            "GNU General Public License for more details." +
+            Constants.NEWLINE + Constants.NEWLINE;
+        si = new StringItem(null,sPreamble);
+        append(si);
+
         String sLicense = StaticHelpers.readUnicodeFile("/COPYING");
         Vector vLicense = StaticHelpers.stringToVector(sLicense);
+        String sLine = "";
         for (int i=0; i<vLicense.size(); i++)
         {
-            String sLine = (String)vLicense.elementAt(i);
-            si = new StringItem(null,sLine);
-            StaticHelpers.safeSetFont(si, OccleveMobileFonts.DETAILS_FONT);
-            append(si);
+            sLine += " " + (String)vLicense.elementAt(i);
+
+            if (   ((i%10)==0)   ||  (i==vLicense.size()-1)   )
+            {
+                si = new StringItem(null, sLine);
+                StaticHelpers.safeSetFont(si, OccleveMobileFonts.DETAILS_FONT);
+                append(si);
+                sLine = "";
+            }
         }
 
         m_NewTestCommand = new Command("New test", Command.BACK, 0);
