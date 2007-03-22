@@ -50,7 +50,7 @@ implements CommandListener,Runnable
 
     public ServerBrowser()
     {
-        super(Constants.PRODUCT_NAME,
+        super("Tests you can download",
               javax.microedition.lcdui.List.IMPLICIT);
 
         m_DownloadTestCommand = new Command("Download", Command.ITEM, 1);
