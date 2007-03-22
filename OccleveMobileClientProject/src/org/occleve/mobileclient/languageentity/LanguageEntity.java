@@ -125,41 +125,34 @@ public class LanguageEntity
         XML.appendStartTag(sb,m_sXmlElementName);
         sb.append(Constants.NEWLINE);
 
-        if (m_sRomanForm!=null)
-        {
-            if (m_sRomanForm.length()!=0)
-            {
-                XML.appendStartTag(sb, XML.ROMAN);
-                sb.append(m_sRomanForm);
-                XML.appendEndTag(sb, XML.ROMAN);
-                sb.append(Constants.NEWLINE);
-            }
-        }
+        addXMLFieldIfNotBlank(sb,XML.ROMAN,m_sRomanForm);
+        addXMLFieldIfNotBlank(sb,XML.SCRIPT,m_sNativeForm);
+        addXMLFieldIfNotBlank(sb,XML.LITERAL,m_sLiteralTranslation);
 
-        if (m_sNativeForm!=null)
-        {
-            if (m_sNativeForm.length()!=0)
-            {
-                XML.appendStartTag(sb, XML.SCRIPT);
-                sb.append(m_sNativeForm);
-                XML.appendEndTag(sb, XML.SCRIPT);
-                sb.append(Constants.NEWLINE);
-            }
-        }
-
-        if (m_sLiteralTranslation!=null)
-        {
-            if (m_sLiteralTranslation.length()!=0)
-            {
-                XML.appendStartTag(sb, XML.LITERAL);
-                sb.append(m_sLiteralTranslation);
-                XML.appendEndTag(sb, XML.LITERAL);
-                sb.append(Constants.NEWLINE);
-            }
-        }
+        // Give derived classes a chance to add extra fields.
+        toXML_ExtraFields(sb);
 
         XML.appendEndTag(sb,m_sXmlElementName);
         return sb.toString();
+    }
+
+    /**Override in derived classes to add extra fields
+    to the XML.*/
+    protected void toXML_ExtraFields(StringBuffer sbXML) {}
+
+    protected void addXMLFieldIfNotBlank(StringBuffer sbXML,
+                               String sFieldName,String sFieldValue)
+    {
+        if (sFieldValue!=null)
+        {
+            if (sFieldValue.length()!=0)
+            {
+                XML.appendStartTag(sbXML,sFieldName);
+                sbXML.append(sFieldValue);
+                XML.appendEndTag(sbXML,sFieldName);
+                sbXML.append(Constants.NEWLINE);
+            }
+        }
     }
 
     private void trace(String s)

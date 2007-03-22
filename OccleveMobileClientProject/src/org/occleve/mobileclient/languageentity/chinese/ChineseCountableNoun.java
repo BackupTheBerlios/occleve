@@ -49,6 +49,18 @@ public class ChineseCountableNoun extends Noun
     throws Exception
     {
         super(entityNode);
+
+        Node mwRomanNode = entityNode.findFirst(XML.MW_ROMAN);
+        if (mwRomanNode!=null)
+        {
+            m_sMeasureWordPinyin = mwRomanNode.getCharacters();
+        }
+
+        Node mwScriptNode = entityNode.findFirst(XML.MW_SCRIPT);
+        if (mwScriptNode!=null)
+        {
+            m_sMeasureWordChar = mwScriptNode.getCharacters();
+        }
     }
 
     /**Deprecated constructor for the old file format.*/
@@ -146,6 +158,13 @@ public class ChineseCountableNoun extends Noun
 
         sb.append(m_sNativeForm);
         return sb.toString();
+    }
+
+    /**Override of LanguageEntity method.*/
+    protected void toXML_ExtraFields(StringBuffer sbXML)
+    {
+        addXMLFieldIfNotBlank(sbXML,XML.MW_ROMAN,m_sMeasureWordPinyin);
+        addXMLFieldIfNotBlank(sbXML,XML.MW_SCRIPT,m_sMeasureWordChar);
     }
 
 

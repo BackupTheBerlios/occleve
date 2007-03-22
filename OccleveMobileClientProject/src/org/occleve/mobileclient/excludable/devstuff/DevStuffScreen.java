@@ -77,6 +77,7 @@ implements CommandListener,Excludable,Runnable
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
     protected final String TRANSMIT_ALL_RS_TESTS = "Transmit all tests in RecordStore";
+    protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests to filesystem";
 
     protected Command m_BackCommand;
 
@@ -111,6 +112,7 @@ implements CommandListener,Excludable,Runnable
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
         append(TRANSMIT_ALL_RS_TESTS,null);
+        append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
 
         m_BackCommand = new Command("Back",Command.ITEM,0);
         addCommand(m_BackCommand);
@@ -267,6 +269,11 @@ implements CommandListener,Excludable,Runnable
             BabelFishTranslationEngine eng = new BabelFishTranslationEngine();
             eng.translateEnglishToChinese("hello");
         }
+        else if (sOption.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
+        {
+            m_sThreadAction = SAVE_ALL_TESTS_TO_FILESYSTEM;
+            new Thread(this).start();
+        }
     }
 
     protected void countNewlinesInSelectedFile() throws Exception
@@ -415,6 +422,12 @@ implements CommandListener,Excludable,Runnable
             else if (m_sThreadAction.equals(SHOW_FILESYSTEM_ROOTS))
             {
                 showFilesystemRoots();
+            }
+            else if (m_sThreadAction.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
+            {
+                VocabRecordStoreManager mgr =
+                        new VocabRecordStoreManager();
+                mgr.saveAllTestsToFilesystem();
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}

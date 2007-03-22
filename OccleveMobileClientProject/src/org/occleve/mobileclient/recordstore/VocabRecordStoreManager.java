@@ -28,6 +28,8 @@ import javax.microedition.lcdui.*;
 import javax.microedition.rms.*;
 
 import org.occleve.mobileclient.*;
+import javax.microedition.io.file.FileConnection;
+import javax.microedition.io.Connector;
 
 /**Format of a record is the filename (as a UTF-encoded string), followed
 by the UTF-encoded file data.*/
@@ -386,6 +388,47 @@ public class VocabRecordStoreManager
         } while ((ch!=-1) && (ch!=FIRST_NEWLINE_CHAR));
 
         return buffer.toString();
+    }
+
+    /**Will need to be called from a separate thread from the UI
+    to prevent blocking.
+    Will only work on phones that support the FileConnection API.*/
+    public void saveAllTestsToFilesystem() throws Exception
+    {
+        System.out.println("Entering saveAllTestsToFilesystem");
+        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+
+        boolean keepUpdated = false;
+        RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
+
+        while (recEnum.hasNextElement())
+        {
+            int recID = recEnum.nextRecordId();
+            byte[] recData = rs.getRecord(recID);
+            String sFilenameInRecord = getFilenameFromRecordData(recData);
+            String sContents = getTestContents(recID,sFilenameInRecord);
+
+            String sFilenameOnFS = "file:///root1/" + sFilenameInRecord;
+            FileConnection filecon =
+                (FileConnection)Connector.open(sFilenameOnFS);
+
+            // Always check whether the file or directory exists.
+            // Create the file if it doesn't exist.
+            if (!filecon.exists()) filecon.create();
+
+            OutputStream os = filecon.openOutputStream();
+            OutputStreamWriter writer =
+                new OutputStreamWriter(os,Config.ENCODING);
+            writer.write(sContents);
+            writer.flush();
+            writer.close();
+            os.close();
+            filecon.close();
+
+            System.out.println("Saved " + sFilenameInRecord + " OK");
+        }
+
+        rs.closeRecordStore();
     }
 }
 

@@ -44,6 +44,9 @@ public class XML
     public static final String PNOUN = "PNoun";
     public static final String UNOUN = "UNoun";
 
+    public static final String MW_ROMAN = "RomanMeasureWord";
+    public static final String MW_SCRIPT = "ScriptMeasureWord";
+
     public static final String ADJECTIVE = "Adjective";
     public static final String ADVERB = "Adverb";
     public static final String EXAMPLE = "Example";

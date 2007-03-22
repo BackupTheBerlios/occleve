@@ -43,13 +43,14 @@ implements ItemCommandListener
 
     protected ChoiceGroup m_FromChoiceGroup;
     protected ChoiceGroup m_ToChoiceGroup;
+    protected ChoiceGroup m_MeasureWordsRadioButton;
 
-    //protected ChoiceGroup m_MeasureWordsRadioButton;
-
+    /*
     protected final String MEASURE_WORDS_ON = "Measure words";
     protected final String MEASURE_WORDS_OFF = "No measure words";
     protected StringItem m_MeasureWordsItem;
     protected Command m_ToggleMWCommand = new Command("Toggle",Command.ITEM,0);
+    */
 
     public ChineseTestOptionsScreen()
     throws Exception
@@ -67,20 +68,20 @@ implements ItemCommandListener
         m_ToChoiceGroup =
             new ChoiceGroup(null,ChoiceGroup.POPUP,toChoices,null);
 
+        /*
         m_MeasureWordsItem = new StringItem(null,MEASURE_WORDS_ON);
         m_MeasureWordsItem.setItemCommandListener(this);
         m_MeasureWordsItem.setDefaultCommand(m_ToggleMWCommand);
+        */
 
-        /*
         String[] oneChoice = {"Measure words"};
         m_MeasureWordsRadioButton =
             new ChoiceGroup(null,ChoiceGroup.MULTIPLE,oneChoice,null);
         m_MeasureWordsRadioButton.setSelectedIndex(0,true);
-        */
 
         append(m_FromChoiceGroup);
         append(m_ToChoiceGroup);
-        append(m_MeasureWordsItem);
+        append(m_MeasureWordsRadioButton);
 
         // Initial settings are english to pinyin with measure words enabled.
         m_FromChoiceGroup.setSelectedIndex(1,true);
@@ -92,7 +93,8 @@ implements ItemCommandListener
         int iFrom = getLanguageCode(m_FromChoiceGroup);
         int iTo = getLanguageCode(m_ToChoiceGroup);
 
-        boolean bIncludeMW = m_MeasureWordsItem.getText().equals(MEASURE_WORDS_ON);
+        //boolean bIncludeMW = m_MeasureWordsItem.getText().equals(MEASURE_WORDS_ON);
+        boolean bIncludeMW = m_MeasureWordsRadioButton.isSelected(0);
 
         return new LanguageQADirection(iFrom,iTo,bIncludeMW);
     }
@@ -125,6 +127,7 @@ implements ItemCommandListener
     }
 
     /*Implementation of ItemCommandListener.*/
+    /*
     public void commandAction(Command c, Item item)
     {
         if (item==m_MeasureWordsItem)
@@ -142,5 +145,6 @@ implements ItemCommandListener
             super.commandAction(c,item);
         }
     }
+    */
 }
 
