@@ -26,8 +26,8 @@ package org.occleve.mobileclient;
 file downloaded from the wiki.*/
 public class Config
 {
-    // 0.9.2 in a form that can be used for comparisons: 000902
-    public static final long VERSION = 902;
+    // 0.9.3 in a form that can be used for comparisons: 000903
+    public static final long VERSION = 903;
 
     public static final String MIN_RELEASE_DIRECTIVE = "!MIN_RELEASE=";
 
