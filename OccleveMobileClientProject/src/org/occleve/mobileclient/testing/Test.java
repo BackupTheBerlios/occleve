@@ -40,6 +40,14 @@ public class Test
     protected String m_sFilename;
     public String getFilename() {return m_sFilename;}
 
+    /**ISO code of first language in language pair.*/
+    protected String m_sFirsteseISOCode;
+    public String getFirsteseISOCode() {return m_sFirsteseISOCode;}
+
+    /**ISO code of second language in language pair.*/
+    protected String m_sSecondeseISOCode;
+    public String getSecondeseISOCode() {return m_sSecondeseISOCode;}
+
     protected Vector m_QuestionAskedFlags;
 
     protected Vector m_QAs;
@@ -90,8 +98,8 @@ public class Test
         int iFirstHyphenIndex = sTestFilename.indexOf('-');
         int iSecondHyphenIndex = sTestFilename.indexOf('-',iFirstHyphenIndex+1);
 
-        String sFirsteseISOCode = sTestFilename.substring(0,iFirstHyphenIndex);
-        String sSecondeseISOCode = sTestFilename.substring(iFirstHyphenIndex+1,
+        m_sFirsteseISOCode = sTestFilename.substring(0,iFirstHyphenIndex);
+        m_sSecondeseISOCode = sTestFilename.substring(iFirstHyphenIndex+1,
                                                            iSecondHyphenIndex);
 
         Xparse parser = new Xparse();
@@ -110,9 +118,8 @@ public class Test
 
             if (qaNode!=null)
             {
-                ////LanguageQA cqa = new ChineseQA(qaNode);
-                LanguageQA lqa = new LanguageQA(qaNode,sFirsteseISOCode,
-                                                sSecondeseISOCode);
+                LanguageQA lqa = new LanguageQA(qaNode,m_sFirsteseISOCode,
+                                                m_sSecondeseISOCode);
                 m_QAs.addElement(lqa);
             }
         } while (qaNode!=null);
