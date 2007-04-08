@@ -24,7 +24,7 @@ package org.occleve.mobileclient.qa.language;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.languageentity.*;
-import org.occleve.mobileclient.languageentity.chinese.*;
+////import org.occleve.mobileclient.languageentity.chinese.*;
 
 /**Static helper class - due to be phased out.*/
 public class LanguageQA_OldFormatLoader

@@ -28,7 +28,7 @@ import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.languageentity.*;
-import org.occleve.mobileclient.languageentity.chinese.*;
+//////////import org.occleve.mobileclient.languageentity.chinese.*;
 import org.occleve.mobileclient.qa.*;
 
 /**A QA class designed specifically for learning languages, with
