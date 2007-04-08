@@ -17,13 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.qa.language;
 
 import com.exploringxml.xml.*;
 import java.util.*;
+import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.languageentity.*;
@@ -318,73 +319,141 @@ public class LanguageQA extends QA
         return v;
     }
 
-    /**TO DO: Need to move the code that adds indefinite articles to nouns,
-    and "to" to verb, out of here and to a more elegant home.*/
+    /**0.9.3: Moved the code in this function that added indefinite articles
+     and verbal "to" into the CountableNoun and Verb classes respectively
+     (the proper place for it).*/
     protected Vector getAllFirsteseRoman(boolean bIncludeMeasureWords)
     {
-        // FUDGE: FOR NOW, LOOK AT THE FIRST LanguageEntity TO DETERMINE
-        // IF THIS IS A NOUN OR VERB.
-        LanguageEntity firstCLE =
-                (LanguageEntity) m_vSecondeseEntities.elementAt(0);
-        boolean bAddIndefiniteArticle =
-            (firstCLE instanceof ChineseCountableNoun) && (bIncludeMeasureWords);
-        boolean bAddVerbalTo = (firstCLE instanceof Verb);
-
         Vector v = new Vector();
-        for (int i=0; i<m_vFirsteseEntities.size(); i++)
+        for (int i = 0; i < m_vFirsteseEntities.size(); i++)
         {
-            LanguageEntity eng = (LanguageEntity)m_vFirsteseEntities.elementAt(i);
-            String sLine = eng.getRomanForm(false);
-
-            // If this is a countable noun, and measure words are
-            // required, add an
-            // english indefinite article ('a' or 'an').
-            if (bAddIndefiniteArticle)
-            {
-                char first = sLine.charAt(0);
-                if (first=='a' || first=='e' || first=='i' || first=='o' || first=='u')
-                    sLine = "an " + sLine;
-                else
-                    sLine = "a " + sLine;
-            }
-            else if (bAddVerbalTo) // Similarly for verbal "to".
-            {
-                sLine = "to " + sLine;
-            }
-
+            LanguageEntity eng =
+                    (LanguageEntity) m_vFirsteseEntities.elementAt(i);
+            String sLine = eng.getRomanForm(bIncludeMeasureWords);
             v.addElement(sLine);
         }
+
         return v;
     }
 
+    /**Implementation of abstract function in QA class.*/
     public String getEntireContentsAsString()
     {
+        return "DEFUNCT FUNCTION???";
+    }
+
+    /*
+    protected boolean languageEntitiesContainAudioClips(Vector vLanguageEntities)
+    {
+        Enumeration e = vLanguageEntities.elements();
+        while (e.hasMoreElements())
+        {
+            LanguageEntity le = (LanguageEntity)e.nextElement();
+            if (le.hasAudioClip()) return true;
+        }
+        return false;
+    }
+    */
+
+    /**Implementation of abstract function in QA class.*/
+    public Vector getEntireContentsAsItems()
+    {
+        Vector vItems = new Vector();
+        boolean bAudioClips = false;
+
+        for (int i=0; i<m_vFirsteseEntities.size(); i++)
+        {
+            LanguageEntity leFirstese =
+               (LanguageEntity)m_vFirsteseEntities.elementAt(i);
+            languageEntityToStringItems(leFirstese,vItems);
+
+            if (leFirstese.hasAudioClip()) bAudioClips = true;
+        }
+
+        for (int i=0; i<m_vSecondeseEntities.size(); i++)
+        {
+            LanguageEntity leSecondese =
+               (LanguageEntity)m_vSecondeseEntities.elementAt(i);
+            languageEntityToStringItems(leSecondese,vItems);
+
+            if (leSecondese.hasAudioClip()) bAudioClips = true;
+        }
+
+        // If there are no audio clips, return the QA as a single StringItem,
+        // as some phones have an upper limit on the number
+        // of Items on a Form.
+        if (bAudioClips)
+        {
+            return vItems;
+        }
+        else
+        {
+            StringBuffer sbMerge = new StringBuffer();
+            for (int i=0; i<vItems.size(); i++)
+            {
+                StringItem si = (StringItem)vItems.elementAt(i);
+                sbMerge.append(si.getText());
+            }
+
+            StringItem siSingle = new StringItem(null,sbMerge.toString());
+            Vector vSingle = new Vector();
+            vSingle.addElement(siSingle);
+            return vSingle;
+        }
+
+        /*
         Vector vEnglish = getAllFirsteseRoman(true);
         Vector vChinese = getAllPinyinCharsAndLiteralTranslations(true);
-
         StringBuffer sb = new StringBuffer();
         int i;
-
         for (i=0; i<vEnglish.size(); i++)
         {
             if (i!=0) sb.append(", ");
             String sLine = (String)vEnglish.elementAt(i);
-
             trace("Appending English entity: " + sLine);
-
             sb.append(sLine);
         }
-
         sb.append(Constants.NEWLINE);
-
         for (i=0; i<vChinese.size(); i++)
         {
             if (i!=0) sb.append(", ");
             String sLine = (String)vChinese.elementAt(i);
             sb.append(sLine);
         }
-
         return sb.toString();
+        */
+    }
+
+    protected void languageEntityToStringItems(LanguageEntity le,Vector vAppendTo)
+    {
+        StringBuffer sb = new StringBuffer();
+
+        String sRoman = le.getRomanForm(true);
+        if (sRoman!=null) sb.append(sRoman);
+
+        String sScript = le.getNativeForm(true);
+        if (sScript!=null)
+        {
+            if (sRoman!=null) sb.append(" (");
+            sb.append(sScript);
+            if (sRoman!=null) sb.append(")");
+        }
+
+        String sLiteral = le.getLiteralTranslation();
+        if (sLiteral!=null)
+        {
+            if (sLiteral.length()>0) sb.append(", lit. " + sLiteral);
+        }
+
+        StringItem item1 = new StringItem(null,sb.toString());
+        vAppendTo.addElement(item1);
+
+        String sAudioFilename = le.getAudioFilename();
+        if (sAudioFilename!=null)
+        {
+            StringItem item2 = new StringItem(null,"Listen",Item.BUTTON);
+            vAppendTo.addElement(item2);
+        }
     }
 
     /**Implementation of QA.toXML()*/

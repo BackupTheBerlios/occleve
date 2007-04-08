@@ -17,13 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
 import org.occleve.mobileclient.*;
+import javax.microedition.lcdui.*;
 
 public class PlainQA extends QA
 {
@@ -72,6 +73,7 @@ public class PlainQA extends QA
             return getAnswerMember();
     }
 
+    /**Implementation of abstract function in class QA.*/
     public String getEntireContentsAsString()
     {
         Vector vQuestion = getQuestionMember();
@@ -80,6 +82,16 @@ public class PlainQA extends QA
         String s = (String)vQuestion.elementAt(0) + Constants.NEWLINE +
                    (String)vAnswer.elementAt(0);
         return s;
+    }
+
+    /**Implementation of abstract function in class QA.
+    New in v0.9.3*/
+    public Vector getEntireContentsAsItems()
+    {
+        StringItem item = new StringItem(null,getEntireContentsAsString());
+        Vector v = new Vector(1);
+        v.addElement(item);
+        return v;
     }
 
     public Vector getNextPossibleChars()

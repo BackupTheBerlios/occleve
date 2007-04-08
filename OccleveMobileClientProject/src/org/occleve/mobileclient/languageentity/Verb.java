@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.languageentity;
@@ -31,4 +31,20 @@ public class Verb extends LanguageEntity
     {
         super(sSourceFileLine,XML.VERB);
     }
+
+    /**Override of LanguageEntity function.
+    For English verbs, prefix the verbal "to".*/
+    public String getRomanForm(boolean bIncludeMeasureWord)
+    {
+        StringBuffer sb = new StringBuffer();
+
+        if (m_sLanguageCode.toLowerCase().equals("en"))
+        {
+            sb.append("to ");
+        }
+
+        sb.append(m_sRomanForm);
+        return sb.toString();
+    }
 }
+

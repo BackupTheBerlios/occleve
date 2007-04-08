@@ -17,14 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.languageentity;
 
 import java.util.*;
 import org.occleve.mobileclient.*;
-import org.occleve.mobileclient.languageentity.chinese.*;
+//////////import org.occleve.mobileclient.languageentity.chinese.*;
 
 /**Static helper class for loading from old style ## format...
 will be phased out.*/
@@ -78,10 +78,10 @@ public class LanguageEntity_OldFormatLoader
             ent.m_sNativeForm = getRHS(s,BC_FIELD_NAME);
         else if (s.startsWith(LIT_FIELD_NAME))
             ent.m_sLiteralTranslation = getRHS(s,LIT_FIELD_NAME);
-        else if (ent instanceof ChineseCountableNoun)
+        else if (ent instanceof CountableNoun)
         {
             // A bodge - but all this stuff is due to go anyway.
-            ChineseCountableNoun ccn = (ChineseCountableNoun)ent;
+            CountableNoun ccn = (CountableNoun)ent;
             ccn.oldFormatProcessField(s);
         }
         else

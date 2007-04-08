@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.qa.language;
@@ -110,7 +110,7 @@ public class LanguageQA_OldFormatLoader
         LanguageEntity entity = null;
 
         if (s.startsWith("ZHCNOUN"))
-            entity = new ChineseCountableNoun(s);
+            entity = new CountableNoun(s);
         else if (s.startsWith("ZHPNOUN"))
             entity = new ProperNoun(s);
         else if (s.startsWith("ZHUNOUN"))

@@ -17,19 +17,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.languageentity;
 
 import com.exploringxml.xml.*;
-import java.util.*;
+//import java.util.*;
 import org.occleve.mobileclient.*;
-import org.occleve.mobileclient.languageentity.chinese.*;
+/////import org.occleve.mobileclient.languageentity.chinese.*;
 
 /**Abstract base class for eg. Noun, ChineseVerb, ChineseAdjective, etc.*/
 public class LanguageEntity
 {
+    /**The ISO code of the language that this is in (eg. EN for English).*/
+    protected String m_sLanguageCode;
+
     /**The name of this entity's XML tag, eg. pnoun for a proper noun.*/
     protected String m_sXmlElementName;
 
@@ -42,29 +45,44 @@ public class LanguageEntity
     /**The literal translation in the other language of this entity.*/
     protected String m_sLiteralTranslation;
 
+    /**The filename of the audio clip (if any) associated with this entity.*/
+    protected String m_sAudioClipFilename;
+
     /**Accessor.*/
     public String getLiteralTranslation() {return m_sLiteralTranslation;}
+
+    /**Accessor.*/
+    public boolean hasAudioClip() {return (m_sAudioClipFilename!=null);}
+
+    /**Accessor.*/
+    public String getAudioFilename() {return m_sAudioClipFilename;}
 
     public static LanguageEntity make(Node entityNode,Node languageNode)
     throws Exception
     {
         String sName = entityNode.name;
-        if (XML.isOpeningTag(sName,XML.ZH_CNOUN))
+        if (XML.isOpeningTag(sName,XML.CNOUN))
         {
-            return new ChineseCountableNoun(entityNode);
+            return new CountableNoun(entityNode,languageNode.getCharacters());
         }
         else
         {
-            return new LanguageEntity(entityNode);
+            return new LanguageEntity(entityNode,languageNode.getCharacters());
         }
     }
 
     /**Constructor for loading from XML.*/
-    public LanguageEntity(Node entityNode)
+    public LanguageEntity(Node entityNode,String sLanguageCode)
     throws Exception
     {
+        m_sLanguageCode = sLanguageCode;
         m_sXmlElementName = entityNode.name;
-        trace("Making LanguageEntity of type " + entityNode.name);
+
+        trace
+        (
+            "Making LanguageEntity of type " + entityNode.name +
+            " in language " + m_sLanguageCode
+        );
 
         Node romanization = entityNode.findFirst(XML.ROMAN);
         if (romanization!=null)
@@ -76,6 +94,12 @@ public class LanguageEntity
         if (script!=null)
         {
             m_sNativeForm = script.getCharacters();
+        }
+
+        Node audioFilename = entityNode.findFirst(XML.AUDIO);
+        if (audioFilename!=null)
+        {
+            m_sAudioClipFilename = script.getCharacters();
         }
 
         // Node register = entityNode.findFirst(XML.REGISTER);

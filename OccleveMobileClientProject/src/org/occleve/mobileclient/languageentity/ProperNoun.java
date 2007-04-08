@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.languageentity;
@@ -27,10 +27,10 @@ import com.exploringxml.xml.*;
 
 public class ProperNoun extends Noun
 {
-    public ProperNoun(Node entityNode)
+    public ProperNoun(Node entityNode,String sLanguageCode)
     throws Exception
     {
-        super(entityNode);
+        super(entityNode,sLanguageCode);
     }
 
     public ProperNoun(String sSourceFileLine)
@@ -38,16 +38,5 @@ public class ProperNoun extends Noun
     {
         // Allow the base class to parse the fields.
         super(sSourceFileLine,XML.PNOUN);
-
-        // Now complain if the measure word fields are non-null.
-        /*
-        if ((m_sMeasureWordChar!=null) || (m_sMeasureWordPinyin!=null))
-        {
-            String sErr = "Error! Uncountable chinese noun has measure word " +
-                          "fields. Source line = " + Constants.NEWLINE +
-                          sSourceFileLine;
-            throw new Exception(sErr);
-        }
-        */
     }
 }

@@ -61,6 +61,7 @@ implements CommandListener,Excludable,Runnable
     protected final String CONVERT_TO_XML = "Convert to XML";
     protected final String PRINT_TO_FILE = "Print to file";
 
+    protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests in RecordStore to filesystem";
     protected final String JAVA_UTF_CONVERT_ALL_TO_XML = "JavaUTF: Convert all to XML";
     protected final String STD_UTF_CONVERT_ALL_TO_XML = "StdUTF: Convert all to XML";
     protected final String DELETE_ALL_XML = "Delete all XML-prefixed files";
@@ -77,7 +78,6 @@ implements CommandListener,Excludable,Runnable
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
     protected final String TRANSMIT_ALL_RS_TESTS = "Transmit all tests in RecordStore";
-    protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests to filesystem";
 
     protected Command m_BackCommand;
 
@@ -96,6 +96,7 @@ implements CommandListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
+        append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
         append(JAVA_UTF_CONVERT_ALL_TO_XML,null);
         append(STD_UTF_CONVERT_ALL_TO_XML,null);
         append(DELETE_ALL_XML,null);
@@ -112,7 +113,6 @@ implements CommandListener,Excludable,Runnable
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
         append(TRANSMIT_ALL_RS_TESTS,null);
-        append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
 
         m_BackCommand = new Command("Back",Command.ITEM,0);
         addCommand(m_BackCommand);

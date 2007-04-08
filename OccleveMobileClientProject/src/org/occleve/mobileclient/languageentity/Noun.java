@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.languageentity;
@@ -27,10 +27,10 @@ import com.exploringxml.xml.Node;
 /**Abstract base class for ChineseCountableNoun and UncountableNoun.*/
 public abstract class Noun extends LanguageEntity
 {
-    public Noun(Node entityNode)
+    public Noun(Node entityNode,String sLanguageCode)
     throws Exception
     {
-        super(entityNode);
+        super(entityNode,sLanguageCode);
     }
 
     public Noun(String sSourceFileLine,String sXmlElementName)
