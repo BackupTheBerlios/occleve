@@ -99,7 +99,7 @@ public class LanguageEntity
         Node audioFilename = entityNode.findFirst(XML.AUDIO);
         if (audioFilename!=null)
         {
-            m_sAudioClipFilename = script.getCharacters();
+            m_sAudioClipFilename = audioFilename.getCharacters();
         }
 
         // Node register = entityNode.findFirst(XML.REGISTER);

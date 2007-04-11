@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.screens;
 
 import java.io.*;
+import java.util.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
@@ -98,12 +99,34 @@ public class VocabViewerScreen extends Form implements CommandListener
         {
             String sQuestionNo = Integer.toString(i+1);
             QA currentQA = theTest.getQA(i);
+            Vector items = currentQA.getEntireContentsAsItems();
+            for (int i2=0; i2<items.size(); i2++)
+            {
+                StringItem si = (StringItem)items.elementAt(i2);
+
+                if (i2==0)
+                {
+                    si.setText(sQuestionNo + ". " + si.getText());
+                }
+
+                if (i2==(items.size()-1))
+                {
+                    si.setText(si.getText() + Constants.NEWLINE);
+                }
+
+                StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
+                append(si);
+            }
+
+            /*
+            PRIOR TO 0.9.3 --- just got the contents as a single string.....
             String qaContents =
                 sQuestionNo + ". " + currentQA.getEntireContentsAsString() +
                 Constants.NEWLINE + Constants.NEWLINE;
             StringItem si = new StringItem(null,qaContents);
             StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
             append(si);
+            */
         }
     }
 

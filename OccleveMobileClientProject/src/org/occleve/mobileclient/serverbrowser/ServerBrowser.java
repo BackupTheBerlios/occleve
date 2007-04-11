@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -53,7 +53,7 @@ implements CommandListener,Runnable
         super("Tests you can download",
               javax.microedition.lcdui.List.IMPLICIT);
 
-        m_DownloadTestCommand = new Command("Download", Command.ITEM, 1);
+        m_DownloadTestCommand = new Command("Download", Command.ITEM, 0);
         m_MyTestsCommand = new Command("Your tests", Command.ITEM, 1);
 
         addCommand(m_DownloadTestCommand);

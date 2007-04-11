@@ -454,6 +454,10 @@ public class LanguageQA extends QA
             StringItem item2 = new StringItem(null,"Listen",Item.BUTTON);
             vAppendTo.addElement(item2);
         }
+
+        // Add a newline to the last Item for this language entity.
+        StringItem siLast = (StringItem)vAppendTo.lastElement();
+        siLast.setText( siLast.getText() + Constants.NEWLINE );
     }
 
     /**Implementation of QA.toXML()*/
