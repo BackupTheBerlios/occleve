@@ -44,6 +44,12 @@ public class Config
     public static final String LIST_OF_TESTS_URL =
        "http://occleve.berlios.de/wiki/index.php?title=ListOfTests&action=raw";
 
+    public static final String AUDIO_CLIP_URL_STUB =
+       "http://occleve.berlios.de/wiki/index.php?title=Image:";
+
+    public static final String AUDIO_CLIP_URL_SUFFIX =
+       "&action=edit&externaledit=true&mode=file";
+
     /**The default encoding for talking to the wiki, storing the tests
     in the recordstore, etc etc.*/
     public static final String ENCODING = "UTF-8";

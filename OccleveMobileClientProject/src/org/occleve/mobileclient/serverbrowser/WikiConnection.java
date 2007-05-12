@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -34,9 +34,34 @@ public class WikiConnection
 {
     private HttpConnection m_HttpConnection;
     private InputStream m_InputStream;
-    private InputStreamReader m_InputStreamReader;
 
-    public InputStreamReader open(String sURL,Alert progressAlert)
+    private InputStreamReader m_InputStreamReader;
+    private DataInputStream m_DataInputStream;
+
+    private int m_iPageLengthInBytes;
+    public int getPageLength() {return m_iPageLengthInBytes;}
+
+    public InputStreamReader openISR(String sURL,Alert progressAlert)
+    throws Exception
+    {
+        openInputStream(sURL,progressAlert);
+
+        m_InputStreamReader =
+            new InputStreamReader(m_InputStream,Config.ENCODING);
+        System.out.println("reader.ready() = " + m_InputStreamReader.ready());
+        return m_InputStreamReader;
+    }
+
+    public DataInputStream openDIS(String sURL,Alert progressAlert)
+    throws Exception
+    {
+        openInputStream(sURL,progressAlert);
+
+        m_DataInputStream = new DataInputStream(m_InputStream);
+        return m_DataInputStream;
+    }
+
+    private void openInputStream(String sURL,Alert progressAlert)
     throws Exception
     {
         m_HttpConnection = (HttpConnection)Connector.open(sURL);
@@ -58,23 +83,18 @@ public class WikiConnection
         m_InputStream = m_HttpConnection.openInputStream();
         progressAlert.setString("Successfully connected to wiki");
 
-        m_InputStreamReader =
-            new InputStreamReader(m_InputStream,Config.ENCODING);
-
         // Get the ContentType
         String type = m_HttpConnection.getType();
 
-        int length = (int)m_HttpConnection.getLength();
-        System.out.println("Length = " + length);
-
-        System.out.println("reader.ready() = " + m_InputStreamReader.ready());
-
-        return m_InputStreamReader;
+        m_iPageLengthInBytes = (int)m_HttpConnection.getLength();
+        System.out.println("Length = " + m_iPageLengthInBytes);
     }
 
     public void close() throws Exception
     {
-       m_InputStreamReader.close();
+       if (m_InputStreamReader!=null) m_InputStreamReader.close();
+       if (m_DataInputStream!=null) m_DataInputStream.close();
+
        m_InputStream.close();
        m_HttpConnection.close();
     }

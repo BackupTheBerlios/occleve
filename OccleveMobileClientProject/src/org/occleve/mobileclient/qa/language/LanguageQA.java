@@ -28,8 +28,8 @@ import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.languageentity.*;
-//////////import org.occleve.mobileclient.languageentity.chinese.*;
 import org.occleve.mobileclient.qa.*;
+import org.occleve.mobileclient.screens.*;
 
 /**A QA class designed specifically for learning languages, with
 separate fields for the romanized form, native script form, etc.*/
@@ -451,7 +451,7 @@ public class LanguageQA extends QA
         String sAudioFilename = le.getAudioFilename();
         if (sAudioFilename!=null)
         {
-            StringItem item2 = new StringItem(null,"Listen",Item.BUTTON);
+            ListenItem item2 = new ListenItem(sAudioFilename);
             vAppendTo.addElement(item2);
         }
 

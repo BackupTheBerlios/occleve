@@ -1,11 +1,28 @@
-/* OccleveMobileMidlet.java */
+/**
+This file is part of the Occleve (Open Content Learning Environment) mobile client
+Copyright (C) 2007  Joe Gittings
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+@author Joe Gittings
+@version 0.9.3
+OccleveMobileMidlet.java
+*/
 
 package org.occleve.mobileclient;
 
-import java.io.*;
-import java.util.*;
-import javax.microedition.io.*;
-import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.*;
@@ -13,7 +30,8 @@ import javax.microedition.midlet.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 
-public class OccleveMobileMidlet extends MIDlet implements CommandListener
+public class OccleveMobileMidlet extends MIDlet
+implements CommandListener,Runnable
 {
     /**Singleton implementation.*/
     private static OccleveMobileMidlet m_SingleInstance;
@@ -26,6 +44,9 @@ public class OccleveMobileMidlet extends MIDlet implements CommandListener
 
     protected Displayable m_CurrentForm;
     protected FileChooserForm m_FileChooserForm;
+
+    protected String m_sFilenameCache;
+    protected Integer m_iRecordStoreIDCache;
 
 	public OccleveMobileMidlet()
 	{
@@ -156,10 +177,32 @@ public class OccleveMobileMidlet extends MIDlet implements CommandListener
             setCurrentForm(ef);
         }
 
-        public void displayTest(String sFilename,Integer iRecordStoreID) throws Exception
+        public void displayTest(String sFilename,Integer iRecordStoreID)
+        throws Exception
+        {
+            Alert alt = new Alert(null, "Loading " + sFilename, null, null);
+            alt.setTimeout(Alert.FOREVER);
+            StaticHelpers.safeAddGaugeToAlert(alt);
+            Display.getDisplay(this).setCurrent(alt);
+
+            m_sFilenameCache = sFilename;
+            m_iRecordStoreIDCache = iRecordStoreID;
+            new Thread(this).start();
+        }
+
+        public void run()
+        {
+            try
+            {
+                displayTest_Thread(m_sFilenameCache, m_iRecordStoreIDCache);
+            }
+            catch (Exception e) {onError(e);}
+        }
+
+        private void displayTest_Thread(String sFilename,Integer iRecordStoreID)
+        throws Exception
         {
             Test theTest = new Test(sFilename,iRecordStoreID);
-            System.out.println("Read unicode file");
 
             // Strip .txt from screen heading.
             String sHeading = sFilename;

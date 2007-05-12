@@ -32,7 +32,8 @@ import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.*;
 
-public class VocabViewerScreen extends Form implements CommandListener
+public class VocabViewerScreen extends Form
+implements CommandListener,ItemCommandListener
 {
     protected Test m_Test;
 
@@ -116,6 +117,12 @@ public class VocabViewerScreen extends Form implements CommandListener
 
                 StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
                 append(si);
+
+                if (si instanceof ListenItem)
+                {
+                    System.out.println("It's a ListenItem");
+                    si.setItemCommandListener(this);
+                }
             }
 
             /*
@@ -244,6 +251,22 @@ public class VocabViewerScreen extends Form implements CommandListener
                       " successfully printed to file ";
         Alert alert = new Alert(null,sMsg,null,null);
         OccleveMobileMidlet.getInstance().displayAlertThenFileChooser(alert);
+    }
+
+    /**Implementation of ItemCommandListener.*/
+    public void commandAction(Command c,Item item)
+    {
+        System.out.println("Item clicked");
+
+        try
+        {
+            ListenItem listen = (ListenItem) item;
+            listen.play();
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
     }
 }
 

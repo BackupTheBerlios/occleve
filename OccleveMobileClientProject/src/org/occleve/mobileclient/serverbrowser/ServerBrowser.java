@@ -124,7 +124,7 @@ implements CommandListener,Runnable
         StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
-        InputStreamReader reader = wc.open(Config.LIST_OF_TESTS_URL,
+        InputStreamReader reader = wc.openISR(Config.LIST_OF_TESTS_URL,
                                            m_ProgressAlert);
         do
         {
@@ -248,7 +248,7 @@ implements CommandListener,Runnable
         String sURL = Config.PAGE_URL_STUB + sPageNameUnderscores +
                       Config.PAGE_URL_SUFFIX;
         System.out.println("Page URL = " + sURL);
-        InputStreamReader reader = wc.open(sURL,m_ProgressAlert);
+        InputStreamReader reader = wc.openISR(sURL,m_ProgressAlert);
 
         StringBuffer sbSource = new StringBuffer();
         do

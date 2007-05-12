@@ -241,17 +241,31 @@ public class VocabRecordStoreManager
 
     /**Returns the record ID of the specified filename, or null
     if it isn't found.*/
+    public Integer findRecordByFilename(String sFilenameToFind)
+    throws Exception
+    {
+        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+System.out.println("Opened recordstore ok");
+        Integer rsid = findRecordByFilename(rs,sFilenameToFind);
+        rs.closeRecordStore();
+        return rsid;
+    }
+
+    /**Returns the record ID of the specified filename, or null
+    if it isn't found.*/
     public Integer findRecordByFilename(RecordStore rs,String sFindMe)
     throws Exception
     {
         boolean keepUpdated = false;
         RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
+System.out.println("Got recEnum ok");
 
         while (recEnum.hasNextElement())
         {
             int recID = recEnum.nextRecordId();
             byte[] recData = rs.getRecord(recID);
             String sFilename = getFilenameFromRecordData(recData);
+System.out.println("Comparing " + sFilename + " to " + sFindMe);
             if (sFilename.equals(sFindMe))
             {
                 return new Integer(recID);
