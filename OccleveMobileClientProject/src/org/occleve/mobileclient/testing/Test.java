@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.testing;
@@ -133,8 +133,8 @@ public class Test
     /**If the file exists in the RecordStore, read it from there, otherwise
      read it from the JAR.*/
     public static String readTestSource(String sFilename,
-                                        Integer iRecordStoreID) throws
-            Exception
+                                        Integer iRecordStoreID)
+                                        throws Exception
     {
         String sTestSource;
         if (iRecordStoreID == null)
