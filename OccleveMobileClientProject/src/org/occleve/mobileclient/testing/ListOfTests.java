@@ -125,24 +125,28 @@ public class ListOfTests
             String rsFilename = (String) enumKeys.nextElement();
             System.out.println("rsFilename = " + rsFilename);
 
-            Integer rsID = (Integer) rsIndex.get(rsFilename);
-
-            Entry entry = (Entry) m_htEntriesKeyedByFilename.get(rsFilename);
-            if (entry != null)
+            // Ignore MP3 files
+            if (rsFilename.toLowerCase().endsWith(".mp3") == false)
             {
-                // The entry already exists in the JAR. Record the record store ID.
-                entry.m_iRecordStoreID = rsID;
-            }
-            else
-            {
-                // This is a new test that isn't in the JAR.
-                // For convenience, put it at the start of the list.
-                entry = new Entry();
-                entry.m_sFilename = rsFilename;
-                entry.m_iRecordStoreID = rsID;
+                Integer rsID = (Integer) rsIndex.get(rsFilename);
 
-                m_vEntries.insertElementAt(entry, 0);
-                m_htEntriesKeyedByFilename.put(rsFilename, entry);
+                Entry entry = (Entry) m_htEntriesKeyedByFilename.get(rsFilename);
+                if (entry != null)
+                {
+                    // The entry already exists in the JAR. Record the record store ID.
+                    entry.m_iRecordStoreID = rsID;
+                }
+                else
+                {
+                    // This is a new test that isn't in the JAR.
+                    // For convenience, put it at the start of the list.
+                    entry = new Entry();
+                    entry.m_sFilename = rsFilename;
+                    entry.m_iRecordStoreID = rsID;
+
+                    m_vEntries.insertElementAt(entry, 0);
+                    m_htEntriesKeyedByFilename.put(rsFilename, entry);
+                }
             }
         }
     }

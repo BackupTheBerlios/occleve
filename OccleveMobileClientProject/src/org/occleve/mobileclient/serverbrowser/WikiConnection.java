@@ -81,7 +81,11 @@ public class WikiConnection
         }
 
         m_InputStream = m_HttpConnection.openInputStream();
-        progressAlert.setString("Successfully connected to wiki");
+
+        if (progressAlert!=null)
+        {
+            progressAlert.setString("Successfully connected to wiki");
+        }
 
         // Get the ContentType
         String type = m_HttpConnection.getType();

@@ -126,11 +126,16 @@ implements CommandListener,Runnable
 
         InputStreamReader reader = wc.openISR(Config.LIST_OF_TESTS_URL,
                                            m_ProgressAlert);
+
+        int iLineCount = 0;
         do
         {
             String sLine = StaticHelpers.readFromISR(reader,true);
             System.out.println(sLine);
             processLineInListOfTests(sLine);
+
+            iLineCount++;
+            m_ProgressAlert.setString("Read " + iLineCount + " lines");
         } while (reader.ready());
 
         wc.close();

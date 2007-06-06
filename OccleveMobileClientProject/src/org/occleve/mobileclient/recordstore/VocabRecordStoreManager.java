@@ -90,6 +90,15 @@ public class VocabRecordStoreManager
         return htable;
     }
 
+    public byte[] getRecordBytes(int iRecordID)
+    throws Exception
+    {
+        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        byte[] recData = rs.getRecord(iRecordID);
+        rs.closeRecordStore();
+        return recData;
+    }
+
     private String getFilenameFromRecordData(byte[] recData)
     throws Exception
     {
@@ -207,9 +216,30 @@ public class VocabRecordStoreManager
     {
         // Write the contents into a byte array.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        flexiWriteUTF(baos,sFilename);
-        flexiWriteUTF(baos,sContents);
-        byte[] byteArray = baos.toByteArray();
+        flexiWriteUTF(baos, sFilename);
+        flexiWriteUTF(baos, sContents);
+
+        createFileInRecordStore_Inner(sFilename,baos,bDoUserInterfaceStuff);
+    }
+
+    public void createFileInRecordStore(String sFilename,byte[] contents,
+            boolean bDoUserInterfaceStuff) throws Exception
+    {
+        // Write the contents into a byte array.
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        flexiWriteUTF(baos, sFilename);
+        DataOutputStream outputStream = new DataOutputStream(baos);
+        outputStream.write(contents);
+
+        createFileInRecordStore_Inner(sFilename,baos,bDoUserInterfaceStuff);
+    }
+
+    private void createFileInRecordStore_Inner(String sFilename,
+                                               ByteArrayOutputStream baosData,
+                                               boolean bDoUserInterfaceStuff)
+    throws Exception
+    {
+        byte[] byteArray = baosData.toByteArray();
 
         // Check whether the filename already exists.
         RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);

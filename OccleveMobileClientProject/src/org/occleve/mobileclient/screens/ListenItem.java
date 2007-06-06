@@ -52,25 +52,7 @@ public class ListenItem extends StringItem implements Runnable
     public void play() throws Exception
     {
         System.out.println("Entering play() on ListenItem");
-        System.out.println("With audioclipfilename = " + m_sAudioClipFilename);
-
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        Integer rsid = mgr.findRecordByFilename(m_sAudioClipFilename);
-        System.out.println("rsid = " + rsid);
-
-        if (rsid!=null)
-        {
-            // Play from recordstore.
-        }
-        else
-        {
-            // Load from wiki.
-            loadAudioClipFromWiki();
-        }
-    }
-
-    private void loadAudioClipFromWiki() throws Exception
-    {
+        System.out.println("With audio clip filename = " + m_sAudioClipFilename);
         new Thread(this).start();
     }
 
@@ -78,6 +60,55 @@ public class ListenItem extends StringItem implements Runnable
     {
         System.out.println("Entering ListenItem.run");
 
+        try
+        {
+            loadAndPlayAudioClip();
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
+    }
+
+    private void loadAndPlayAudioClip() throws Exception
+    {
+        // Display a progress bar during the whole process
+        m_ProgressAlert = new Alert(null, "Loading audio clip...",
+                                    null, null);
+        m_ProgressAlert.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
+        Displayable previousDisplayable =
+            OccleveMobileMidlet.getInstance().getCurrentDisplayable();
+        OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
+
+        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        Integer rsid = mgr.findRecordByFilename(m_sAudioClipFilename);
+        System.out.println("rsid = " + rsid);
+
+        if (rsid!=null)
+        {
+            // Load from recordstore.
+            m_ClipData = mgr.getRecordBytes(rsid.intValue());
+        }
+        else
+        {
+            // Load from wiki.
+            loadAudioClipFromWiki();
+
+            // Save the clip data into the recordstore for future use
+            mgr.createFileInRecordStore(m_sAudioClipFilename,m_ClipData,false);
+        }
+
+        // Play the clip
+        ByteArrayInputStream bais = new ByteArrayInputStream(m_ClipData);
+        Player player = Manager.createPlayer(bais,"audio/mpeg");
+        player.start();
+
+        OccleveMobileMidlet.getInstance().setCurrentForm(previousDisplayable);
+    }
+
+    private void loadAudioClipFromWiki()
+    {
         // Instantiate the WikiConnection here so the exception
         // handler can call close() on it if need be.
         WikiConnection wc = new WikiConnection();
@@ -85,11 +116,7 @@ public class ListenItem extends StringItem implements Runnable
 
         try
         {
-            loadAudioClip(wc);
-
-            ByteArrayInputStream bais = new ByteArrayInputStream(m_ClipData);
-            Player player = Manager.createPlayer(bais,"audio/mpeg");
-            player.start();
+            loadAudioClipFromWiki_Inner(wc);
         }
         catch (Exception e)
         {
@@ -103,20 +130,15 @@ public class ListenItem extends StringItem implements Runnable
         }
     }
 
-    protected void loadAudioClip(WikiConnection wc) throws Exception
+    private void loadAudioClipFromWiki_Inner(WikiConnection wc) throws Exception
     {
-        m_ProgressAlert = new Alert(null, "Loading audio clip from wiki...",
-                                    null, null);
-        m_ProgressAlert.setTimeout(Alert.FOREVER);
-        StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
-        OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
-
         String sWithUnderscores = m_sAudioClipFilename.replace(' ','_');
         String sDescriptorURL = Config.AUDIO_CLIP_URL_STUB + sWithUnderscores +
                       Config.AUDIO_CLIP_URL_SUFFIX;
         System.out.println("Audio clip descriptor URL = " + sDescriptorURL);
 
-        InputStreamReader reader = wc.openISR(sDescriptorURL,m_ProgressAlert);
+        m_ProgressAlert.setString("Loading clip locator");
+        InputStreamReader reader = wc.openISR(sDescriptorURL,null);
         String sTrueURL = null;
         do
         {
@@ -142,7 +164,7 @@ public class ListenItem extends StringItem implements Runnable
         ////////////////////////////////////////////////////////////////////
         // Now load the actual MP3 file
 
-        System.out.println("Loading MP3 file...");
+        m_ProgressAlert.setString("Loading the clip itself");
         DataInputStream dis = wc.openDIS(sTrueURL,m_ProgressAlert);
         System.out.println("Opened DataInputStream ok");
 
@@ -158,9 +180,9 @@ public class ListenItem extends StringItem implements Runnable
         do
         {
             iBytesRead = dis.read(m_ClipData,iOffset,iBufferSize-iOffset);
-            m_ProgressAlert.setString("Loaded " + iBytesRead + " of " +
-                                      iBufferSize + " bytes");
             iOffset += iBytesRead;
+            m_ProgressAlert.setString("Loaded " + iOffset + " of " +
+                                      iBufferSize + " bytes");
         } while ((iBytesRead!=-1) && (iBytesRead!=0));
 
         dis.close();
@@ -170,6 +192,5 @@ public class ListenItem extends StringItem implements Runnable
         wc.close();
         m_ProgressAlert.setString("Loaded MP3 ok");
     }
-
 }
 

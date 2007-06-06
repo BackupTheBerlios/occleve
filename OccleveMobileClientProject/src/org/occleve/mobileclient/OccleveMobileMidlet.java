@@ -95,6 +95,11 @@ implements CommandListener,Runnable
             Display.getDisplay(this).setCurrent(m_CurrentForm);
 	}
 
+        public Displayable getCurrentDisplayable()
+        {
+            return Display.getDisplay(this).getCurrent();
+        }
+
         public void setCurrentForm(Displayable form)
         {
             m_CurrentForm = form;
