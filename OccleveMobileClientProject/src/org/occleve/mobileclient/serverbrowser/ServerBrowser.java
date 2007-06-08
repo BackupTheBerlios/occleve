@@ -37,6 +37,8 @@ implements CommandListener,Runnable
     protected Alert m_ProgressAlert;
     protected Vector m_vTestPageNames = new Vector();
 
+    protected boolean m_bListOfTestsIsValid;
+
     /**Announcement from ListOfTests page on the server.
     Cached here and displayed when the list has finished loading.*/
     protected String m_sAnnouncement;
@@ -47,6 +49,9 @@ implements CommandListener,Runnable
     protected int m_iThreadAction;
     protected final int GET_LIST = 0;
     protected final int DOWNLOAD_TEST = 1;
+
+    protected String m_sPageNameToDownload;
+    protected Displayable m_DisplayableAfterDownload;
 
     public ServerBrowser()
     {
@@ -59,7 +64,10 @@ implements CommandListener,Runnable
         addCommand(m_DownloadTestCommand);
         addCommand(m_MyTestsCommand);
         setCommandListener(this);
+    }
 
+    public void populateAndDisplay()
+    {
         try
         {
             m_iThreadAction = GET_LIST;
@@ -70,7 +78,24 @@ implements CommandListener,Runnable
         {
             OccleveMobileMidlet.getInstance().onError(e);
         }
+    }
 
+    public void startDownloadingTest(String sPageName,
+                                     Displayable displayableAfterDownload)
+    {
+        try
+        {
+            m_sPageNameToDownload = sPageName;
+            m_DisplayableAfterDownload = displayableAfterDownload;
+
+            m_iThreadAction = DOWNLOAD_TEST;
+            Thread toPreventBlocking = new Thread( this );
+            toPreventBlocking.start();
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
     }
 
     public void run()
@@ -83,25 +108,34 @@ implements CommandListener,Runnable
         {
             m_sAnnouncement = null;
 
+            int iListOfTestsTries = -1;
             if (m_iThreadAction==GET_LIST)
             {
-                fetchListOfTests(wc);
+                iListOfTestsTries = fetchListOfTests(wc);
+
+                if (m_sAnnouncement!=null)
+                {
+                    String sMsg = m_sAnnouncement;
+                    if (iListOfTestsTries>1)
+                    {
+                        sMsg = "(Took " + iListOfTestsTries + " tries to load)..." +
+                               sMsg;
+                    }
+
+                    Alert alert = new Alert("Latest news",sMsg,
+                                            null,AlertType.INFO);
+                    alert.setTimeout(Alert.FOREVER);
+                    OccleveMobileMidlet.getInstance().displayAlert(alert, this);
+                }
+                else
+                {
+                    OccleveMobileMidlet.getInstance().setCurrentForm(this);
+                }
             }
             else if (m_iThreadAction==DOWNLOAD_TEST)
             {
                 downloadTest(wc);
-            }
-
-            if (m_sAnnouncement!=null)
-            {
-                Alert alert = new Alert("Latest news",m_sAnnouncement,
-                                        null,AlertType.INFO);
-                alert.setTimeout(Alert.FOREVER);
-                OccleveMobileMidlet.getInstance().displayAlert(alert, this);
-            }
-            else
-            {
-                OccleveMobileMidlet.getInstance().setCurrentForm(this);
+                OccleveMobileMidlet.getInstance().setCurrentForm(m_DisplayableAfterDownload);
             }
         }
         catch (Exception e)
@@ -116,7 +150,8 @@ implements CommandListener,Runnable
         }
     }
 
-    protected void fetchListOfTests(WikiConnection wc) throws Exception
+    /**Returns the number of tries it took to load the list of tests.*/
+    protected int fetchListOfTests(WikiConnection wc) throws Exception
     {
         m_ProgressAlert = new Alert(null, "Reading list of tests from wiki...",
                                     null, null);
@@ -124,25 +159,50 @@ implements CommandListener,Runnable
         StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
-        InputStreamReader reader = wc.openISR(Config.LIST_OF_TESTS_URL,
-                                           m_ProgressAlert);
+        InputStreamReader reader;
 
-        int iLineCount = 0;
+        int iTries = 0;
+        boolean bRetry;
+        m_bListOfTestsIsValid = false;
+
         do
         {
-            String sLine = StaticHelpers.readFromISR(reader,true);
-            System.out.println(sLine);
-            processLineInListOfTests(sLine);
+            reader = wc.openISR(Config.LIST_OF_TESTS_URL,
+                                m_ProgressAlert);
 
-            iLineCount++;
-            m_ProgressAlert.setString("Read " + iLineCount + " lines");
-        } while (reader.ready());
+            int iLineCount = 0;
+            do
+            {
+                String sLine = StaticHelpers.readFromISR(reader, true);
+                System.out.println(sLine);
+                processLineInListOfTests(sLine);
+
+                iLineCount++;
+                m_ProgressAlert.setString("Read " + iLineCount + " lines");
+            } while (reader.ready());
+
+            // 0.9.3: Retry up to a limit specified in Config class.
+            // This is primarily to deal with China Mobile's
+            // recently-introduced "welcome" page (but should help
+            // for other mobile operators with a similar policy).
+            iTries++;
+            bRetry = ((m_bListOfTestsIsValid==false) &&
+                      (iTries<Config.CONNECTION_TRIES_LIMIT));
+        } while (bRetry);
 
         wc.close();
-        m_ProgressAlert.setString("Closed connection to wiki");
+        m_ProgressAlert.setString("Closed connection to wiki (tries=" + iTries + ")");
+
+        if (m_bListOfTestsIsValid==false)
+        {
+            throw new Exception("Failed to load list of tests from wiki");
+        }
+
+        return iTries;
     }
 
-    /**Format of line is CategoryName,EN-ZH-TestName.*/
+    /**Format of line is CategoryName,EN-ZH-TestName,
+    unless it's a directive.*/
     private void processLineInListOfTests(String sLine) throws Exception
     {
         sLine = sLine.trim();
@@ -153,25 +213,8 @@ implements CommandListener,Runnable
         // Directives start with !
         if (sLine.startsWith("!"))
         {
-            if (sLine.startsWith(Config.ANNOUNCEMENT_DIRECTIVE))
-            {
-                m_sAnnouncement =
-                   StaticHelpers.stripBeginning(sLine,Config.ANNOUNCEMENT_DIRECTIVE);
-                return;
-            }
-            else if (sLine.startsWith(Config.MIN_RELEASE_DIRECTIVE))
-            {
-                String sMinRelease =
-                   StaticHelpers.stripBeginning(sLine,Config.MIN_RELEASE_DIRECTIVE);
-                long lMinRelease = Long.parseLong(sMinRelease);
-
-                if (Config.VERSION < lMinRelease)
-                {
-                    throw new Exception("This version of the software is too " +
-                                        "old to access the wiki. Please " +
-                                        "upgrade to the latest version.");
-                }
-            }
+            processDirective(sLine);
+            return;
         }
 
         // Try to make sure the line is correctly formatted.
@@ -190,6 +233,31 @@ implements CommandListener,Runnable
 
             m_vTestPageNames.addElement(sLangPairAndTestName);
             append(sLangPairAndTestName,null);
+        }
+    }
+
+    /**Ignores unknown directives, for future compatibility.*/
+    private void processDirective(String sLine)
+    throws Exception
+    {
+        if (sLine.startsWith(Config.ANNOUNCEMENT_DIRECTIVE))
+        {
+            m_sAnnouncement =
+               StaticHelpers.stripBeginning(sLine,Config.ANNOUNCEMENT_DIRECTIVE);
+        }
+        else if (sLine.startsWith(Config.MIN_RELEASE_DIRECTIVE))
+        {
+            String sMinRelease =
+               StaticHelpers.stripBeginning(sLine,Config.MIN_RELEASE_DIRECTIVE);
+            long lMinRelease = Long.parseLong(sMinRelease);
+            m_bListOfTestsIsValid = true;
+
+            if (Config.VERSION < lMinRelease)
+            {
+                throw new Exception("This version of the software is too " +
+                                    "old to access the wiki. Please " +
+                                    "upgrade to the latest version.");
+            }
         }
     }
 
@@ -226,6 +294,11 @@ implements CommandListener,Runnable
             }
             else if (c==m_DownloadTestCommand)
             {
+                int iSelIndex = getSelectedIndex();
+                String sPageName = getString(iSelIndex);
+                    ////m_vTestPageNames.elementAt(iSelIndex);
+                m_sPageNameToDownload = sPageName;
+
                 m_iThreadAction = DOWNLOAD_TEST;
                 Thread toPreventBlocking = new Thread(this);
                 toPreventBlocking.start();
@@ -239,8 +312,8 @@ implements CommandListener,Runnable
 
     private void downloadTest(WikiConnection wc) throws Exception
     {
-        int iSelIndex = getSelectedIndex();
-        String sPageName = getString(iSelIndex);
+        //int iSelIndex = getSelectedIndex();
+        //String sPageName = getString(iSelIndex);
             ////m_vTestPageNames.elementAt(iSelIndex);
 
         m_ProgressAlert = new Alert(null, "Getting test from server...",
@@ -249,33 +322,59 @@ implements CommandListener,Runnable
         StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
-        String sPageNameUnderscores = sPageName.replace(' ','_');
+        String sPageNameUnderscores = m_sPageNameToDownload.replace(' ','_');
         String sURL = Config.PAGE_URL_STUB + sPageNameUnderscores +
                       Config.PAGE_URL_SUFFIX;
         System.out.println("Page URL = " + sURL);
-        InputStreamReader reader = wc.openISR(sURL,m_ProgressAlert);
 
-        StringBuffer sbSource = new StringBuffer();
+        boolean bIsISPWelcomePage = true;
+        int iTries = 0;
+        InputStreamReader reader;
+        StringBuffer sbSource;
         do
         {
-            String sLine = StaticHelpers.readFromISR(reader,true);
+            reader = wc.openISR(sURL, m_ProgressAlert);
 
-            int iPreIndex = sLine.indexOf("<pre>");
-            int iClosingPreIndex = sLine.indexOf("</pre>");
-
-            if ((iPreIndex==-1) && (iClosingPreIndex==-1))
+            sbSource = new StringBuffer();
+            do
             {
-                //System.out.println(sLine);
-                sbSource.append(sLine + Constants.NEWLINE);
-            }
-        } while (reader.ready());
+                String sLine = StaticHelpers.readFromISR(reader, true);
 
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        mgr.createFileInRecordStore(sPageName,sbSource.toString(),false);
+                int iPreIndex = sLine.indexOf("<pre>");
+                int iClosingPreIndex = sLine.indexOf("</pre>");
+
+                if ((iPreIndex == -1) && (iClosingPreIndex == -1))
+                {
+                    //System.out.println(sLine);
+                    sbSource.append(sLine + Constants.NEWLINE);
+                }
+                else
+                {
+                    // If there's a <pre> or </pre> tag we can guess it's
+                    // not the ISP welcome page.
+                    bIsISPWelcomePage = false;
+                }
+            } while (reader.ready());
+
+            iTries++;
+        } while (bIsISPWelcomePage && (iTries<Config.CONNECTION_TRIES_LIMIT));
 
         wc.close();
-        m_ProgressAlert.setString("Closed connection to wiki");
-    }
 
+        if (bIsISPWelcomePage)
+        {
+            throw new Exception("Failed to load test from wiki");
+        }
+        else
+        {
+            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+            mgr.createFileInRecordStore(m_sPageNameToDownload, sbSource.toString(),
+                                        false);
+        }
+
+        String sMsg = "Successfully loaded test";
+        if (iTries>1) sMsg += " (after " + iTries + " attempts)";
+        m_ProgressAlert.setString(sMsg);
+    }
 }
 

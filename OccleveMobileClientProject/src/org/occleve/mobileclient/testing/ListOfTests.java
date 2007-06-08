@@ -65,7 +65,7 @@ public class ListOfTests
     {
         ListOfTests_LoadFromJar();
         ListOfTests_LoadFromRS();
-        ListOfTests_AlphaSort();
+////        ListOfTests_AlphaSort();
         System.out.println("Number of tests = " + m_vEntries.size());
     }
 

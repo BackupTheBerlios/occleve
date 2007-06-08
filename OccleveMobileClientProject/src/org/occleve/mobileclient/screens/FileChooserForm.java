@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.screens;
@@ -53,6 +53,7 @@ implements CommandListener
     protected Command m_BrowseServerCommand;
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
+    protected Command m_RedownloadCommand;
     protected Command m_SearchAllTestsCommand;
     protected Command m_PauseCommand;
     protected Command m_DevStuffScreenCommand;
@@ -71,6 +72,7 @@ implements CommandListener
             m_BrowseServerCommand = new Command("Download tests", Command.ITEM, 2);
             m_TestCommand = new Command("Test", Command.ITEM, 1);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
+            m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
             m_PauseCommand = new Command("Pause", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
@@ -81,6 +83,7 @@ implements CommandListener
             addCommand(m_BrowseServerCommand);
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
+            addCommand(m_RedownloadCommand);
             addCommand(m_SearchAllTestsCommand);
             addCommand(m_PauseCommand);
             addCommand(m_DevStuffScreenCommand);
@@ -163,6 +166,7 @@ implements CommandListener
         if (c==m_BrowseServerCommand)
         {
             ServerBrowser browser = new ServerBrowser();
+            browser.populateAndDisplay();
         }
         else if (c==m_TestCommand)
         {
@@ -171,6 +175,11 @@ implements CommandListener
         else if (c==m_ViewCommand)
         {
             OccleveMobileMidlet.getInstance().displayTest(sFilename,iRSID);
+        }
+        else if (c==m_RedownloadCommand)
+        {
+            ServerBrowser browser = new ServerBrowser();
+            browser.startDownloadingTest(sFilename,this);
         }
         else if (c==m_DevStuffScreenCommand)
         {

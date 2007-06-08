@@ -53,5 +53,9 @@ public class Config
     /**The default encoding for talking to the wiki, storing the tests
     in the recordstore, etc etc.*/
     public static final String ENCODING = "UTF-8";
+
+    /**The maximum number of times to try connecting to the wiki
+    before giving up.*/
+    public static final int CONNECTION_TRIES_LIMIT = 3;
 }
 

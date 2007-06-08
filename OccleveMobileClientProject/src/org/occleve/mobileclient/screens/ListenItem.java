@@ -132,34 +132,43 @@ public class ListenItem extends StringItem implements Runnable
 
     private void loadAudioClipFromWiki_Inner(WikiConnection wc) throws Exception
     {
-        String sWithUnderscores = m_sAudioClipFilename.replace(' ','_');
+        String sWithUnderscores = m_sAudioClipFilename.replace(' ', '_');
         String sDescriptorURL = Config.AUDIO_CLIP_URL_STUB + sWithUnderscores +
-                      Config.AUDIO_CLIP_URL_SUFFIX;
+                                Config.AUDIO_CLIP_URL_SUFFIX;
         System.out.println("Audio clip descriptor URL = " + sDescriptorURL);
 
         m_ProgressAlert.setString("Loading clip locator");
-        InputStreamReader reader = wc.openISR(sDescriptorURL,null);
-        String sTrueURL = null;
+
+        int iTries = 0;
+        InputStreamReader reader;
+        String sTrueURL;
         do
         {
-            String sLine = StaticHelpers.readFromISR(reader,true);
-            System.out.println("Parsing " + sLine);
-
-            int iIndex = sLine.indexOf("URL=");
-            if (iIndex!=-1)
+            reader = wc.openISR(sDescriptorURL, null);
+            sTrueURL = null;
+            do
             {
-                sTrueURL = sLine.substring(iIndex + "URL=".length());
-                System.out.println("sTrueURL = " + sTrueURL);
-            }
+                String sLine = StaticHelpers.readFromISR(reader, true);
+                System.out.println("Parsing " + sLine);
 
-        } while ((reader.ready()) && (sTrueURL==null));
+                int iIndex = sLine.indexOf("URL=");
+                if (iIndex != -1)
+                {
+                    sTrueURL = sLine.substring(iIndex + "URL=".length());
+                    System.out.println("sTrueURL = " + sTrueURL);
+                }
+
+            } while ((reader.ready()) && (sTrueURL == null));
+
+            iTries++;
+        } while ((sTrueURL == null) && (iTries<Config.CONNECTION_TRIES_LIMIT));
+
+        reader.close();
 
         if (sTrueURL==null)
         {
             throw new Exception("Couldn't find true URL of audio clip");
         }
-
-        reader.close();
 
         ////////////////////////////////////////////////////////////////////
         // Now load the actual MP3 file
