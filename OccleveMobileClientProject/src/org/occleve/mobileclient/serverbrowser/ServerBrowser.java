@@ -376,5 +376,108 @@ implements CommandListener,Runnable
         if (iTries>1) sMsg += " (after " + iTries + " attempts)";
         m_ProgressAlert.setString(sMsg);
     }
+
+    public byte[] loadAudioClipFromWiki(String sAudioClipFilename,Alert progressAlert)
+    {
+        // Instantiate the WikiConnection here so the exception
+        // handler can call close() on it if need be.
+        WikiConnection wc = new WikiConnection();
+        System.out.println("Obtained wikiconnection ok");
+
+        try
+        {
+            return loadAudioClipFromWiki_Inner(sAudioClipFilename,progressAlert,wc);
+        }
+        catch (Exception e)
+        {
+            try
+            {
+                wc.close();
+            }
+            catch (Exception e2) {System.err.println(e2);}
+
+            OccleveMobileMidlet.getInstance().onError(e);
+            return null;
+        }
+    }
+
+    private byte[] loadAudioClipFromWiki_Inner(String sAudioClipFilename,
+                                               Alert progressAlert,
+                                               WikiConnection wc) throws Exception
+    {
+        String sWithUnderscores = sAudioClipFilename.replace(' ', '_');
+        String sDescriptorURL = Config.AUDIO_CLIP_URL_STUB + sWithUnderscores +
+                                Config.AUDIO_CLIP_URL_SUFFIX;
+        System.out.println("Audio clip descriptor URL = " + sDescriptorURL);
+
+        progressAlert.setString("Loading clip locator");
+
+        int iTries = 0;
+        InputStreamReader reader;
+        String sTrueURL;
+        do
+        {
+            System.out.println("Trying to obtain InputStreamReader");
+            reader = wc.openISR(sDescriptorURL, null);
+            System.out.println("Obtained InputStreamReader ok");
+
+            sTrueURL = null;
+            do
+            {
+                String sLine = StaticHelpers.readFromISR(reader, true);
+                System.out.println("Parsing " + sLine);
+
+                int iIndex = sLine.indexOf("URL=");
+                if (iIndex != -1)
+                {
+                    sTrueURL = sLine.substring(iIndex + "URL=".length());
+                    System.out.println("sTrueURL = " + sTrueURL);
+                }
+
+            } while ((reader.ready()) && (sTrueURL == null));
+
+            iTries++;
+        } while ((sTrueURL == null) && (iTries<Config.CONNECTION_TRIES_LIMIT));
+
+        reader.close();
+
+        if (sTrueURL==null)
+        {
+            throw new Exception("Couldn't find true URL of audio clip");
+        }
+
+        ////////////////////////////////////////////////////////////////////
+        // Now load the actual MP3 file
+
+        progressAlert.setString("Loading the clip itself");
+        DataInputStream dis = wc.openDIS(sTrueURL,m_ProgressAlert);
+        System.out.println("Opened DataInputStream ok");
+
+        int iBufferSize = wc.getPageLength();
+        System.out.println("iBufferSize = " + iBufferSize);
+        byte[] clipData = new byte[iBufferSize]; //////// + 1000];
+
+        int iBytesRead;
+        int iOffset = 0;
+
+        // Terminate this loop on iBytesRead==0 as well as ==-1, since
+        // in practice that seems to happen when reading an MP3 from the wiki.
+        do
+        {
+            iBytesRead = dis.read(clipData,iOffset,iBufferSize-iOffset);
+            iOffset += iBytesRead;
+            progressAlert.setString("Loaded " + iOffset + " of " +
+                                      iBufferSize + " bytes");
+        } while ((iBytesRead!=-1) && (iBytesRead!=0));
+
+        dis.close();
+
+        System.out.println("Number of MP3 bytes read = " + iOffset);
+
+        wc.close();
+        progressAlert.setString("Loaded MP3 ok");
+
+        return clipData;
+    }
 }
 

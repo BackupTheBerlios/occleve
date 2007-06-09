@@ -110,17 +110,19 @@ implements CommandListener,ItemCommandListener
                     si.setText(sQuestionNo + ". " + si.getText());
                 }
 
-                if (i2==(items.size()-1))
-                {
-                    si.setText(si.getText() + Constants.NEWLINE);
-                }
-
                 StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
                 append(si);
 
+                // If it's the last item for this LQA, add a newline.
+                if (i2==(items.size()-1))
+                {
+                    ////si.setText(si.getText() + Constants.NEWLINE);
+                    append(new StringItem(null,Constants.NEWLINE));
+                }
+
+                // You can click Play on a ListenItem.
                 if (si instanceof ListenItem)
                 {
-                    System.out.println("It's a ListenItem");
                     si.setItemCommandListener(this);
                 }
             }

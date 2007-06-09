@@ -25,6 +25,7 @@ package org.occleve.mobileclient.screens;
 import java.io.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
+import javax.microedition.media.control.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
@@ -93,113 +94,40 @@ public class ListenItem extends StringItem implements Runnable
         else
         {
             // Load from wiki.
-            loadAudioClipFromWiki();
+            ServerBrowser browser = new ServerBrowser();
+            m_ClipData =
+               browser.loadAudioClipFromWiki(m_sAudioClipFilename,m_ProgressAlert);
 
             // Save the clip data into the recordstore for future use
             mgr.createFileInRecordStore(m_sAudioClipFilename,m_ClipData,false);
         }
 
-        // Play the clip
+        // Get a player for the clip.
         ByteArrayInputStream bais = new ByteArrayInputStream(m_ClipData);
-        Player player = Manager.createPlayer(bais,"audio/mpeg");
-        player.start();
-
-        OccleveMobileMidlet.getInstance().setCurrentForm(previousDisplayable);
-    }
-
-    private void loadAudioClipFromWiki()
-    {
-        // Instantiate the WikiConnection here so the exception
-        // handler can call close() on it if need be.
-        WikiConnection wc = new WikiConnection();
-        System.out.println("Obtained wikiconnection ok");
+        Player player = null;
 
         try
         {
-            loadAudioClipFromWiki_Inner(wc);
+            player = Manager.createPlayer(bais, "audio/mpeg");
         }
-        catch (Exception e)
+        catch (MediaException me)
         {
-            try
-            {
-                wc.close();
-            }
-            catch (Exception e2) {System.err.println(e2);}
-
-            OccleveMobileMidlet.getInstance().onError(e);
-        }
-    }
-
-    private void loadAudioClipFromWiki_Inner(WikiConnection wc) throws Exception
-    {
-        String sWithUnderscores = m_sAudioClipFilename.replace(' ', '_');
-        String sDescriptorURL = Config.AUDIO_CLIP_URL_STUB + sWithUnderscores +
-                                Config.AUDIO_CLIP_URL_SUFFIX;
-        System.out.println("Audio clip descriptor URL = " + sDescriptorURL);
-
-        m_ProgressAlert.setString("Loading clip locator");
-
-        int iTries = 0;
-        InputStreamReader reader;
-        String sTrueURL;
-        do
-        {
-            reader = wc.openISR(sDescriptorURL, null);
-            sTrueURL = null;
-            do
-            {
-                String sLine = StaticHelpers.readFromISR(reader, true);
-                System.out.println("Parsing " + sLine);
-
-                int iIndex = sLine.indexOf("URL=");
-                if (iIndex != -1)
-                {
-                    sTrueURL = sLine.substring(iIndex + "URL=".length());
-                    System.out.println("sTrueURL = " + sTrueURL);
-                }
-
-            } while ((reader.ready()) && (sTrueURL == null));
-
-            iTries++;
-        } while ((sTrueURL == null) && (iTries<Config.CONNECTION_TRIES_LIMIT));
-
-        reader.close();
-
-        if (sTrueURL==null)
-        {
-            throw new Exception("Couldn't find true URL of audio clip");
+            String sMsg = "Sorry! It looks like your phone can't play MP3s";
+            OccleveMobileMidlet.getInstance().onError(sMsg);
+            return;
         }
 
-        ////////////////////////////////////////////////////////////////////
-        // Now load the actual MP3 file
+        // Crank up the volume. To avoid an exception, it's necessary to realize
+        // the player first.
+        player.realize();
+        VolumeControl vc =
+            (VolumeControl)player.getControl("javax.microedition.media.control.VolumeControl");
+        vc.setLevel(100);
 
-        m_ProgressAlert.setString("Loading the clip itself");
-        DataInputStream dis = wc.openDIS(sTrueURL,m_ProgressAlert);
-        System.out.println("Opened DataInputStream ok");
+        // Play the clip.
+        player.start();
 
-        int iBufferSize = wc.getPageLength();
-        System.out.println("iBufferSize = " + iBufferSize);
-        m_ClipData = new byte[iBufferSize + 1000];
-
-        int iBytesRead;
-        int iOffset = 0;
-
-        // Terminate this loop on iBytesRead==0 as well as ==-1, since
-        // in practice that seems to happen when reading an MP3 from the wiki.
-        do
-        {
-            iBytesRead = dis.read(m_ClipData,iOffset,iBufferSize-iOffset);
-            iOffset += iBytesRead;
-            m_ProgressAlert.setString("Loaded " + iOffset + " of " +
-                                      iBufferSize + " bytes");
-        } while ((iBytesRead!=-1) && (iBytesRead!=0));
-
-        dis.close();
-
-        System.out.println("Number of MP3 bytes read = " + iOffset);
-
-        wc.close();
-        m_ProgressAlert.setString("Loaded MP3 ok");
+        OccleveMobileMidlet.getInstance().setCurrentForm(previousDisplayable);
     }
 }
 
