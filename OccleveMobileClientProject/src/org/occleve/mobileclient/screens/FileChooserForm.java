@@ -30,6 +30,7 @@ import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.serverbrowser.*;
 import org.occleve.mobileclient.screens.options.*;
 import org.occleve.mobileclient.testing.*;
+import org.occleve.mobileclient.testing.test.*;
 
 public class FileChooserForm extends List
 implements CommandListener
@@ -50,7 +51,8 @@ implements CommandListener
     invoking tests.*/
     protected ChineseTestOptionsScreen m_ChineseTestOptionsScreen;
 
-    protected Command m_BrowseServerCommand;
+    protected Command m_BrowseWikiversityCommand;
+    protected Command m_BrowseOccleveCommand;
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
     protected Command m_RedownloadCommand;
@@ -69,7 +71,9 @@ implements CommandListener
 
         if (bAddCommands)
         {
-            m_BrowseServerCommand = new Command("Download tests", Command.ITEM, 2);
+            m_BrowseWikiversityCommand = new Command("Download Wikiversity quizzes", Command.ITEM, 2);
+            m_BrowseOccleveCommand = new Command("Download Occleve tests", Command.ITEM, 2);
+
             m_TestCommand = new Command("Test", Command.ITEM, 1);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
@@ -80,7 +84,8 @@ implements CommandListener
             m_EditCommand = new Command("Edit", Command.ITEM, 2);
             m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
 
-            addCommand(m_BrowseServerCommand);
+            addCommand(m_BrowseWikiversityCommand);
+            addCommand(m_BrowseOccleveCommand);
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
             addCommand(m_RedownloadCommand);
@@ -163,10 +168,15 @@ implements CommandListener
         String sFilename = m_ListOfTests.getFilename(iSelIndex);
         Integer iRSID = m_ListOfTests.getRecordStoreIDByIndex(iSelIndex);
 
-        if (c==m_BrowseServerCommand)
+        if (c==m_BrowseWikiversityCommand)
         {
             ServerBrowser browser = new ServerBrowser();
-            browser.populateAndDisplay();
+            browser.populateAndDisplay(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL);
+        }
+        else if (c==m_BrowseOccleveCommand)
+        {
+            ServerBrowser browser = new ServerBrowser();
+            browser.populateAndDisplay(Config.LIST_OF_TESTS_URL);
         }
         else if (c==m_TestCommand)
         {

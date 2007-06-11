@@ -24,12 +24,12 @@ package org.occleve.mobileclient.testing;
 
 import javax.microedition.lcdui.*;
 import java.util.*;
-import net.dclausen.microfloat.*;
+///import net.dclausen.microfloat.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.screens.*;
-import org.occleve.mobileclient.testing.*;
+import org.occleve.mobileclient.testing.test.*;
 
 public abstract class MagicTypewriterController implements CommandListener
 {

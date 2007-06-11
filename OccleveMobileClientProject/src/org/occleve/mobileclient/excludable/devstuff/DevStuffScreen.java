@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -32,6 +32,7 @@ import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
+import org.occleve.mobileclient.testing.test.*;
 import org.occleve.mobileclient.excludable.translation.*;
 
 public class DevStuffScreen extends javax.microedition.lcdui.List

@@ -28,7 +28,7 @@ import javax.microedition.media.*;
 import javax.microedition.midlet.*;
 
 import org.occleve.mobileclient.screens.*;
-import org.occleve.mobileclient.testing.*;
+import org.occleve.mobileclient.testing.test.*;
 
 public class OccleveMobileMidlet extends MIDlet
 implements CommandListener,Runnable

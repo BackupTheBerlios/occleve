@@ -57,5 +57,21 @@ public class Config
     /**The maximum number of times to try connecting to the wiki
     before giving up.*/
     public static final int CONNECTION_TRIES_LIMIT = 3;
+
+    //////////////////////////////////////////////////////////////////////
+    // Wikiversity Quiz support
+    //////////////////////////////////////////////////////////////////////
+
+    public static final String WIKIVERSITY_URL =
+       "http://occleve.berlios.de/wiki/index.php/";
+
+    public static final String WIKIVERSITY_PAGE_URL_STUB =
+       "http://en.wikiversity.org/w/index.php?title=";
+
+    // For now the list of Wikiversity quizzes is stored on the Occleve wiki.
+    public static final String WIKIVERSITY_LIST_OF_QUIZZES_URL =
+       "http://occleve.berlios.de/wiki/index.php?title=ListOfWVQuizzes&action=raw";
+
+    public static final String WIKIVERSITY_QUIZ_TAG_STUB = "<quiz";
 }
 

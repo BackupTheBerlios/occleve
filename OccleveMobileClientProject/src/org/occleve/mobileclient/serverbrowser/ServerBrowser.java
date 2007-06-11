@@ -29,7 +29,7 @@ import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
 
-/**Connects to the wiki, downloads the list of available tests, and
+/**Connects to a compatible wiki, downloads the list of available tests, and
 displays them.*/
 public class ServerBrowser extends javax.microedition.lcdui.List
 implements CommandListener,Runnable
@@ -53,6 +53,8 @@ implements CommandListener,Runnable
     protected String m_sPageNameToDownload;
     protected Displayable m_DisplayableAfterDownload;
 
+    protected String m_sListOfTestsURL;
+
     public ServerBrowser()
     {
         super("Tests you can download",
@@ -66,10 +68,12 @@ implements CommandListener,Runnable
         setCommandListener(this);
     }
 
-    public void populateAndDisplay()
+    public void populateAndDisplay(String sListOfTestsURL)
     {
         try
         {
+            m_sListOfTestsURL = sListOfTestsURL;
+
             m_iThreadAction = GET_LIST;
             Thread toPreventBlocking = new Thread( this );
             toPreventBlocking.start();
@@ -167,9 +171,7 @@ implements CommandListener,Runnable
 
         do
         {
-            reader = wc.openISR(Config.LIST_OF_TESTS_URL,
-                                m_ProgressAlert);
-
+            reader = wc.openISR(m_sListOfTestsURL,m_ProgressAlert);
             int iLineCount = 0;
             do
             {

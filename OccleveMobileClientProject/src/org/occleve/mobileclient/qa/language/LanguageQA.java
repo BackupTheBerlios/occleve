@@ -162,21 +162,6 @@ public class LanguageQA extends QA
     are the next possible chars.*/
     public Vector getNextPossibleChars()
     {
-        /*
-        boolean bAtStartOfNewLine = false;
-        String sLastLine = (String)m_vAnswerFragment.lastElement();
-        Enumeration eAnswer = getAnswer(dirn).elements();
-        while (eAnswer.hasMoreElements())
-        {
-            String sAnswerLine = (String)eAnswer.nextElement();
-            if (sLastLine.equals( sAnswerLine ))
-            {
-                bAtStartOfNewLine = true;
-                break;
-            }
-        }
-        */
-
         Vector vChars = new Vector();
 
         String sLastLine = (String)m_vAnswerFragment.lastElement();
@@ -184,10 +169,6 @@ public class LanguageQA extends QA
         while (e.hasMoreElements())
         {
             String sUnansweredLine = (String)e.nextElement();
-
-//System.out.println("In getNextPossibleChars: sUnansweredLine = " +
-//                               sUnansweredLine);
-
             if (sUnansweredLine.startsWith(sLastLine))
             {
                 char possChar = sUnansweredLine.charAt( sLastLine.length() );
@@ -201,13 +182,14 @@ public class LanguageQA extends QA
             }
         }
 
-//System.out.println("Returning possible chars vector of size " + vChars.size());
+        //System.out.println("Returning possible chars vector of size " + vChars.size());
         return vChars;
     }
 
     /**Skips any punctuation (non-testable) in a matching
     unanswered line in order to find the next testable character
     in that line.*/
+    /*
     private Character getNextPossibleNonPunctuationChar
             (String sAnswerFragmentLastLine,String sMatchingUnansweredLine)
     {
@@ -225,6 +207,7 @@ public class LanguageQA extends QA
         else
             return null;
     }
+    */
 
     public boolean containsString(String s)
     {
@@ -342,19 +325,6 @@ public class LanguageQA extends QA
         return "DEFUNCT FUNCTION???";
     }
 
-    /*
-    protected boolean languageEntitiesContainAudioClips(Vector vLanguageEntities)
-    {
-        Enumeration e = vLanguageEntities.elements();
-        while (e.hasMoreElements())
-        {
-            LanguageEntity le = (LanguageEntity)e.nextElement();
-            if (le.hasAudioClip()) return true;
-        }
-        return false;
-    }
-    */
-
     /**Implementation of abstract function in QA class.*/
     public Vector getEntireContentsAsItems()
     {
@@ -400,28 +370,6 @@ public class LanguageQA extends QA
             vSingle.addElement(siSingle);
             return vSingle;
         }
-
-        /*
-        Vector vEnglish = getAllFirsteseRoman(true);
-        Vector vChinese = getAllPinyinCharsAndLiteralTranslations(true);
-        StringBuffer sb = new StringBuffer();
-        int i;
-        for (i=0; i<vEnglish.size(); i++)
-        {
-            if (i!=0) sb.append(", ");
-            String sLine = (String)vEnglish.elementAt(i);
-            trace("Appending English entity: " + sLine);
-            sb.append(sLine);
-        }
-        sb.append(Constants.NEWLINE);
-        for (i=0; i<vChinese.size(); i++)
-        {
-            if (i!=0) sb.append(", ");
-            String sLine = (String)vChinese.elementAt(i);
-            sb.append(sLine);
-        }
-        return sb.toString();
-        */
     }
 
     protected void languageEntityToStringItems(LanguageEntity le,Vector vAppendTo)

@@ -30,7 +30,7 @@ import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
-import org.occleve.mobileclient.testing.*;
+import org.occleve.mobileclient.testing.test.*;
 
 public class VocabViewerScreen extends Form
 implements CommandListener,ItemCommandListener
