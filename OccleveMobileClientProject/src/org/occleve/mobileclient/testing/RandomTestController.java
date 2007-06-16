@@ -28,16 +28,16 @@ import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.test.*;
 import net.dclausen.microfloat.*;
 
-public class RandomMagicTypewriter extends MagicTypewriterController
+public class RandomTestController extends TestController
 {
     protected Random m_Random = new Random(System.currentTimeMillis());
     protected Hashtable m_htQuestionsAsked = new Hashtable();
 
-    public RandomMagicTypewriter(Test theTest,
-                          QADirection direction,boolean bFormView)
+    public RandomTestController(Test theTest,
+                          QADirection direction) /////,boolean bFormView)
     throws Exception
     {
-        super(theTest,direction,bFormView);
+        super(theTest,direction); /////////,bFormView);
 
         Integer ciIndex = findRandomUnansweredQuestionIndex();
         if (ciIndex==null)

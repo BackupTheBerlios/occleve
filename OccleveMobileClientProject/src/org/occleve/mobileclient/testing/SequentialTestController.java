@@ -27,16 +27,18 @@ import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.test.*;
 
-public class SequentialMagicTypewriter extends MagicTypewriterController
+public class SequentialTestController extends TestController
 {
+    /**This isn't really applicable to a random order test.*/
     protected Command m_JumpToCommand;
+
     protected Command m_SkipForwardCommand;
 
-    public SequentialMagicTypewriter(Test theTest,
-                              QADirection direction,boolean bFormView)
+    public SequentialTestController(Test theTest,
+                              QADirection direction)   //////,boolean bFormView)
     throws Exception
     {
-        super(theTest,direction,bFormView);
+        super(theTest,direction);  ///////,bFormView);
 
         m_iCurrentQAIndex = 0;
         getCurrentQA().initialize(direction);
