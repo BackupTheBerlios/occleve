@@ -32,9 +32,6 @@ public class TestResults
     protected int m_iTestableResponseCount = 0;
     public int getTestableResponseCount() {return m_iTestableResponseCount;}
 
-    //protected int m_iTestableNumericCharCount = 0;
-    //public int getTestableNumericCharCount() {return m_iTestableNumericCharCount;}
-
     protected int m_iWrongResponseCount = 0;
     public int getWrongResponseCount() {return m_iWrongResponseCount;}
 
@@ -44,10 +41,6 @@ public class TestResults
     public int getCorrectResponseCount()
     {
         return m_iTotalResponseCount - m_iWrongResponseCount;
-    }
-
-    public TestResults() throws Exception
-    {
     }
 
     public void addResponse(boolean bWasCorrect)
