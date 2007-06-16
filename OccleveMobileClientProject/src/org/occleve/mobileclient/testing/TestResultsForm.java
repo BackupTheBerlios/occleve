@@ -37,13 +37,13 @@ public class TestResultsForm extends Form implements CommandListener
         String text;
         StringItem si;
 
-        text = "Total keypresses = " + testResults.getTotalKeypressCount() +
+        text = "Total responses = " + testResults.getTotalResponseCount() +
                Constants.NEWLINE;
         si = new StringItem(null,text);
         StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
         append(si);
 
-        text = "Wrong keypresses = " + testResults.getWrongKeypressCount() +
+        text = "Wrong responses = " + testResults.getWrongResponseCount() +
                Constants.NEWLINE;
         si = new StringItem(null,text);
         StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);

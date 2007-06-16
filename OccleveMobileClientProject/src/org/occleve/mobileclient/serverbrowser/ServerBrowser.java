@@ -54,6 +54,8 @@ implements CommandListener,Runnable
     protected Displayable m_DisplayableAfterDownload;
 
     protected String m_sListOfTestsURL;
+    protected String m_sQuizURLStub;
+    protected String m_sQuizURLSuffix;
 
     public ServerBrowser()
     {
@@ -68,11 +70,15 @@ implements CommandListener,Runnable
         setCommandListener(this);
     }
 
-    public void populateAndDisplay(String sListOfTestsURL)
+    public void populateAndDisplay(String sListOfTestsURL,
+                                   String sQuizURLStub,
+                                   String sQuizURLSuffix)
     {
         try
         {
             m_sListOfTestsURL = sListOfTestsURL;
+            m_sQuizURLStub = sQuizURLStub;
+            m_sQuizURLSuffix = sQuizURLSuffix;
 
             m_iThreadAction = GET_LIST;
             Thread toPreventBlocking = new Thread( this );
@@ -221,20 +227,22 @@ implements CommandListener,Runnable
 
         // Try to make sure the line is correctly formatted.
         int iCommaIndex = sLine.indexOf(',');
-        int iFirstHyphenIndex = sLine.indexOf('-');
-        int iSecondHyphenIndex = sLine.indexOf('-',iFirstHyphenIndex+1);
 
-        if ((iCommaIndex!=-1) && (iSecondHyphenIndex!=-1))
+        // 0.9.3: Don't look for the hyphens... in order to tolerate
+        // the naming conventions for wikiversity quizzes.
+        //int iFirstHyphenIndex = sLine.indexOf('-');
+        //int iSecondHyphenIndex = sLine.indexOf('-',iFirstHyphenIndex+1);
+
+        if (iCommaIndex!=-1) /////&& (iSecondHyphenIndex!=-1))
         {
             // Parse the category but for now ignore it.
             // Next release will have a category screen which
             // allows you to descend into each category.
             String sCategory = sLine.substring(0,iCommaIndex);
 
-            String sLangPairAndTestName = sLine.substring(iCommaIndex+1);
-
-            m_vTestPageNames.addElement(sLangPairAndTestName);
-            append(sLangPairAndTestName,null);
+            String sQuizName = sLine.substring(iCommaIndex+1);
+            m_vTestPageNames.addElement(sQuizName);
+            append(sQuizName,null);
         }
     }
 
@@ -314,10 +322,6 @@ implements CommandListener,Runnable
 
     private void downloadTest(WikiConnection wc) throws Exception
     {
-        //int iSelIndex = getSelectedIndex();
-        //String sPageName = getString(iSelIndex);
-            ////m_vTestPageNames.elementAt(iSelIndex);
-
         m_ProgressAlert = new Alert(null, "Getting test from server...",
                                     null, null);
         m_ProgressAlert.setTimeout(Alert.FOREVER);
@@ -325,9 +329,8 @@ implements CommandListener,Runnable
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
         String sPageNameUnderscores = m_sPageNameToDownload.replace(' ','_');
-        String sURL = Config.PAGE_URL_STUB + sPageNameUnderscores +
-                      Config.PAGE_URL_SUFFIX;
-        System.out.println("Page URL = " + sURL);
+        String sURL = m_sQuizURLStub + sPageNameUnderscores + m_sQuizURLSuffix;
+        System.out.println("Quiz URL = " + sURL);
 
         boolean bIsISPWelcomePage = true;
         int iTries = 0;
@@ -344,15 +347,16 @@ implements CommandListener,Runnable
 
                 int iPreIndex = sLine.indexOf("<pre>");
                 int iClosingPreIndex = sLine.indexOf("</pre>");
+                int iQuizIndex = sLine.indexOf(Config.WIKIVERSITY_QUIZ_TAG_STUB);
 
                 if ((iPreIndex == -1) && (iClosingPreIndex == -1))
                 {
-                    //System.out.println(sLine);
                     sbSource.append(sLine + Constants.NEWLINE);
                 }
-                else
+
+                if ((iPreIndex!=-1) || (iClosingPreIndex!=-1) || (iQuizIndex!=-1))
                 {
-                    // If there's a <pre> or </pre> tag we can guess it's
+                    // If there's any of these tags we can guess it's
                     // not the ISP welcome page.
                     bIsISPWelcomePage = false;
                 }

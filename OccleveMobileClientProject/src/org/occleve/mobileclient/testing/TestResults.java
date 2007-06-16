@@ -17,48 +17,51 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.testing;
 
 import net.dclausen.microfloat.*;
 
+/**The meaning of "response" varies depending on the type of questions in the
+test. For magic typewriter questions, it's the keypresses. For multiple choice
+questions, it's the answers.*/
 public class TestResults
 {
-    protected int m_iTestableCharCount = 0;
-    public int getTestableCharCount() {return m_iTestableCharCount;}
+    protected int m_iTestableResponseCount = 0;
+    public int getTestableResponseCount() {return m_iTestableResponseCount;}
 
-    protected int m_iTestableNumericCharCount = 0;
-    public int getTestableNumericCharCount() {return m_iTestableNumericCharCount;}
+    //protected int m_iTestableNumericCharCount = 0;
+    //public int getTestableNumericCharCount() {return m_iTestableNumericCharCount;}
 
-    protected int m_iWrongKeypressCount = 0;
-    public int getWrongKeypressCount() {return m_iWrongKeypressCount;}
+    protected int m_iWrongResponseCount = 0;
+    public int getWrongResponseCount() {return m_iWrongResponseCount;}
 
-    protected int m_iTotalKeypressCount = 0;
-    public int getTotalKeypressCount() {return m_iTotalKeypressCount;}
+    protected int m_iTotalResponseCount = 0;
+    public int getTotalResponseCount() {return m_iTotalResponseCount;}
 
-    public int getCorrectKeypressCount()
+    public int getCorrectResponseCount()
     {
-        return m_iTotalKeypressCount - m_iWrongKeypressCount;
+        return m_iTotalResponseCount - m_iWrongResponseCount;
     }
 
     public TestResults() throws Exception
     {
     }
 
-    public void addKeypress(boolean bWasCorrect)
+    public void addResponse(boolean bWasCorrect)
     {
-        m_iTotalKeypressCount++;
+        m_iTotalResponseCount++;
 
-        if (!bWasCorrect) m_iWrongKeypressCount++;
+        if (!bWasCorrect) m_iWrongResponseCount++;
     }
 
-    public void addKeypresses(boolean bWereCorrect,int iCount)
+    public void addResponses(boolean bWereCorrect,int iCount)
     {
-        m_iTotalKeypressCount += iCount;
+        m_iTotalResponseCount += iCount;
 
-        if (!bWereCorrect) m_iWrongKeypressCount += iCount;
+        if (!bWereCorrect) m_iWrongResponseCount += iCount;
     }
 
     /**Returns a true integer, not an integer containing a packed
@@ -68,8 +71,8 @@ public class TestResults
         // fpii stands for "float packed into integer".
 
         int fpiiCorrect
-            = MicroFloat.intToFloat( getCorrectKeypressCount() );
-        int fpiiTotal = MicroFloat.intToFloat(  getTotalKeypressCount() );
+            = MicroFloat.intToFloat( getCorrectResponseCount() );
+        int fpiiTotal = MicroFloat.intToFloat(  getTotalResponseCount() );
         int fpiiPackedFraction = MicroFloat.div( fpiiCorrect, fpiiTotal );
 
         int fpiiHundred = MicroFloat.intToFloat((int)100);

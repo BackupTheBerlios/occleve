@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient;
@@ -36,12 +36,12 @@ public class Config
     public static final String SERVER_URL =
        "http://occleve.berlios.de/wiki/index.php/";
 
-    public static final String PAGE_URL_STUB =
+    public static final String OCCLEVE_QUIZ_URL_STUB =
        "http://occleve.berlios.de/wiki/index.php?title=";
 
-    public static final String PAGE_URL_SUFFIX = "&action=raw";
+    public static final String OCCLEVE_QUIZ_URL_SUFFIX = "&action=raw";
 
-    public static final String LIST_OF_TESTS_URL =
+    public static final String OCCLEVE_LIST_OF_TESTS_URL =
        "http://occleve.berlios.de/wiki/index.php?title=ListOfTests&action=raw";
 
     public static final String AUDIO_CLIP_URL_STUB =
@@ -65,12 +65,16 @@ public class Config
     public static final String WIKIVERSITY_URL =
        "http://occleve.berlios.de/wiki/index.php/";
 
-    public static final String WIKIVERSITY_PAGE_URL_STUB =
-       "http://en.wikiversity.org/w/index.php?title=";
+    public static final String WIKIVERSITY_QUIZ_URL_STUB =
+       "http://anonymouse.org/cgi-bin/anon-www.cgi/http://en.wikiversity.org/w/index.php?title=";
+       /////"http://en.wikiversity.org/w/index.php?title=";
+
+    public static final String WIKIVERSITY_QUIZ_URL_SUFFIX = "&action=raw";
 
     // For now the list of Wikiversity quizzes is stored on the Occleve wiki.
     public static final String WIKIVERSITY_LIST_OF_QUIZZES_URL =
-       "http://occleve.berlios.de/wiki/index.php?title=ListOfWVQuizzes&action=raw";
+       "http://anonymouse.org/cgi-bin/anon-www.cgi/http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
+       ////"http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
 
     public static final String WIKIVERSITY_QUIZ_TAG_STUB = "<quiz";
 }

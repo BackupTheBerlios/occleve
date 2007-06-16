@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.testing;
@@ -27,23 +27,19 @@ import org.occleve.mobileclient.*;
 
 public class JumpToForm extends Form implements CommandListener
 {
-    protected MagicTypewriterController m_TestController;
+    protected TestController m_TestController;
     protected TextField m_TextField;
 
-    public JumpToForm(MagicTypewriterController mtc)
+    public JumpToForm(TestController tc)
     {
         super("Jump to?");
-        m_TestController = mtc;
+        m_TestController = tc;
 
         StringItem si = new StringItem(null,"Jump to:");
         StaticHelpers.safeSetFont(si,OccleveMobileFonts.TITLE_FONT);
         append(si);
 
         m_TextField = new TextField("Question number:","1",10,TextField.ANY);
-
-        ///////// ,TextField.NUMERIC);
-        // m_TextField.setInitialInputMode("IS_SIMPLIFIED_HANZI");
-
         append(m_TextField);
 
         addCommand(new Command("Cancel",Command.BACK,0));

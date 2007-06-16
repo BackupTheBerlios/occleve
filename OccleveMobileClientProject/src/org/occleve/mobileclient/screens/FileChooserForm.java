@@ -139,6 +139,8 @@ implements CommandListener
             ///new FilenameItem(sDisplayText + Constants.NEWLINE,sFilename,recordStoreID);
             ///StaticHelpers.safeSetFont(item,OccleveMobileFonts.DETAILS_FONT);
 
+sDisplayText += "make this very long indeed oh yes really long name";
+
             append(sDisplayText,null);
         }
     }
@@ -171,12 +173,16 @@ implements CommandListener
         if (c==m_BrowseWikiversityCommand)
         {
             ServerBrowser browser = new ServerBrowser();
-            browser.populateAndDisplay(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL);
+            browser.populateAndDisplay(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
+                                       Config.WIKIVERSITY_QUIZ_URL_STUB,
+                                       Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
         }
         else if (c==m_BrowseOccleveCommand)
         {
             ServerBrowser browser = new ServerBrowser();
-            browser.populateAndDisplay(Config.LIST_OF_TESTS_URL);
+            browser.populateAndDisplay(Config.OCCLEVE_LIST_OF_TESTS_URL,
+                                       Config.OCCLEVE_QUIZ_URL_STUB,
+                                       Config.OCCLEVE_QUIZ_URL_SUFFIX);
         }
         else if (c==m_TestCommand)
         {

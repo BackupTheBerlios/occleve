@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.screens;
@@ -25,6 +25,8 @@ package org.occleve.mobileclient.screens;
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.testing.*;
+import org.occleve.mobileclient.testing.qacontrol.*;
+import org.occleve.mobileclient.testing.qaview.*;
 
 public class UnicodeInputScreen extends TextBox
 implements CommandListener,Runnable
@@ -74,7 +76,7 @@ implements CommandListener,Runnable
             OccleveMobileMidlet.getInstance().displayAlert(alert,this);
 
             // Peeking at the character counts as a "wrong" keypress.
-            m_TestResults.addKeypress(false);
+            m_TestResults.addResponse(false);
         }
         else if (c==m_CancelCommand)
         {
@@ -111,7 +113,7 @@ implements CommandListener,Runnable
                 char inputtedChar = contents.charAt(0);
 
                 boolean bCorrect = (inputtedChar==m_UnicodeCharToInput);
-                m_TestResults.addKeypress(bCorrect);
+                m_TestResults.addResponse(bCorrect);
 
                 if (bCorrect)
                 {

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.screens.options;
@@ -39,9 +39,10 @@ implements CommandListener,ItemCommandListener
     protected String RANDOM = "Random";
     protected ChoiceGroup m_SequentialOrRandomChoiceGroup;
 
-    protected String CANVAS = "Canvas view";
-    protected String FORM = "Form view";
-    protected ChoiceGroup m_ViewChoiceGroup;
+    //// Took this out in 0.9.3 as it was just confusing users.
+    //protected String CANVAS = "Canvas view";
+    //protected String FORM = "Form view";
+    //protected ChoiceGroup m_ViewChoiceGroup;
 
     protected Command m_OKCommand;
     protected Command m_CancelCommand;
@@ -70,10 +71,10 @@ implements CommandListener,ItemCommandListener
             new ChoiceGroup(null,ChoiceGroup.POPUP,orderChoices,null);
         append(m_SequentialOrRandomChoiceGroup);
 
-        String[] viewChoices = {CANVAS,FORM};
-        m_ViewChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,viewChoices,null);
-        append(m_ViewChoiceGroup);
+        //String[] viewChoices = {CANVAS,FORM};
+        //m_ViewChoiceGroup =
+        //    new ChoiceGroup(null,ChoiceGroup.POPUP,viewChoices,null);
+        //append(m_ViewChoiceGroup);
     }
 
     /**Implementation of CommandListener.*/
@@ -103,20 +104,22 @@ implements CommandListener,ItemCommandListener
         String sChoice = m_SequentialOrRandomChoiceGroup.getString(i);
         boolean bRandom = (sChoice.equals(RANDOM));
 
+        /*
         MagicTypewriterView view;
         i = m_ViewChoiceGroup.getSelectedIndex();
         sChoice = m_ViewChoiceGroup.getString(i);
         boolean bFormView = (sChoice.equals(FORM));
+        */
 
         QADirection direction = getQADirection();
 
-        MagicTypewriterController mtc;
+        TestController tc;
         if (bRandom)
-            mtc = new RandomMagicTypewriter(m_Test,direction,bFormView);
+            tc = new RandomTestController(m_Test,direction);
         else
-            mtc = new SequentialMagicTypewriter(m_Test,direction,bFormView);
+            tc = new SequentialTestController(m_Test,direction);
 
-        mtc.setVisible();
+        tc.setVisible();
     }
 
     public void makeVisible(Test test)
