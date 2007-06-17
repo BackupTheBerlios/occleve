@@ -22,13 +22,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient;
 
+/**Static constants for the entire midlet.*/
 public class Constants
 {
+    /**In most cases, you should use NEWLINE instead.*/
     public static String CRLF = "\r\n";
+
+    /**In most cases, you should use NEWLINE instead.*/
     public static String LF = "\n";
 
-    // public static String NEWLINE = "\r\n";
+    /**This is intended to make it easy to switch the entire
+    midlet code between using LF and CRLF.*/
     public static String NEWLINE = "\n";
+
     public static int NEWLINE_LENGTH = NEWLINE.length();
 
     public static String PRODUCT_NAME = "Occleve";

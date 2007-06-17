@@ -169,13 +169,15 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     {
         Vector items = new Vector();
 
-        StringItem qItem = new StringItem(null,m_sQuestion);
+        StringItem qItem =
+            new StringItem(null,m_sQuestion + Constants.NEWLINE);
         items.addElement(qItem);
 
         for (int i=0; i<m_vCorrectAnswers.size(); i++)
         {
             String sAnswer = (String)m_vCorrectAnswers.elementAt(i);
-            StringItem aItem = new StringItem(null,sAnswer);
+            StringItem aItem =
+                new StringItem(null,sAnswer + Constants.NEWLINE);
             items.addElement(aItem);
         }
 

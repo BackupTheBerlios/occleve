@@ -39,6 +39,10 @@ implements CommandListener
 {
     protected ListOfTests m_ListOfTests;
 
+    protected static final String NO_TESTS_IN_PHONE_MSG =
+            "Please download some tests either " +
+            "from Wikiversity or Occleve";
+
     protected CommandListener m_ExternalCommandListener;
     public void setExternalCommandListener(CommandListener cl)
     {
@@ -122,6 +126,13 @@ implements CommandListener
         ///boolean bKeypressesSupported = fcciTest.areKeypressesSupported();
 
         m_ListOfTests = new ListOfTests();
+
+        if (m_ListOfTests.getSize()==0)
+        {
+            append(NO_TESTS_IN_PHONE_MSG,null);
+            return;
+        }
+
         for (int i=0; i<m_ListOfTests.getSize(); i++)
         {
             String sFilename = m_ListOfTests.getFilename(i);
@@ -167,10 +178,6 @@ implements CommandListener
     /*Subfunction for code clarity.*/
     public void commandAction_Inner(Command c,Displayable d) throws Exception
     {
-        int iSelIndex = getSelectedIndex();
-        String sFilename = m_ListOfTests.getFilename(iSelIndex);
-        Integer iRSID = m_ListOfTests.getRecordStoreIDByIndex(iSelIndex);
-
         if (c==m_BrowseWikiversityCommand)
         {
             ServerBrowser browser =
@@ -187,7 +194,19 @@ implements CommandListener
                                       Config.OCCLEVE_QUIZ_URL_SUFFIX);
             browser.populateAndDisplay();
         }
-        else if (c==m_TestCommand)
+
+        // The rest of the commands aren't appropriate if there
+        // aren't any tests in the phone.
+        if (m_ListOfTests.getSize()==0)
+        {
+            return;
+        }
+
+        int iSelIndex = getSelectedIndex();
+        String sFilename = m_ListOfTests.getFilename(iSelIndex);
+        Integer iRSID = m_ListOfTests.getRecordStoreIDByIndex(iSelIndex);
+
+        if (c==m_TestCommand)
         {
             displayTestOptions(sFilename,iRSID);
         }

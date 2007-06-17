@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient.testing;
@@ -74,6 +74,15 @@ public class ListOfTests
     private void ListOfTests_LoadFromJar() throws Exception
     {
         String sContents = StaticHelpers.readUnicodeFile(FILENAME);
+
+        // Release 0.9.3 doesn't have any tests in the jar.
+        // Deal with this possibility.
+        sContents = sContents.trim();
+        if (sContents.length()==0)
+        {
+            System.out.println("No tests in the JAR...");
+            return;
+        }
 
         // FUDGE: Discard the first character of the contents list since
         // for reasons I don't understand, it's junk.

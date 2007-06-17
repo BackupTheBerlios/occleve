@@ -114,7 +114,9 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
             }
             else
             {
-                StringItem si = new StringItem(null, sAnswer + Constants.NEWLINE);
+                StringItem si =
+                    new StringItem(null, sAnswer + Constants.NEWLINE,
+                                   Item.HYPERLINK);
                 append(si);
                 si.setDefaultCommand(m_ChooseCommand);
                 si.setItemCommandListener(this);

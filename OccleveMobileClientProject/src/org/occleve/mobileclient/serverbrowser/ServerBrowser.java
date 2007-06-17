@@ -68,8 +68,9 @@ implements CommandListener,Runnable
         m_sQuizURLStub = sQuizURLStub;
         m_sQuizURLSuffix = sQuizURLSuffix;
 
-        m_DownloadTestCommand = new Command("Download", Command.ITEM, 0);
-        m_MyTestsCommand = new Command("Your tests", Command.ITEM, 1);
+        // The download test command should have the higher priority.
+        m_DownloadTestCommand = new Command("Download", Command.ITEM, 1);
+        m_MyTestsCommand = new Command("Your tests", Command.ITEM, 2);
 
         addCommand(m_DownloadTestCommand);
         addCommand(m_MyTestsCommand);
