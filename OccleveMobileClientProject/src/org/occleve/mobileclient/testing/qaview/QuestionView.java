@@ -32,5 +32,9 @@ public interface QuestionView
 
     /**If the view is not Canvas-based, may do nothing.*/
     public void doRepainting();
+
+    /**Basically, a bodge for the J2ME MicroEmulator so that
+    the MultipleChoiceSRFormView can clone itself.*/
+    public QuestionView perhapsClone() throws Exception;
 }
 

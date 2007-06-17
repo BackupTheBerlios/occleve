@@ -213,7 +213,7 @@ public abstract class TestController implements CommandListener
 
     /**Derived classes should provide appropriate behaviour in order to
     move to the next question.*/
-    public abstract void moveToNextQuestion();
+    public abstract void moveToNextQuestion() throws Exception;
 
     /**So that trace output from this class can be easily switched on/off.*/
     protected void trace(Object o)

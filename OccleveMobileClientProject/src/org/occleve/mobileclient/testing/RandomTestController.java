@@ -60,7 +60,7 @@ public class RandomTestController extends TestController
 */
 
     /*Implementation of TestForm.nextQuestion().*/
-    public void moveToNextQuestion()
+    public void moveToNextQuestion() throws Exception
     {
         Integer nextQuestionIndex =
             findRandomUnansweredQuestionIndex();
@@ -71,6 +71,10 @@ public class RandomTestController extends TestController
 
             m_iCurrentQAIndex = nextQuestionIndex.intValue();
             getCurrentQA().initialize(m_QADirection);
+
+            // A bodge for the J2ME MicroEmulator.
+            m_View = m_View.perhapsClone();
+
             m_View.doRepainting();
 
             // This is needed to force updating of the UI in

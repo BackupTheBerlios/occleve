@@ -100,5 +100,12 @@ implements QuestionView
 
         return sb.toString();
     }
+
+    /**No need to clone itself.*/
+    public QuestionView perhapsClone() throws Exception
+    {
+        return this;
+    }
+
 }
 

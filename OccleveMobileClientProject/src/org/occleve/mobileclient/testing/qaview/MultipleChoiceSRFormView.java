@@ -238,11 +238,21 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         try
         {
             Thread.sleep(2000);
-        }
-        catch (Exception e) {}
 
-        TestController tc = m_Controller.getTestController();
-        tc.moveToNextQuestion();
+            TestController tc = m_Controller.getTestController();
+            tc.moveToNextQuestion();
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
     }
+
+    /**Needs to clone itself for the J2ME MicroEmulator.*/
+    public QuestionView perhapsClone() throws Exception
+    {
+        return new MultipleChoiceSRFormView(m_Controller);
+    }
+
 }
 

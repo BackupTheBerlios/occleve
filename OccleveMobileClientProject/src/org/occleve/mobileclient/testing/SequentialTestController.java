@@ -77,12 +77,16 @@ public class SequentialTestController extends TestController
     }
 
     /*Implementation of TestForm.nextQuestion().*/
-    public void moveToNextQuestion()
+    public void moveToNextQuestion() throws Exception
     {
         if (m_iCurrentQAIndex < (m_Test.getQACount()-1))
         {
             m_iCurrentQAIndex++;
             getCurrentQA().initialize(m_QADirection);
+
+            // A bodge for the J2ME MicroEmulator.
+            m_View = m_View.perhapsClone();
+
             m_View.doRepainting();
 
             // This is needed to force updating of the UI in
