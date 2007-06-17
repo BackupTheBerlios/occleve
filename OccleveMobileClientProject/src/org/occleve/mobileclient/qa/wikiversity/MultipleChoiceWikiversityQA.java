@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa.wikiversity;
 
 import java.util.*;
+import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 
 /**The QA class for multiple choice questions in the wikiversity format.*/
@@ -71,6 +72,8 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
             if (sLine.length() > 0)
             {
                 String sRemainder = sLine.substring(1);
+                sRemainder = stripWikiMarkup(sRemainder);
+
                 char firstChar = sLine.charAt(0);
                 switch (firstChar)
                 {
@@ -106,13 +109,6 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     public boolean containsString(String s)
     {
         return false;
-    }
-
-
-    /**Implementation of abstract function in QA class.*/
-    public Vector getEntireContentsAsItems()
-    {
-        return null;
     }
 
     public String getEntireContentsAsString()
@@ -168,4 +164,23 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
         throw new Exception(sErr);
     }
 
+    /**Implementation of abstract function in QA class.*/
+    public Vector getEntireContentsAsItems()
+    {
+        Vector items = new Vector();
+
+        StringItem qItem = new StringItem(null,m_sQuestion);
+        items.addElement(qItem);
+
+        for (int i=0; i<m_vCorrectAnswers.size(); i++)
+        {
+            String sAnswer = (String)m_vCorrectAnswers.elementAt(i);
+            StringItem aItem = new StringItem(null,sAnswer);
+            items.addElement(aItem);
+        }
+
+        return items;
+    }
+
 }
+

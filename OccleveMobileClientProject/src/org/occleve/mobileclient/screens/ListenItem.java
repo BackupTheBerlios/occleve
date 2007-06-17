@@ -93,8 +93,12 @@ public class ListenItem extends StringItem implements Runnable
         }
         else
         {
-            // Load from wiki.
-            ServerBrowser browser = new ServerBrowser();
+            // Load from Occleve wiki.
+            ServerBrowser browser =
+                    new ServerBrowser(Config.OCCLEVE_LIST_OF_TESTS_URL,
+                                      Config.OCCLEVE_QUIZ_URL_STUB,
+                                      Config.OCCLEVE_QUIZ_URL_SUFFIX);
+
             m_ClipData =
                browser.loadAudioClipFromWiki(m_sAudioClipFilename,m_ProgressAlert);
 

@@ -23,11 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa.wikiversity;
 
 import java.util.*;
-//import javax.microedition.lcdui.*;
-
-//import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
-//import org.occleve.mobileclient.screens.*;
 
 /**The base QA class for questions in the Wikiversity quiz format.*/
 public abstract class WikiversityQA extends QA
@@ -56,14 +52,6 @@ public abstract class WikiversityQA extends QA
         return false;
     }
 
-
-    /**Implementation of abstract function in QA class.*/
-    public Vector getEntireContentsAsItems()
-    {
-        return null;
-    }
-
-
     /**Implementation of QA.toXML()*/
     public String toXML()
     {
@@ -85,4 +73,36 @@ public abstract class WikiversityQA extends QA
         v.addElement(m_sQuestion);
         return v;
     }
+
+    public String stripWikiMarkup(String sWikitext)
+    {
+        // For now just strip out the destination of wikilinks.
+        // But in the future it would be nice to make the StringItem
+        // containing such a link into an actual link to that page
+        // (that will fire up the phone's browser when clicked).
+        int iStartIndex = sWikitext.indexOf("[[");
+        int iEndIndex = sWikitext.indexOf("]]");
+        if ((iStartIndex!=-1) && (iEndIndex!=-1))
+        {
+            sWikitext =
+               stripWikiMarkup_WikiLink(sWikitext, iStartIndex, iEndIndex);
+        }
+
+        return sWikitext;
+    }
+
+    private String stripWikiMarkup_WikiLink(String sWikitext,
+                                            int iStartIndex,int iEndIndex)
+    {
+        int iPipeIndex = sWikitext.indexOf("|",iStartIndex);
+        if ((iPipeIndex>iStartIndex) && (iPipeIndex<iEndIndex))
+        {
+            return sWikitext.substring(iPipeIndex+1,iEndIndex);
+        }
+        else
+        {
+            return sWikitext.substring(iStartIndex+2,iEndIndex);
+        }
+    }
+
 }

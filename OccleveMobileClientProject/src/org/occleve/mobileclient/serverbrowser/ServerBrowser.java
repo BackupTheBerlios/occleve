@@ -57,10 +57,16 @@ implements CommandListener,Runnable
     protected String m_sQuizURLStub;
     protected String m_sQuizURLSuffix;
 
-    public ServerBrowser()
+    public ServerBrowser(String sListOfTestsURL,
+                         String sQuizURLStub,
+                         String sQuizURLSuffix)
     {
         super("Tests you can download",
               javax.microedition.lcdui.List.IMPLICIT);
+
+        m_sListOfTestsURL = sListOfTestsURL;
+        m_sQuizURLStub = sQuizURLStub;
+        m_sQuizURLSuffix = sQuizURLSuffix;
 
         m_DownloadTestCommand = new Command("Download", Command.ITEM, 0);
         m_MyTestsCommand = new Command("Your tests", Command.ITEM, 1);
@@ -70,15 +76,10 @@ implements CommandListener,Runnable
         setCommandListener(this);
     }
 
-    public void populateAndDisplay(String sListOfTestsURL,
-                                   String sQuizURLStub,
-                                   String sQuizURLSuffix)
+    public void populateAndDisplay()
     {
         try
         {
-            m_sListOfTestsURL = sListOfTestsURL;
-            m_sQuizURLStub = sQuizURLStub;
-            m_sQuizURLSuffix = sQuizURLSuffix;
 
             m_iThreadAction = GET_LIST;
             Thread toPreventBlocking = new Thread( this );

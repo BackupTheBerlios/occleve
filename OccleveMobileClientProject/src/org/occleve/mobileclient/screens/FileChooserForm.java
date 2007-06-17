@@ -28,6 +28,7 @@ import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
+import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.serverbrowser.*;
 import org.occleve.mobileclient.screens.options.*;
 import org.occleve.mobileclient.testing.*;
@@ -172,17 +173,19 @@ implements CommandListener
 
         if (c==m_BrowseWikiversityCommand)
         {
-            ServerBrowser browser = new ServerBrowser();
-            browser.populateAndDisplay(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
-                                       Config.WIKIVERSITY_QUIZ_URL_STUB,
-                                       Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
+            ServerBrowser browser =
+               new ServerBrowser(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
+                                 Config.WIKIVERSITY_QUIZ_URL_STUB,
+                                 Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
+            browser.populateAndDisplay();
         }
         else if (c==m_BrowseOccleveCommand)
         {
-            ServerBrowser browser = new ServerBrowser();
-            browser.populateAndDisplay(Config.OCCLEVE_LIST_OF_TESTS_URL,
-                                       Config.OCCLEVE_QUIZ_URL_STUB,
-                                       Config.OCCLEVE_QUIZ_URL_SUFFIX);
+            ServerBrowser browser =
+                    new ServerBrowser(Config.OCCLEVE_LIST_OF_TESTS_URL,
+                                      Config.OCCLEVE_QUIZ_URL_STUB,
+                                      Config.OCCLEVE_QUIZ_URL_SUFFIX);
+            browser.populateAndDisplay();
         }
         else if (c==m_TestCommand)
         {
@@ -194,8 +197,7 @@ implements CommandListener
         }
         else if (c==m_RedownloadCommand)
         {
-            ServerBrowser browser = new ServerBrowser();
-            browser.startDownloadingTest(sFilename,this);
+            redownloadQuiz(sFilename,iRSID);
         }
         else if (c==m_DevStuffScreenCommand)
         {
@@ -236,6 +238,16 @@ implements CommandListener
     {
        Test theTest = new Test(sFilename,iRecordStoreID);
 
+       // Until this software supports all wikiversity question types,
+       // this is a definite possibility.
+       if (theTest.getQACount()==0)
+       {
+           Alert alert = new Alert(null,Constants.EMPTY_QUIZ_MSG, null, null);
+           alert.setTimeout(Alert.FOREVER);
+           OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+           return;
+       }
+
        QA firstQA = theTest.getQA(0);
        if (firstQA instanceof LanguageQA)
        {
@@ -265,6 +277,33 @@ implements CommandListener
 
         Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(fi);
         */
+    }
+
+    protected void redownloadQuiz(String sFilename,Integer iRSID)
+    throws Exception
+    {
+        VocabRecordStoreManager rsMgr = new VocabRecordStoreManager();
+        String sTestSource = rsMgr.getTestContents(iRSID.intValue(),sFilename);
+
+        boolean bIsWikiversityQuiz = (sTestSource.indexOf("<quiz") != -1);
+
+        ServerBrowser browser;
+        if (bIsWikiversityQuiz)
+        {
+            browser =
+                    new ServerBrowser(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
+                                      Config.WIKIVERSITY_QUIZ_URL_STUB,
+                                      Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
+        }
+        else
+        {
+            browser =
+                    new ServerBrowser(Config.OCCLEVE_LIST_OF_TESTS_URL,
+                                      Config.OCCLEVE_QUIZ_URL_STUB,
+                                      Config.OCCLEVE_QUIZ_URL_SUFFIX);
+        }
+
+        browser.startDownloadingTest(sFilename,this);
     }
 }
 

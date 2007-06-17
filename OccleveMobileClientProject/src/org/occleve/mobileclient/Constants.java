@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.3
 */
 
 package org.occleve.mobileclient;
@@ -31,6 +31,12 @@ public class Constants
     public static String NEWLINE = "\n";
     public static int NEWLINE_LENGTH = NEWLINE.length();
 
-    public static String PRODUCT_NAME = "pocketchinese.com";
+    public static String PRODUCT_NAME = "Occleve";
+
+    public static String EMPTY_QUIZ_MSG =
+            "This quiz doesn't contain any " +
+            "testable questions. (The mobile " +
+            "client doesn't support all Wikiversity quiz " +
+            "question types yet, so that might be the reason)";
 }
 

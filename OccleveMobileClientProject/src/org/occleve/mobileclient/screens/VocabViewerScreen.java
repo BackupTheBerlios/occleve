@@ -96,6 +96,15 @@ implements CommandListener,ItemCommandListener
         // Clear any existing items.
         deleteAll();
 
+        // This is a definite possibility until the mobile client
+        // supports all wikiversity quiz types.
+        if (theTest.getQACount()==0)
+        {
+            StringItem empty = new StringItem(null,Constants.EMPTY_QUIZ_MSG);
+            append(empty);
+            return;
+        }
+
         for (int i=0; i<theTest.getQACount(); i++)
         {
             String sQuestionNo = Integer.toString(i+1);
@@ -126,16 +135,6 @@ implements CommandListener,ItemCommandListener
                     si.setItemCommandListener(this);
                 }
             }
-
-            /*
-            PRIOR TO 0.9.3 --- just got the contents as a single string.....
-            String qaContents =
-                sQuestionNo + ". " + currentQA.getEntireContentsAsString() +
-                Constants.NEWLINE + Constants.NEWLINE;
-            StringItem si = new StringItem(null,qaContents);
-            StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
-            append(si);
-            */
         }
     }
 

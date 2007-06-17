@@ -66,7 +66,7 @@ public class Config
        "http://occleve.berlios.de/wiki/index.php/";
 
     public static final String WIKIVERSITY_QUIZ_URL_STUB =
-       "http://occleve.berlios.de/fetch_wikiversity_quiz.php?quiz=";
+       "http://occleve.berlios.de/fetch_wikiversity_quiz_raw.php?quiz=";
        /////"http://anonymouse.org/cgi-bin/anon-www.cgi/http://en.wikiversity.org/w/index.php?title=";
        /////"http://en.wikiversity.org/w/index.php?title=";
 
@@ -74,8 +74,8 @@ public class Config
 
     // For now the list of Wikiversity quizzes is stored on the Occleve wiki.
     public static final String WIKIVERSITY_LIST_OF_QUIZZES_URL =
-       ///"http://occleve.berlios.de/fetch_wikiversity_quiz.php?quiz=ListOfQuizzesForMobileClient";
-       "http://anonymouse.org/cgi-bin/anon-www.cgi/http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
+       "http://occleve.berlios.de/fetch_wikiversity_quiz_raw.php?quiz=ListOfQuizzesForMobileClient";
+       ////"http://anonymouse.org/cgi-bin/anon-www.cgi/http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
        ////"http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
 
     public static final String WIKIVERSITY_QUIZ_TAG_STUB = "<quiz";
