@@ -27,6 +27,7 @@ import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
+import org.occleve.mobileclient.qa.wikiversity.*;
 import org.occleve.mobileclient.serverbrowser.*;
 import org.occleve.mobileclient.screens.options.*;
 import org.occleve.mobileclient.testing.*;
@@ -42,6 +43,10 @@ implements CommandListener
     {
         m_ExternalCommandListener = cl;
     }
+
+    /**Stored as a member so that the options are remembered between
+    invoking tests.*/
+    protected TestOptionsScreen m_TestOptionsScreen;
 
     /**Stored as a member so that the options are remembered between
     invoking tests.*/
@@ -99,6 +104,7 @@ implements CommandListener
 
         populateWithFilenames();
 
+        m_TestOptionsScreen = new TestOptionsScreen();
         m_SimpleTestOptionsScreen = new SimpleTestOptionsScreen();
         m_ChineseTestOptionsScreen = new ChineseTestOptionsScreen();
 
@@ -134,12 +140,6 @@ implements CommandListener
             //    FileChooserCustomItem fcci = new FileChooserCustomItem(this);
             //    append(fcci);
             //}
-
-            ///FilenameItem item =
-            ///new FilenameItem(sDisplayText + Constants.NEWLINE,sFilename,recordStoreID);
-            ///StaticHelpers.safeSetFont(item,OccleveMobileFonts.DETAILS_FONT);
-
-sDisplayText += "make this very long indeed oh yes really long name";
 
             append(sDisplayText,null);
         }
@@ -241,22 +241,15 @@ sDisplayText += "make this very long indeed oh yes really long name";
        {
            m_ChineseTestOptionsScreen.makeVisible(theTest);
        }
+       else if (firstQA instanceof WikiversityQA)
+       {
+           m_TestOptionsScreen.makeVisible(theTest);
+       }
        else
        {
            m_SimpleTestOptionsScreen.makeVisible(theTest);
        }
     }
-
-    /*
-    public void addCommandToAllItems(Command c)
-    {
-        final int iItemCount = size();
-        for (int i=0; i<iItemCount; i++)
-        {
-            /////get(i).addCommand(c);
-        }
-    }
-    */
 
     public void jumpToFilename(char cJumpToThis)
     {

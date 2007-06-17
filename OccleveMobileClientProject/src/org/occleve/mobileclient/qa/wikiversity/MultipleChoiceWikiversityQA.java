@@ -152,4 +152,20 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
         String sErr = "Error! No correct answer in MultipleChoiceWikiversityQA";
         throw new Exception(sErr);
     }
+
+    public String getFirstCorrectAnswer() throws Exception
+    {
+        for (int i=0; i<m_vAllAnswers.size(); i++)
+        {
+            if (isAnswerCorrect(i))
+            {
+                String sAnswer = (String)m_vAllAnswers.elementAt(i);
+                return sAnswer;
+            }
+        }
+
+        String sErr = "Error! No correct answer in MultipleChoiceWikiversityQA";
+        throw new Exception(sErr);
+    }
+
 }

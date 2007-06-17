@@ -31,13 +31,20 @@ import org.occleve.mobileclient.testing.qacontrol.*;
 
 /**For multiple choice, single response wikiversity quiz questions.*/
 public class MultipleChoiceSRFormView extends Form
-implements ItemStateListener,QuestionView,Runnable
+implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
 {
+    /**Whether this might be running in the microemulator
+    (in which case this class needs to use ChoiceGroup items
+    rather than StringItems).*/
+    protected boolean m_bMaybeEmulator;
+
     protected MultipleChoiceController m_Controller;
 
     protected StringItem m_QuestionItem;
-    protected ChoiceGroup m_AnswerChoiceGroup;
+    protected Vector m_vAnswerItems;
     protected StringItem m_ResultsItem;
+
+    protected Command m_ChooseCommand;
 
     public MultipleChoiceSRFormView(MultipleChoiceController controller)
     throws Exception
@@ -45,23 +52,25 @@ implements ItemStateListener,QuestionView,Runnable
         super("");
 
         m_QuestionItem = new StringItem("","");
-        m_AnswerChoiceGroup = new ChoiceGroup("",ChoiceGroup.MULTIPLE);
         m_ResultsItem = new StringItem("","");
 
+        m_ChooseCommand = new Command("Choose",Command.OK,0);
         m_Controller = controller;
-
-        append(m_QuestionItem);
-        append(m_AnswerChoiceGroup);
-        append(m_ResultsItem);
 
         // When a user selects an answer, that choice will be
         // immediately submitted for checking.
         setItemStateListener(this);
 
-        ////Command choose = new Command("Correct",Command.OK,1);
-        ////m_AnswerChoiceGroup.setItemCommandListener(this);
-        ////////m_AnswerChoiceGroup.addCommand(choose);
-        /////m_AnswerChoiceGroup.setDefaultCommand(choose);
+        try
+        {
+            String sModel = System.getProperty("microedition.platform");
+            System.out.println("microedition.platform = " + sModel);
+            m_bMaybeEmulator = false;
+        }
+        catch (Exception e)
+        {
+            m_bMaybeEmulator = true;
+        }
 
         populate();
     }
@@ -80,29 +89,57 @@ implements ItemStateListener,QuestionView,Runnable
 
     private void populate()
     {
+        deleteAll();
+
         TestController tc = m_Controller.getTestController();
 
         MultipleChoiceWikiversityQA wqa =
             (MultipleChoiceWikiversityQA)tc.getCurrentQA();
 
-        m_QuestionItem.setText( wqa.getQuestionString() );
+        m_QuestionItem.setText( wqa.getQuestionString() + Constants.NEWLINE );
+        append(m_QuestionItem);
 
         Vector vAllAnswers = wqa.getAllAnswers();
-        m_AnswerChoiceGroup.deleteAll();
+        m_vAnswerItems = new Vector();
         for (int i=0; i<vAllAnswers.size(); i++)
         {
             String sAnswer = (String)vAllAnswers.elementAt(i);
-            m_AnswerChoiceGroup.append(sAnswer,null);
+
+            if (m_bMaybeEmulator)
+            {
+                ChoiceGroup cg = new ChoiceGroup(null,Choice.MULTIPLE);
+                cg.append(sAnswer,null);
+                append(cg);
+                m_vAnswerItems.addElement(cg);
+            }
+            else
+            {
+                StringItem si = new StringItem(null, sAnswer + Constants.NEWLINE);
+                append(si);
+                si.setDefaultCommand(m_ChooseCommand);
+                si.setItemCommandListener(this);
+                m_vAnswerItems.addElement(si);
+            }
         }
 
         m_ResultsItem.setText( tc.getCurrentScore() );
+        append(m_ResultsItem);
     }
 
     /**Implementation of ItemCommandListener.*/
-    ///public void commandAction(Command c,Item item)
-    ///{
-    ///    System.out.println("Entering commandAction....");
-    ///}
+    public void commandAction(Command c,Item item)
+    {
+        System.out.println("Entering commandAction....");
+
+        try
+        {
+            onQuestionAnswered(item);
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
+    }
 
     /**Implementation of ItemStateListener.*/
     public void itemStateChanged(Item item)
@@ -111,27 +148,25 @@ implements ItemStateListener,QuestionView,Runnable
 
         try
         {
-            if (item == m_AnswerChoiceGroup)
-            {
-                int iSize = m_AnswerChoiceGroup.size();
-                boolean[] iSelIndices = new boolean[iSize];
-                m_AnswerChoiceGroup.getSelectedFlags(iSelIndices);
-
-                for (int i=0; i<iSize; i++)
-                {
-                    if (iSelIndices[i])
-                    {
-                        System.out.println("Selected index = " + i);
-                        onQuestionAnswered(i);
-                        return;
-                    }
-                }
-
-            }
+            onQuestionAnswered(item);
         }
         catch (Exception e)
         {
             OccleveMobileMidlet.getInstance().onError(e);
+        }
+    }
+
+    protected void onQuestionAnswered(Item answerItem) throws Exception
+    {
+        for (int i=0; i<m_vAnswerItems.size();i++)
+        {
+            Item item = (Item)m_vAnswerItems.elementAt(i);
+            if (item==answerItem)
+            {
+                System.out.println("Selected index = " + i);
+                onQuestionAnswered(i);
+                return;
+            }
         }
     }
 
@@ -154,8 +189,22 @@ implements ItemStateListener,QuestionView,Runnable
             results.addResponse(false);
 
             int iCorrectIndex = wqa.getFirstCorrectIndex();
-            String sAnswer = m_AnswerChoiceGroup.getString(iCorrectIndex);
-            m_AnswerChoiceGroup.set(iCorrectIndex,"***" + sAnswer + "***",null);
+            String sCorrectAnswer = wqa.getFirstCorrectAnswer();
+
+            // TODO - do this properly (polymorphically).
+            // Probably by creating a FauxStringItem class for the
+            // microemulator.
+            Item item = (Item)m_vAnswerItems.elementAt(iCorrectIndex);
+            if (item instanceof StringItem)
+            {
+                StringItem si = (StringItem)item;
+                si.setText("***" + sCorrectAnswer + "***" + Constants.NEWLINE);
+            }
+            else
+            {
+                ChoiceGroup cg = (ChoiceGroup)item;
+                cg.set(0,"***" + sCorrectAnswer + "***",null);
+            }
 
             Display d = Display.getDisplay(OccleveMobileMidlet.getInstance());
             d.flashBacklight(250);
@@ -178,7 +227,5 @@ implements ItemStateListener,QuestionView,Runnable
         TestController tc = m_Controller.getTestController();
         tc.moveToNextQuestion();
     }
-
-
 }
 

@@ -28,12 +28,13 @@ import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
-public abstract class TestOptionsScreen extends Form
+public class TestOptionsScreen extends Form
 implements CommandListener,ItemCommandListener
 {
     protected Test m_Test;
 
-    protected StringItem m_StartTestItem = new StringItem(null,"Start test");
+    protected StringItem m_StartTestItem =
+            new StringItem(null,"Start test",Item.BUTTON);
 
     protected String SEQUENTIAL = "In sequence";
     protected String RANDOM = "Random";
@@ -46,8 +47,6 @@ implements CommandListener,ItemCommandListener
 
     protected Command m_OKCommand;
     protected Command m_CancelCommand;
-
-    protected abstract QADirection getQADirection() throws Exception;
 
     public TestOptionsScreen() throws Exception
     {
@@ -70,6 +69,16 @@ implements CommandListener,ItemCommandListener
         m_SequentialOrRandomChoiceGroup =
             new ChoiceGroup(null,ChoiceGroup.POPUP,orderChoices,null);
         append(m_SequentialOrRandomChoiceGroup);
+
+/*
+ChoiceGroup dummyItem =
+     new ChoiceGroup(null,Choice.MULTIPLE);
+dummyItem.append("Hello",null);
+dummyItem.setDefaultCommand(m_OKCommand);
+dummyItem.setItemCommandListener(this);
+append(dummyItem);
+setItemStateListener(this);
+*/
 
         //String[] viewChoices = {CANVAS,FORM};
         //m_ViewChoiceGroup =
@@ -104,13 +113,6 @@ implements CommandListener,ItemCommandListener
         String sChoice = m_SequentialOrRandomChoiceGroup.getString(i);
         boolean bRandom = (sChoice.equals(RANDOM));
 
-        /*
-        MagicTypewriterView view;
-        i = m_ViewChoiceGroup.getSelectedIndex();
-        sChoice = m_ViewChoiceGroup.getString(i);
-        boolean bFormView = (sChoice.equals(FORM));
-        */
-
         QADirection direction = getQADirection();
 
         TestController tc;
@@ -141,5 +143,27 @@ implements CommandListener,ItemCommandListener
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
+
+    /*
+    public void itemStateChanged(Item item)
+    {
+        System.out.println("Entering itemStateChanged....");
+        try
+        {
+            runTest();
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
+    }
+    */
+
+   protected QADirection getQADirection() throws Exception
+   {
+       boolean bReverse = false;
+       return new SimpleQADirection(false);
+   }
+
 }
 
