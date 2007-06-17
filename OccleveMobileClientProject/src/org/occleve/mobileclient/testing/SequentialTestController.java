@@ -84,6 +84,10 @@ public class SequentialTestController extends TestController
             m_iCurrentQAIndex++;
             getCurrentQA().initialize(m_QADirection);
             m_View.doRepainting();
+
+            // This is needed to force updating of the UI in
+            // the J2ME MicroEmulator (microemu.org).
+            OccleveMobileMidlet.getInstance().setCurrentForm(m_View.getDisplayable());
         }
         else
         {

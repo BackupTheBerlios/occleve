@@ -25,7 +25,7 @@ package org.occleve.mobileclient.testing.qaview;
 import javax.microedition.lcdui.*;
 
 /**The different ways of viewing questions should all
-implement this.*/
+implement this interface.*/
 public interface QuestionView
 {
     public Displayable getDisplayable();

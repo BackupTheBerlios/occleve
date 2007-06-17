@@ -33,14 +33,15 @@ import org.occleve.mobileclient.testing.qacontrol.*;
 public class MultipleChoiceSRFormView extends Form
 implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
 {
-    /**Whether this might be running in the microemulator
+    /**Whether this might be running
+    in the J2ME MicroEmulator (microemu.org)
     (in which case this class needs to use ChoiceGroup items
     rather than StringItems).*/
-    protected boolean m_bMaybeEmulator;
+    protected boolean m_bMaybeMicroEmulator;
 
     protected MultipleChoiceController m_Controller;
 
-    protected StringItem m_QuestionItem;
+    protected Item m_QuestionItem;
     protected Vector m_vAnswerItems;
     protected StringItem m_ResultsItem;
 
@@ -51,7 +52,6 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
     {
         super("");
 
-        m_QuestionItem = new StringItem("","");
         m_ResultsItem = new StringItem("","");
 
         m_ChooseCommand = new Command("Choose",Command.OK,0);
@@ -65,11 +65,11 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         {
             String sModel = System.getProperty("microedition.platform");
             System.out.println("microedition.platform = " + sModel);
-            m_bMaybeEmulator = false;
+            m_bMaybeMicroEmulator = false;
         }
         catch (Exception e)
         {
-            m_bMaybeEmulator = true;
+            m_bMaybeMicroEmulator = true;
         }
 
         populate();
@@ -96,7 +96,22 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         MultipleChoiceWikiversityQA wqa =
             (MultipleChoiceWikiversityQA)tc.getCurrentQA();
 
-        m_QuestionItem.setText( wqa.getQuestionString() + Constants.NEWLINE );
+        // A workaround for the J2ME MicroEmulator (microemu.org).
+        // That sets the scroll offset to the first selectable item,
+        // meaning that if the question is a StringItem, it doesn't appear
+        // by default. Which is very confusing for the user.
+        // So for the MicroEmulator, use a single-item popup ChoiceGroup.
+        if (m_bMaybeMicroEmulator)
+        {
+            ChoiceGroup cg = new ChoiceGroup(null,Choice.POPUP);
+            cg.append(wqa.getQuestionString(),null);
+            m_QuestionItem = cg;
+        }
+        else
+        {
+            m_QuestionItem =
+               new StringItem(null,wqa.getQuestionString() + Constants.NEWLINE);
+        }
         append(m_QuestionItem);
 
         Vector vAllAnswers = wqa.getAllAnswers();
@@ -105,7 +120,7 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         {
             String sAnswer = (String)vAllAnswers.elementAt(i);
 
-            if (m_bMaybeEmulator)
+            if (m_bMaybeMicroEmulator)
             {
                 ChoiceGroup cg = new ChoiceGroup(null,Choice.MULTIPLE);
                 cg.append(sAnswer,null);
