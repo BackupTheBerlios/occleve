@@ -273,28 +273,6 @@ implements CommandListener,Runnable
         }
     }
 
-    /*
-    private void trace(String s)
-    {
-        m_ProgressAlert.setString(s);
-        pause();
-    }
-    */
-
-    /*
-    private void pause()
-    {
-        try
-        {
-            Thread.sleep(2000);
-        }
-        catch (Exception e)
-        {
-            OccleveMobileMidlet.getInstance().onError(e);
-        }
-    }
-    */
-
     /*Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable d)
     {
@@ -308,12 +286,12 @@ implements CommandListener,Runnable
             {
                 int iSelIndex = getSelectedIndex();
                 String sPageName = getString(iSelIndex);
-                    ////m_vTestPageNames.elementAt(iSelIndex);
-                m_sPageNameToDownload = sPageName;
+                startDownloadingTest(sPageName,this);
 
-                m_iThreadAction = DOWNLOAD_TEST;
-                Thread toPreventBlocking = new Thread(this);
-                toPreventBlocking.start();
+                //m_sPageNameToDownload = sPageName;
+                //m_iThreadAction = DOWNLOAD_TEST;
+                //Thread toPreventBlocking = new Thread(this);
+                //toPreventBlocking.start();
             }
         }
         catch (Exception e)
@@ -380,9 +358,12 @@ implements CommandListener,Runnable
                                         false);
         }
 
-        String sMsg = "Successfully loaded test";
+        String sMsg = "Successfully loaded " + m_sPageNameToDownload;
         if (iTries>1) sMsg += " (after " + iTries + " attempts)";
         m_ProgressAlert.setString(sMsg);
+
+        // Pause briefly so the user can actually read the message.
+        pause(3000);
     }
 
     public byte[] loadAudioClipFromWiki(String sAudioClipFilename,Alert progressAlert)
@@ -486,6 +467,18 @@ implements CommandListener,Runnable
         progressAlert.setString("Loaded MP3 ok");
 
         return clipData;
+    }
+
+    private void pause(long millis)
+    {
+        try
+        {
+            Thread.sleep(millis);
+        }
+        catch (Exception e)
+        {
+            OccleveMobileMidlet.getInstance().onError(e);
+        }
     }
 }
 
