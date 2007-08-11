@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.qa.wikiversity;
@@ -36,6 +36,9 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
      listed in the test.*/
     protected Vector m_vAllAnswers;
 
+    /**All feedback for answers, as String objects.*/
+    protected Vector m_vAllFeedback;
+    
     /**Contains boolean objects.*/
     protected Vector m_vIsAnswerCorrect;
 
@@ -49,9 +52,13 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     {Question
     |type="[]"}
     + Correct answer.
+    || Feedback for correct answer.
     - Incorrect answer.
+    || Feedback for incorrect answer.    
     + Correct answer.
+    || Feedback for correct answer.
     - Incorrect answer.
+    || Feedback for incorrect answer.    
     */
     public MultipleChoiceWikiversityQA(String sQuestion,
                                        VectorReader answerLines)
@@ -59,6 +66,7 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     {
         super(sQuestion);
         m_vAllAnswers = new Vector();
+        m_vAllFeedback = new Vector();
         m_vIsAnswerCorrect = new Vector();
         m_vCorrectAnswers = new Vector();
         m_vIncorrectAnswers = new Vector();
@@ -89,6 +97,13 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
                     m_vIsAnswerCorrect.addElement(WRONG);
                     m_vIncorrectAnswers.addElement(sRemainder);
                     break;
+                case '|':
+                	if (sLine.startsWith("||"))
+                	{
+                		sRemainder = sLine.substring(2);
+                        sRemainder = stripWikiMarkup(sRemainder);
+                        m_vAllFeedback.addElement(sRemainder);
+                	}
                 }
             }
         } while (sLine.length() > 0);
@@ -130,6 +145,7 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     }
 
     public Vector getAllAnswers() {return m_vAllAnswers;}
+    public Vector getAllFeedback() {return m_vAllFeedback;}
 
     public boolean isAnswerCorrect(int iIndex)
     {

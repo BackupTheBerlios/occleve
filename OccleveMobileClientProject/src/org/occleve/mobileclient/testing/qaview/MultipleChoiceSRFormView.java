@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.testing.qaview;
@@ -41,8 +41,13 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
 
     protected MultipleChoiceController m_Controller;
 
+    /**An Item which displays the question.*/
     protected Item m_QuestionItem;
+
+    /**Items which display all possible answers.*/
     protected Vector m_vAnswerItems;
+
+    /**An Item which displays the user's current score.*/
     protected StringItem m_ResultsItem;
 
     protected Command m_ChooseCommand;
@@ -202,6 +207,9 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         }
         else
         {
+        	// The user got this question wrong. Display INCORRECT in the
+        	// results item, and highlight the correct answer with asterisks.
+        	
             m_ResultsItem.setText("INCORRECT");
             results.addResponse(false);
 
