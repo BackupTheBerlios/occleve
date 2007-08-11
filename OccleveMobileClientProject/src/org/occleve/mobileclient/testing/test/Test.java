@@ -90,9 +90,7 @@ public class Test
         }
         else
         {
-            System.out.println("Loading old format test...");
-            Vector vFileContents = StaticHelpers.stringToVector(sTestSource);
-            Test_OldFormatLoader.oldFormatLoadQuestions(this,vFileContents);
+        	throw new Exception("Unknown test format");
         }
     }
 

@@ -104,16 +104,6 @@ public class LanguageQA extends QA
         }
     }
 
-    /**Deprecated - loads from the old format file.
-    Code now moved to a static helper class in order to keep this
-    class tidier.*/
-    public LanguageQA(VectorReader in) throws Exception
-    {
-        m_sFirsteseCode = "EN";
-        m_sSecondeseCode = "ZH";
-        LanguageQA_OldFormatLoader.load(this,in);
-    }
-
     public Vector getQuestion()
     {
         LanguageQADirection cqaDir = (LanguageQADirection)m_QADirection;
