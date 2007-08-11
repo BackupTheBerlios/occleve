@@ -123,7 +123,9 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         m_vAnswerItems = new Vector();
         for (int i=0; i<vAllAnswers.size(); i++)
         {
-            String sAnswer = (String)vAllAnswers.elementAt(i);
+            WikiversityAnswer answer =
+            	(WikiversityAnswer)vAllAnswers.elementAt(i);
+            String sAnswer = answer.getAnswer();
 
             if (m_bMaybeMicroEmulator)
             {
@@ -214,27 +216,33 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
             results.addResponse(false);
 
             int iCorrectIndex = wqa.getFirstCorrectIndex();
-            String sCorrectAnswer = wqa.getFirstCorrectAnswer();
+            WikiversityAnswer correctAnswer = wqa.getFirstCorrectAnswer();
+            String sCorrectAnswer = correctAnswer.getAnswer();
 
             // TODO - do this properly (polymorphically).
             // Probably by creating a FauxStringItem class for the
             // microemulator.
             Item item = (Item)m_vAnswerItems.elementAt(iCorrectIndex);
-            if (item instanceof StringItem)
-            {
-                StringItem si = (StringItem)item;
-                si.setText("***" + sCorrectAnswer + "***" + Constants.NEWLINE);
-            }
-            else
-            {
-                ChoiceGroup cg = (ChoiceGroup)item;
-                cg.set(0,"***" + sCorrectAnswer + "***",null);
-            }
+            setItemText(item,"***" + sCorrectAnswer + "***" + Constants.NEWLINE);
 
             Display d = Display.getDisplay(OccleveMobileMidlet.getInstance());
             d.flashBacklight(250);
         }
 
+        // If any answers have associated feedback, show it.
+        Vector vAll = wqa.getAllAnswers();
+        for (int i=0; i<vAll.size(); i++)
+        {
+        	WikiversityAnswer answer = (WikiversityAnswer)vAll.elementAt(i);
+        	String sFeedback = answer.getFeedback();
+        	if (sFeedback!=null)
+        	{
+                Item item = (Item)m_vAnswerItems.elementAt(i);
+                String sExisting = getItemText(item);
+                setItemText(item,sExisting + sFeedback + Constants.NEWLINE);
+        	}
+        }
+        
         // Start a new thread which pauses before moving onto the
         // next question. This is done in a separate thread so that
         // the phone's UI can update with the changes made above.
@@ -262,5 +270,36 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         return new MultipleChoiceSRFormView(m_Controller);
     }
 
+    /**Helper function to simplify dealing with the fact that
+    the Items on this screen may be StringItems or ChoiceGroups.*/
+    private String getItemText(Item item)
+    {
+        if (item instanceof StringItem)
+        {
+            StringItem si = (StringItem)item;
+            return si.getText();
+        }
+        else
+        {
+            ChoiceGroup cg = (ChoiceGroup)item;
+            return cg.getString(0);
+        }    	
+    }
+
+    /**Helper function to simplify dealing with the fact that
+    the Items on this screen may be StringItems or ChoiceGroups.*/
+    private void setItemText(Item item,String sText)
+    {
+        if (item instanceof StringItem)
+        {
+            StringItem si = (StringItem)item;
+            si.setText(sText);
+        }
+        else
+        {
+            ChoiceGroup cg = (ChoiceGroup)item;
+            cg.set(0,sText,null);
+        }    	
+    }
 }
 

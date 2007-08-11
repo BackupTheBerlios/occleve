@@ -32,20 +32,17 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     static final Boolean RIGHT = new Boolean(true);
     static final Boolean WRONG = new Boolean(false);
 
-    /**All answers, as String objects, in the order in which they are
-     listed in the test.*/
+    /**All responses, as WikiversityAnswer objects, in the order in
+    which they are listed in the test.*/
     protected Vector m_vAllAnswers;
-
-    /**All feedback for answers, as String objects.*/
-    protected Vector m_vAllFeedback;
     
-    /**Contains boolean objects.*/
+    /**Contains Boolean objects.*/
     protected Vector m_vIsAnswerCorrect;
 
-    /**Contains String objects.*/
+    /**Contains WikiversityAnswer objects.*/
     protected Vector m_vCorrectAnswers;
 
-    /**Contains String objects.*/
+    /**Contains WikiversityAnswer objects.*/
     protected Vector m_vIncorrectAnswers;
 
     /**Load the QA from wikitext. Maximal format is:
@@ -66,7 +63,6 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     {
         super(sQuestion);
         m_vAllAnswers = new Vector();
-        m_vAllFeedback = new Vector();
         m_vIsAnswerCorrect = new Vector();
         m_vCorrectAnswers = new Vector();
         m_vIncorrectAnswers = new Vector();
@@ -79,8 +75,8 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
 
             if (sLine.length() > 0)
             {
-                String sRemainder = sLine.substring(1);
-                sRemainder = stripWikiMarkup(sRemainder);
+                String remainder = sLine.substring(1);
+                remainder = stripWikiMarkup(remainder);
 
                 char firstChar = sLine.charAt(0);
                 switch (firstChar)
@@ -88,21 +84,26 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
                 case '{':
                     throw new Exception("Error! Unexpected start of question");
                 case '+':
-                    m_vAllAnswers.addElement(sRemainder);
+                	WikiversityAnswer correct = new WikiversityAnswer(remainder);
+                    m_vAllAnswers.addElement(correct);
                     m_vIsAnswerCorrect.addElement(RIGHT);
-                    m_vCorrectAnswers.addElement(sRemainder);
+                    m_vCorrectAnswers.addElement(correct);
                     break;
                 case '-':
-                    m_vAllAnswers.addElement(sRemainder);
+                	WikiversityAnswer res = new WikiversityAnswer(remainder);
+                    m_vAllAnswers.addElement(res);
                     m_vIsAnswerCorrect.addElement(WRONG);
-                    m_vIncorrectAnswers.addElement(sRemainder);
+                    m_vIncorrectAnswers.addElement(res);
                     break;
                 case '|':
                 	if (sLine.startsWith("||"))
                 	{
-                		sRemainder = sLine.substring(2);
+                		String sRemainder = sLine.substring(2);
                         sRemainder = stripWikiMarkup(sRemainder);
-                        m_vAllFeedback.addElement(sRemainder);
+
+                        WikiversityAnswer lastAnswer =
+                			(WikiversityAnswer)m_vAllAnswers.lastElement();
+                        lastAnswer.setFeedback(sRemainder);
                 	}
                 }
             }
@@ -145,7 +146,6 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     }
 
     public Vector getAllAnswers() {return m_vAllAnswers;}
-    public Vector getAllFeedback() {return m_vAllFeedback;}
 
     public boolean isAnswerCorrect(int iIndex)
     {
@@ -165,14 +165,15 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
         throw new Exception(sErr);
     }
 
-    public String getFirstCorrectAnswer() throws Exception
+    public WikiversityAnswer getFirstCorrectAnswer() throws Exception
     {
         for (int i=0; i<m_vAllAnswers.size(); i++)
         {
             if (isAnswerCorrect(i))
             {
-                String sAnswer = (String)m_vAllAnswers.elementAt(i);
-                return sAnswer;
+                WikiversityAnswer answer =
+                	(WikiversityAnswer)m_vAllAnswers.elementAt(i);
+                return answer;
             }
         }
 
@@ -191,14 +192,14 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
 
         for (int i=0; i<m_vCorrectAnswers.size(); i++)
         {
-            String sAnswer = (String)m_vCorrectAnswers.elementAt(i);
+            WikiversityAnswer answer =
+            	(WikiversityAnswer)m_vCorrectAnswers.elementAt(i);
             StringItem aItem =
-                new StringItem(null,sAnswer + Constants.NEWLINE);
+                new StringItem(null,answer.getAnswer() + Constants.NEWLINE);
             items.addElement(aItem);
         }
 
         return items;
     }
-
 }
 
