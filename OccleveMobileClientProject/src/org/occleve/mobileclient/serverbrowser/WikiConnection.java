@@ -41,14 +41,29 @@ public class WikiConnection
     private int m_iPageLengthInBytes;
     public int getPageLength() {return m_iPageLengthInBytes;}
 
+    /**Connection problems with new combinations of phones and ISPs
+    is a certainty not a possibility... This provides
+    more detail on the context of IOExceptions.*/
+    private String m_sConnectionAction;
+    public void setConnectionAction(String s) {m_sConnectionAction = s;}
+    public String getConnectionAction() {return m_sConnectionAction;}
+    
     public InputStreamReader openISR(String sURL,Alert progressAlert)
     throws Exception
     {
+
+    	//outputRawConnectionDataViaException(sURL);
+    	
+    	setConnectionAction("Calling WikiConnection.openInputStream");
         openInputStream(sURL,progressAlert);
 
+    	setConnectionAction("Creating new InputStreamReader");
         m_InputStreamReader =
             new InputStreamReader(m_InputStream,Config.ENCODING);
+
+    	setConnectionAction("Checking InputStreamReader.ready()");
         System.out.println("reader.ready() = " + m_InputStreamReader.ready());
+
         return m_InputStreamReader;
     }
 
@@ -64,22 +79,30 @@ public class WikiConnection
     private void openInputStream(String sURL,Alert progressAlert)
     throws Exception
     {
-        m_HttpConnection = (HttpConnection)Connector.open(sURL);
+    	setConnectionAction("Calling Connector.open()");
+    	m_HttpConnection =
+    		(HttpConnection)Connector.open(sURL,Connector.READ);
 
         if (progressAlert!=null)
         {
             progressAlert.setString("Connecting to " + sURL);
         }
 
+    	//setConnectionAction("Pausing for a few secs after Connector.open()");
+        //Thread.sleep(7000);
+        
         // Getting the response code will open the connection,
         // send the request, and read the HTTP response headers.
         // The headers are stored until requested.
+    	setConnectionAction("Calling HttpConnection.getResponseCode");
         int rc = m_HttpConnection.getResponseCode();
         if (rc != HttpConnection.HTTP_OK)
         {
+        	setConnectionAction("Response code not HTTP_OK... throwing IOException");
             throw new IOException("HTTP response code indicates failure: " + rc);
         }
 
+    	setConnectionAction("Calling HttpConnection.openInputStream()");
         m_InputStream = m_HttpConnection.openInputStream();
 
         if (progressAlert!=null)
@@ -88,8 +111,10 @@ public class WikiConnection
         }
 
         // Get the ContentType
+    	setConnectionAction("Calling HttpConnection.getType()");
         String type = m_HttpConnection.getType();
 
+    	setConnectionAction("Calling HttpConnection.getLength()");
         m_iPageLengthInBytes = (int)m_HttpConnection.getLength();
         System.out.println("Length = " + m_iPageLengthInBytes);
     }
@@ -102,4 +127,31 @@ public class WikiConnection
        m_InputStream.close();
        m_HttpConnection.close();
     }
+    
+    private void outputRawConnectionDataViaException(String url)
+    throws Exception
+    {
+        StreamConnection c = null;
+        InputStream s = null;
+
+    	setConnectionAction("Calling Connector.open()");
+        c = (StreamConnection)Connector.open(url);
+
+    	setConnectionAction("Calling Connector.openInputStream()");
+        s = c.openInputStream();
+        
+        int ch;
+        StringBuffer rawChars = new StringBuffer();
+
+    	setConnectionAction("Calling InputStream.read()");
+        while ((ch = s.read()) != -1)
+        {
+        	char castedChar = (char)ch;
+        	rawChars.append(castedChar);
+        	setConnectionAction("Appended one char: string so far" + rawChars.toString());
+        }
+        
+        throw new Exception("Raw data from connection: " + rawChars.toString());
+    }
+
 }

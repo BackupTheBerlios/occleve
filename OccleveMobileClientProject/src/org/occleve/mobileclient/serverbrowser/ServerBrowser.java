@@ -158,7 +158,8 @@ implements CommandListener,Runnable
             }
             catch (Exception e2) {System.err.println(e2);}
 
-            OccleveMobileMidlet.getInstance().onError(e);
+            String sMsg = e.toString() + "... " + wc.getConnectionAction();
+            OccleveMobileMidlet.getInstance().onError(sMsg);
         }
     }
 
@@ -179,11 +180,15 @@ implements CommandListener,Runnable
 
         do
         {
+        	wc.setConnectionAction("Calling WikiConnection.openISR");
             reader = wc.openISR(m_sListOfTestsURL,m_ProgressAlert);
+
             int iLineCount = 0;
             do
             {
+            	wc.setConnectionAction("Calling StaticHelpers.readFromISR");
                 String sLine = StaticHelpers.readFromISR(reader, true);
+                
                 System.out.println(sLine);
                 processLineInListOfTests(sLine);
 
@@ -200,7 +205,9 @@ implements CommandListener,Runnable
                       (iTries<Config.CONNECTION_TRIES_LIMIT));
         } while (bRetry);
 
+    	wc.setConnectionAction("Calling WikiConnection.close()");
         wc.close();
+
         m_ProgressAlert.setString("Closed connection to wiki (tries=" + iTries + ")");
 
         if (m_bListOfTestsIsValid==false)
