@@ -25,6 +25,8 @@ package org.occleve.mobileclient.excludable.rapidadd;
 import java.util.Vector;
 import javax.microedition.lcdui.*;
 
+import org.occleve.mobileclient.OccleveMobileMidlet;
+
 public class MultipleChoiceWQARapidAddController extends RapidAddController
 {
 	private RapidAddTextBox m_QuestionTextBox;
@@ -67,6 +69,41 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
 
 	}
 
+   /**Override of RapidAddController.commandAction().*/
+   public void commandAction(Command c, Displayable s)
+   {
+       if (c==m_YesCommand)
+       {
+    	   addAnotherAnswer();
+       }
+       else if (c==m_NoCommand)
+       {
+    	   try
+    	   {
+    		   addNewTestQuestion();
+    	   }
+    	   catch (Exception e)
+    	   {
+    		   OccleveMobileMidlet.getInstance().onError(e);
+    	   }
+       }
+       else
+       {
+    	   super.commandAction(c,s);
+       }
+   }
+
+   protected void addAnotherAnswer()
+   {
+	   // Save the response just defined.
+	   
+	   // Now move back in the screen sequence so the user can
+	   // enter an additional response.
+	   m_iCurrentScreenIndex = 1;
+	   Displayable curr = (Displayable)m_ScreenSequence.elementAt(m_iCurrentScreenIndex);
+	   setCurrentScreen(curr);
+   }
+   
    protected void onOK() throws Exception
    {
 	   int iLastIndex = m_ScreenSequence.size()-1;
