@@ -42,7 +42,7 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
     protected MultipleChoiceController m_Controller;
 
     /**An Item which displays the question.*/
-    protected Item m_QuestionItem;
+    protected MicroEmulatorSafeStringItem m_QuestionItem;
 
     /**Items which display all possible answers.*/
     protected Vector m_vAnswerItems;
@@ -106,18 +106,9 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         // meaning that if the question is a StringItem, it doesn't appear
         // by default. Which is very confusing for the user.
         // So for the MicroEmulator, use a single-item popup ChoiceGroup.
-        if (m_bMaybeMicroEmulator)
-        {
-            ChoiceGroup cg = new ChoiceGroup(null,Choice.POPUP);
-            cg.append(wqa.getQuestionString(),null);
-            m_QuestionItem = cg;
-        }
-        else
-        {
-            m_QuestionItem =
-               new StringItem(null,wqa.getQuestionString() + Constants.NEWLINE);
-        }
-        append(m_QuestionItem);
+        m_QuestionItem =
+        	new MicroEmulatorSafeStringItem(wqa.getQuestionString(),false);
+        append(m_QuestionItem.getItem());
 
         Vector vAllAnswers = wqa.getAllAnswers();
         m_vAnswerItems = new Vector();
@@ -126,24 +117,14 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
             WikiversityAnswer answer =
             	(WikiversityAnswer)vAllAnswers.elementAt(i);
             String sAnswer = answer.getAnswer();
+            
+            MicroEmulatorSafeStringItem answerItem =
+            	new MicroEmulatorSafeStringItem(sAnswer,true);
+            append(answerItem.getItem());
+            m_vAnswerItems.addElement(answerItem);
 
-            if (m_bMaybeMicroEmulator)
-            {
-                ChoiceGroup cg = new ChoiceGroup(null,Choice.MULTIPLE);
-                cg.append(sAnswer,null);
-                append(cg);
-                m_vAnswerItems.addElement(cg);
-            }
-            else
-            {
-                StringItem si =
-                    new StringItem(null, sAnswer + Constants.NEWLINE,
-                                   Item.HYPERLINK);
-                append(si);
-                si.setDefaultCommand(m_ChooseCommand);
-                si.setItemCommandListener(this);
-                m_vAnswerItems.addElement(si);
-            }
+            answerItem.getItem().setDefaultCommand(m_ChooseCommand);
+            answerItem.getItem().setItemCommandListener(this);            
         }
 
         m_ResultsItem.setText( tc.getCurrentScore() );
@@ -184,8 +165,9 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
     {
         for (int i=0; i<m_vAnswerItems.size();i++)
         {
-            Item item = (Item)m_vAnswerItems.elementAt(i);
-            if (item==answerItem)
+            MicroEmulatorSafeStringItem safeItem =
+            	(MicroEmulatorSafeStringItem)m_vAnswerItems.elementAt(i);
+            if (safeItem.getItem()==answerItem)
             {
                 System.out.println("Selected index = " + i);
                 onQuestionAnswered(i);
@@ -219,11 +201,9 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
             WikiversityAnswer correctAnswer = wqa.getFirstCorrectAnswer();
             String sCorrectAnswer = correctAnswer.getAnswer();
 
-            // TODO - do this properly (polymorphically).
-            // Probably by creating a FauxStringItem class for the
-            // microemulator.
-            Item item = (Item)m_vAnswerItems.elementAt(iCorrectIndex);
-            setItemText(item,"***" + sCorrectAnswer + "***" + Constants.NEWLINE);
+            MicroEmulatorSafeStringItem item =
+            	(MicroEmulatorSafeStringItem)m_vAnswerItems.elementAt(iCorrectIndex);
+            item.setText("***" + sCorrectAnswer + "***" + Constants.NEWLINE);
 
             Display d = Display.getDisplay(OccleveMobileMidlet.getInstance());
             d.flashBacklight(250);
@@ -237,9 +217,10 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         	String sFeedback = answer.getFeedback();
         	if (sFeedback!=null)
         	{
-                Item item = (Item)m_vAnswerItems.elementAt(i);
-                String sExisting = getItemText(item);
-                setItemText(item,sExisting + sFeedback + Constants.NEWLINE);
+                MicroEmulatorSafeStringItem item =
+                	(MicroEmulatorSafeStringItem)m_vAnswerItems.elementAt(i);
+                String sExisting = item.getText();
+                item.setText(sExisting + sFeedback + Constants.NEWLINE);
         	}
         }
         
@@ -270,36 +251,57 @@ implements ItemCommandListener,ItemStateListener,QuestionView,Runnable
         return new MultipleChoiceSRFormView(m_Controller);
     }
 
-    /**Helper function to simplify dealing with the fact that
-    the Items on this screen may be StringItems or ChoiceGroups.*/
-    private String getItemText(Item item)
+    
+    /**Helper class to simplify dealing with the fact that
+    the Items on this screen may be StringItems or
+    single-choice ChoiceGroups.*/
+    private class MicroEmulatorSafeStringItem
     {
-        if (item instanceof StringItem)
-        {
-            StringItem si = (StringItem)item;
-            return si.getText();
-        }
-        else
-        {
-            ChoiceGroup cg = (ChoiceGroup)item;
-            return cg.getString(0);
-        }    	
-    }
+    	private ChoiceGroup m_ChoiceGroup;
+    	private StringItem m_StringItem;
+    	
+    	public MicroEmulatorSafeStringItem(String sText,boolean bHyperlink)
+    	{
+            if (m_bMaybeMicroEmulator)
+            {
+                m_ChoiceGroup = new ChoiceGroup(null,Choice.POPUP);
+                m_ChoiceGroup.append(sText,null);
+            }
+            else
+            {
+            	if (bHyperlink)
+            		m_StringItem = new StringItem(null,
+            				sText + Constants.NEWLINE,Item.HYPERLINK);            		
+            	else
+            		m_StringItem =
+            			new StringItem(null,sText + Constants.NEWLINE);
+            }    		
+    	}
 
-    /**Helper function to simplify dealing with the fact that
-    the Items on this screen may be StringItems or ChoiceGroups.*/
-    private void setItemText(Item item,String sText)
-    {
-        if (item instanceof StringItem)
+    	public Item getItem()
+    	{
+    		if (m_ChoiceGroup!=null)
+    			return m_ChoiceGroup;
+    		else
+    			return m_StringItem;
+    	}
+    	
+        private String getText()
         {
-            StringItem si = (StringItem)item;
-            si.setText(sText);
+            if (m_StringItem!=null)
+                return m_StringItem.getText();
+            else
+                return m_ChoiceGroup.getString(0);
         }
-        else
+
+        private void setText(String sText)
         {
-            ChoiceGroup cg = (ChoiceGroup)item;
-            cg.set(0,sText,null);
+            if (m_StringItem!=null)
+                m_StringItem.setText(sText + Constants.NEWLINE);
+            else
+                m_ChoiceGroup.set(0,sText,null);
         }    	
     }
+    
 }
 
