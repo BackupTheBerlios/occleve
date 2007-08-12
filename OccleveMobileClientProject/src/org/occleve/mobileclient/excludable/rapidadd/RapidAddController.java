@@ -47,14 +47,17 @@ implements CommandListener,Excludable
 
     // The input sequence...
 
+    /**All the screens in the sequence, as Displayable objects.
+    This can include the same instance of a Displayable more than once.*/
     protected Vector m_ScreenSequence;
-    protected Displayable m_CurrentScreen;
+    
+    protected int m_iCurrentScreenIndex;
 
     public RapidAddController() throws Exception
     {
         m_OKCommand = new Command("OK",Command.OK,0);
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
-        CommandListener clr = this;
+        CommandListener clr = this;        
     }
 
     /**Implementation of Excludable*/
@@ -62,11 +65,11 @@ implements CommandListener,Excludable
     {
         Displayable curr = (Displayable)m_ScreenSequence.firstElement();
         setCurrentScreen(curr);
+        m_iCurrentScreenIndex = 0;
     }
 
     protected void setCurrentScreen(Displayable d)
     {
-        m_CurrentScreen = d;
         OccleveMobileMidlet.getInstance().setCurrentForm(d);
     }
 
@@ -91,18 +94,14 @@ implements CommandListener,Excludable
        }
    }
 
-   /**Move to the next screen.*/
-   protected void onOK() throws Exception
+   public void moveToNextScreen()
    {
-       if (1==0)
-       {
-       }
-       else
-       {
-           OccleveMobileMidlet.getInstance().onError("Invalid value of m_iCurrentStep in RapidAddController");
-       }
+	   m_iCurrentScreenIndex++;
+	   Displayable curr =
+		   (Displayable)m_ScreenSequence.elementAt(m_iCurrentScreenIndex);
+	   setCurrentScreen(curr);	   
    }
-
+   
    protected void setTitle(TextBox tb,String sPrompt)
    {
        // Get the time.
@@ -110,6 +109,7 @@ implements CommandListener,Excludable
        tb.setTitle(sTime);
    }
 
+   protected abstract void onOK() throws Exception;
    protected abstract void addNewTestQuestion() throws Exception;
 }
 

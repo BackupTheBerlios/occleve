@@ -17,25 +17,39 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.excludable.rapidadd;
 
 import javax.microedition.lcdui.*;
 
-public class RapidAddTextBox extends TextBox
+/**Used for selecting whether a multiple choice response
+is correct or not.*/
+public class RACorrectIncorrectScreen extends javax.microedition.lcdui.List
 {
-   public RapidAddTextBox(String sTitle,Command okCommand,
-		   						Command cancelCommand,
-                                CommandListener clr) throws Exception
+    protected static String CORRECT = "Correct";
+    protected static String INCORRECT = "Incorrect";
+
+    public RACorrectIncorrectScreen(Command okCommand,Command cancelCommand,
+                                CommandListener clr)
+    throws Exception
     {
-        super(sTitle,"",100,TextField.ANY);
+        super("Correct?",List.IMPLICIT);
 
         addCommand(okCommand);
         addCommand(cancelCommand);
         setCommandListener(clr);
 
+        append(CORRECT,null);
+        append(INCORRECT,null);
+    }
+
+    public boolean isCorrect()
+    {
+        int iIndex = getSelectedIndex();
+        String sChoice = getString(iIndex);
+        return (sChoice.equals(CORRECT));
     }
 }
 

@@ -78,8 +78,8 @@ public class RapidAddController_Obsolete implements CommandListener,Excludable
         CommandListener clr = this;
 
         m_TypeScreen = new RAQuestionTypeScreen(m_OKCommand,m_CancelCommand,clr);
-        m_LatinTextBox = new RapidAddTextBox(m_OKCommand,m_CancelCommand,clr);
-        m_HanziTextBox = new RapidAddTextBox(m_OKCommand,m_CancelCommand,clr);
+        m_LatinTextBox = new RapidAddTextBox("",m_OKCommand,m_CancelCommand,clr);
+        m_HanziTextBox = new RapidAddTextBox("",m_OKCommand,m_CancelCommand,clr);
     }
 
     /**Implementation of Excludable*/

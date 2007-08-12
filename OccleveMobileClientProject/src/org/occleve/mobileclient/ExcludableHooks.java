@@ -58,7 +58,7 @@ public class ExcludableHooks
     public static void displayRapidAdd(String sFilename,Integer iRecordStoreID)
                                        throws Exception
     {
-        Class racClass = classForName("org.occleve.mobileclient.excludable.rapidadd.RapidAddController");
+        Class racClass = classForName("org.occleve.mobileclient.excludable.rapidadd.MultipleChoiceWQARapidAddController");
         Excludable rac = (Excludable)racClass.newInstance();
 
         rac.setTestFilename(sFilename);
