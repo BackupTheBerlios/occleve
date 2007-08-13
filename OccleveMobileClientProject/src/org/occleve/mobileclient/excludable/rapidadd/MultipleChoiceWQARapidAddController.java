@@ -26,6 +26,7 @@ import java.util.Vector;
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
+import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
 
 public class MultipleChoiceWQARapidAddController extends RapidAddController
 {
@@ -75,10 +76,35 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
 		m_FeedbackBox.setString("");
 	}
 	
+	/**Retrieve the additions file from the recordstore.
+	If one doesn't exist yet, create it.
+	Then add the question that's just been defined to the end of it.*/
 	protected void addNewTestQuestion() throws Exception
 	{
-		// TODO Auto-generated method stub
+		VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		
+		String sAdditionsFilename = m_sFilename + Config.ADDITIONS_FILENAME_EXT;
+		Integer rsid = mgr.findRecordByFilename(sAdditionsFilename);
+		
+		if (rsid==null)
+		{
+			int newRecordID =
+				mgr.createFileInRecordStore(sAdditionsFilename,"",false);
+			rsid = new Integer(newRecordID);
+		}
 
+		MultipleChoiceWikiversityQA qa =
+			new MultipleChoiceWikiversityQA(m_QuestionTextBox.getString());
+
+		for (int i=0; i<m_vAnswers.size(); i++)
+		{
+			WikiversityAnswer ans = (WikiversityAnswer)m_vAnswers.elementAt(i);
+			qa.addAnswer(ans);
+		}
+		
+		String sQuestionWikitext = qa.toWikitext();
+		mgr.appendToTest(rsid.intValue(),sAdditionsFilename,
+							sQuestionWikitext);		
 	}
 
    /**Override of RapidAddController.commandAction().*/

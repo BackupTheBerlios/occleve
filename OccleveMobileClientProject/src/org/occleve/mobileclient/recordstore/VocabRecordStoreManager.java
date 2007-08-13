@@ -216,7 +216,7 @@ public class VocabRecordStoreManager
         createFileInRecordStore(sFilename,sTestContents,true);
     }
 
-    public void createFileInRecordStore(String sFilename,String sContents,
+    public int createFileInRecordStore(String sFilename,String sContents,
             boolean bDoUserInterfaceStuff) throws Exception
     {
         // Write the contents into a byte array.
@@ -224,10 +224,11 @@ public class VocabRecordStoreManager
         flexiWriteUTF(baos, sFilename);
         flexiWriteUTF(baos, sContents);
 
-        createFileInRecordStore_Inner(sFilename,baos,bDoUserInterfaceStuff);
+        return createFileInRecordStore_Inner(sFilename,baos,
+        										bDoUserInterfaceStuff);
     }
 
-    public void createFileInRecordStore(String sFilename,byte[] contents,
+    public int createFileInRecordStore(String sFilename,byte[] contents,
             boolean bDoUserInterfaceStuff) throws Exception
     {
         // Write the contents into a byte array.
@@ -236,10 +237,11 @@ public class VocabRecordStoreManager
         DataOutputStream outputStream = new DataOutputStream(baos);
         outputStream.write(contents);
 
-        createFileInRecordStore_Inner(sFilename,baos,bDoUserInterfaceStuff);
+        return createFileInRecordStore_Inner(sFilename,baos,
+        										bDoUserInterfaceStuff);
     }
 
-    private void createFileInRecordStore_Inner(String sFilename,
+    private int createFileInRecordStore_Inner(String sFilename,
                                                ByteArrayOutputStream baosData,
                                                boolean bDoUserInterfaceStuff)
     throws Exception
@@ -253,6 +255,7 @@ public class VocabRecordStoreManager
         {
             rs.setRecord(iExistingRSID.intValue(),byteArray,0,byteArray.length);
             rs.closeRecordStore();
+            return iExistingRSID.intValue();
         }
         else
         {
@@ -271,6 +274,8 @@ public class VocabRecordStoreManager
                 OccleveMobileMidlet.getInstance().repopulateFileChooser();
                 OccleveMobileMidlet.getInstance().displayAlertThenFileChooser(alert);
             }
+            
+            return recordID;
         }
     }
 

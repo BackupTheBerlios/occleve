@@ -36,9 +36,6 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     which they are listed in the test.*/
     protected Vector m_vAllAnswers;
     
-    /**Contains Boolean objects.*/
-    //////protected Vector m_vIsAnswerCorrect;
-
     /**Contains WikiversityAnswer objects.*/
     protected Vector m_vCorrectAnswers;
 
@@ -63,7 +60,6 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     {
         super(sQuestion);
         m_vAllAnswers = new Vector();
-        /////m_vIsAnswerCorrect = new Vector();
         m_vCorrectAnswers = new Vector();
         m_vIncorrectAnswers = new Vector();
 
@@ -110,6 +106,27 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
         } while (sLine.length() > 0);
     }
 
+    /**Creates a bare QA object with no answers yet.*/
+    public MultipleChoiceWikiversityQA(String sQuestion)
+    throws Exception
+	{
+		super(sQuestion);
+		m_vAllAnswers = new Vector();
+		m_vCorrectAnswers = new Vector();
+		m_vIncorrectAnswers = new Vector();
+	}
+
+    public void addAnswer(WikiversityAnswer ans)
+    {
+    	m_vAllAnswers.addElement(ans);
+    	
+    	boolean bCorrect = ans.getCorrect().booleanValue();
+    	if (bCorrect)
+    		m_vCorrectAnswers.addElement(ans);
+    	else
+    		m_vIncorrectAnswers.addElement(ans);
+    }
+    
     public Vector getAnswer()
     {
         return null;
@@ -207,7 +224,39 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     to the recordstore.*/
     public String toWikitext()
     {
-    	return "TODO";
+    	StringBuffer sb = new StringBuffer();
+    	    	
+    	sb.append("{" + m_sQuestion);
+    	sb.append(Constants.NEWLINE);
+ 
+    	sb.append("|type=\"[]\"}");
+    	sb.append(Constants.NEWLINE);
+
+    	for (int i=0; i<m_vAllAnswers.size(); i++)
+    	{
+    		WikiversityAnswer ans =
+    			(WikiversityAnswer)m_vAllAnswers.elementAt(i);
+    		boolean bCorrect = ans.getCorrect().booleanValue();
+    		if (bCorrect)
+    			sb.append('+');
+    		else
+    			sb.append('-');
+    		
+    		sb.append(ans.getAnswer());
+        	sb.append(Constants.NEWLINE);
+
+        	String sFeedback = ans.getFeedback();
+        	if (sFeedback!=null)
+        	{
+        		if (sFeedback.length()!=0)
+        		{
+        			sb.append("||" + sFeedback);
+                	sb.append(Constants.NEWLINE);
+        		}
+        	}
+    	}
+    	
+    	return sb.toString();
     }
 }
 

@@ -83,10 +83,12 @@ public class Config
     ////////////////////////////////////////////////////////////////////
     // File extensions
     ////////////////////////////////////////////////////////////////////
-    
+
+    public static final String ADDITIONS_FILENAME_EXT = ".additions";
+
     public static final String OCCLEVE_XML_FILETYPE = ".oxml";
     public static final String WIKIVERSITY_FILETYPE = ".wvq";
-    public static final String WIKIVERSITY_ADDITIONS_FILETYPE = ".wvq2";
+    public static final String WIKIVERSITY_ADDITIONS_FILETYPE = ".wvq.additions";
     public static final String AUDIO_FILETYPE = ".mp3";
 }
 
