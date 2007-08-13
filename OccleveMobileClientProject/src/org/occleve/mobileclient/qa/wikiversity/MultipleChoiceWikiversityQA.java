@@ -37,7 +37,7 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     protected Vector m_vAllAnswers;
     
     /**Contains Boolean objects.*/
-    protected Vector m_vIsAnswerCorrect;
+    //////protected Vector m_vIsAnswerCorrect;
 
     /**Contains WikiversityAnswer objects.*/
     protected Vector m_vCorrectAnswers;
@@ -63,7 +63,7 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
     {
         super(sQuestion);
         m_vAllAnswers = new Vector();
-        m_vIsAnswerCorrect = new Vector();
+        /////m_vIsAnswerCorrect = new Vector();
         m_vCorrectAnswers = new Vector();
         m_vIncorrectAnswers = new Vector();
 
@@ -85,14 +85,14 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
                     throw new Exception("Error! Unexpected start of question");
                 case '+':
                 	WikiversityAnswer correct = new WikiversityAnswer(remainder);
-                    m_vAllAnswers.addElement(correct);
-                    m_vIsAnswerCorrect.addElement(RIGHT);
+                	correct.setCorrect(RIGHT.booleanValue());
+                	m_vAllAnswers.addElement(correct);
                     m_vCorrectAnswers.addElement(correct);
                     break;
                 case '-':
                 	WikiversityAnswer res = new WikiversityAnswer(remainder);
-                    m_vAllAnswers.addElement(res);
-                    m_vIsAnswerCorrect.addElement(WRONG);
+                	res.setCorrect(WRONG.booleanValue());
+                	m_vAllAnswers.addElement(res);
                     m_vIncorrectAnswers.addElement(res);
                     break;
                 case '|':
@@ -149,8 +149,9 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
 
     public boolean isAnswerCorrect(int iIndex)
     {
-        Boolean bCorrect =
-            (Boolean)m_vIsAnswerCorrect.elementAt(iIndex);
+    	WikiversityAnswer ans =
+    		(WikiversityAnswer)m_vAllAnswers.elementAt(iIndex);
+    	Boolean bCorrect = ans.getCorrect();
         return bCorrect.booleanValue();
     }
 
@@ -200,6 +201,13 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
         }
 
         return items;
+    }
+
+    /**Used by eg the rapid add feature when writing new quiz questions
+    to the recordstore.*/
+    public String toWikitext()
+    {
+    	return "TODO";
     }
 }
 

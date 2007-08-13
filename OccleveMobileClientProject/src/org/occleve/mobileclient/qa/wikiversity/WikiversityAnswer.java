@@ -29,14 +29,23 @@ public class WikiversityAnswer
 	
 	private String m_sFeedback;
 	
+	private Boolean m_bCorrect;
+	
 	public WikiversityAnswer(String sAnswer)
 	{
 		m_sAnswer = sAnswer;
 	}
 	
 	public String getAnswer() {return m_sAnswer;}
+
+	public Boolean getCorrect() {return m_bCorrect;}
 	
 	public String getFeedback() {return m_sFeedback;}
 	
 	public void setFeedback(String s) {m_sFeedback = s;}
+	
+	public void setCorrect(boolean bCorrect)
+	{
+		m_bCorrect = new Boolean(bCorrect);
+	}
 }

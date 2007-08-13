@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.recordstore;
@@ -32,7 +32,12 @@ import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.Connector;
 
 /**Format of a record is the filename (as a UTF-encoded string), followed
-by the UTF-encoded file data.*/
+by the UTF-encoded file data.
+File extensions are used to differentiate file types:
+Config.OCCLEVE_XML_FILETYPE for Occleve XML quizzes.
+Config.WIKIVERSITY_FILETYPE for Wikiversity wikitext quizzes.
+Config.WIKIVERSITY_ADDITIONS_FILETYPE for user additions to a Wikiversity quiz.
+Config.AUDIO_FILETYPE for audio clips.*/
 public class VocabRecordStoreManager
 {
     private final static String RECORDSTORE_NAME = "OccleveMobileClientTests";

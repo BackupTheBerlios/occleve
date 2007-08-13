@@ -31,11 +31,12 @@ public class RACorrectIncorrectScreen extends javax.microedition.lcdui.List
     protected static String CORRECT = "Correct";
     protected static String INCORRECT = "Incorrect";
 
-    public RACorrectIncorrectScreen(Command okCommand,Command cancelCommand,
-                                CommandListener clr)
+    public RACorrectIncorrectScreen(String sTitle,Command okCommand,
+    								Command cancelCommand,
+    								CommandListener clr)
     throws Exception
     {
-        super("Correct?",List.IMPLICIT);
+        super(sTitle,List.IMPLICIT);
 
         addCommand(okCommand);
         addCommand(cancelCommand);

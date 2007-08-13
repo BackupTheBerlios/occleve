@@ -24,15 +24,18 @@ package org.occleve.mobileclient.excludable.rapidadd;
 
 import java.util.Vector;
 import javax.microedition.lcdui.*;
-
-import org.occleve.mobileclient.OccleveMobileMidlet;
+import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.qa.wikiversity.*;
 
 public class MultipleChoiceWQARapidAddController extends RapidAddController
 {
+	/**Answers are stored here as they are defined.*/
+	private Vector m_vAnswers;
+	
 	private RapidAddTextBox m_QuestionTextBox;
+	private RapidAddTextBox m_AnswerBox;
 	private RACorrectIncorrectScreen m_CorrectIncorrectScreen;
-	private RapidAddTextBox m_Answer;
-	private RapidAddTextBox m_Feedback;
+	private RapidAddTextBox m_FeedbackBox;
 	private Alert m_YesNoAlert;
 
     protected Command m_YesCommand;
@@ -43,11 +46,11 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
 		m_ScreenSequence = new Vector();
 
 		m_QuestionTextBox = new RapidAddTextBox("1/5: Question",m_OKCommand,m_CancelCommand,this);
-		m_CorrectIncorrectScreen = new RACorrectIncorrectScreen(m_OKCommand,m_CancelCommand,this);
-		m_Answer = new RapidAddTextBox("3/5: Possible answer",m_OKCommand,m_CancelCommand,this);
-		m_Feedback = new RapidAddTextBox("4/5: Answer feedback",m_OKCommand,m_CancelCommand,this);
+		m_AnswerBox = new RapidAddTextBox("2/5: Possible answer",m_OKCommand,m_CancelCommand,this);
+		m_CorrectIncorrectScreen = new RACorrectIncorrectScreen("3/5: Correct?",m_OKCommand,m_CancelCommand,this);
+		m_FeedbackBox = new RapidAddTextBox("4/5: Answer feedback",m_OKCommand,m_CancelCommand,this);
 
-		m_YesNoAlert = new Alert(null,"5/5: Add another response?", 
+		m_YesNoAlert = new Alert(null,"5/5: Add another answer?", 
         							null, AlertType.CONFIRMATION);
 		m_YesNoAlert.setTimeout(Alert.FOREVER);
         m_YesCommand = new Command("Yes",Command.OK,0);
@@ -57,10 +60,19 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
 		m_YesNoAlert.setCommandListener(this);
         
         m_ScreenSequence.addElement(m_QuestionTextBox);
+        m_ScreenSequence.addElement(m_AnswerBox);
         m_ScreenSequence.addElement(m_CorrectIncorrectScreen);
-        m_ScreenSequence.addElement(m_Answer);
-        m_ScreenSequence.addElement(m_Feedback);
+        m_ScreenSequence.addElement(m_FeedbackBox);
         m_ScreenSequence.addElement(m_YesNoAlert);
+        
+        m_vAnswers = new Vector();
+	}
+
+	protected void clear()
+	{
+		m_QuestionTextBox.setString("");
+		m_AnswerBox.setString("");
+		m_FeedbackBox.setString("");
 	}
 	
 	protected void addNewTestQuestion() throws Exception
@@ -96,11 +108,19 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
    protected void addAnotherAnswer()
    {
 	   // Save the response just defined.
+	   WikiversityAnswer ans = new WikiversityAnswer(m_AnswerBox.getString());
+	   ans.setCorrect(m_CorrectIncorrectScreen.isCorrect());
+	   ans.setFeedback(m_FeedbackBox.getString());
+	   m_vAnswers.addElement(ans);
+
+	   // Clear all screens.
+	   clear();
 	   
 	   // Now move back in the screen sequence so the user can
 	   // enter an additional response.
 	   m_iCurrentScreenIndex = 1;
-	   Displayable curr = (Displayable)m_ScreenSequence.elementAt(m_iCurrentScreenIndex);
+	   Displayable curr =
+		   (Displayable)m_ScreenSequence.elementAt(m_iCurrentScreenIndex);
 	   setCurrentScreen(curr);
    }
    
@@ -113,7 +133,9 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
        }
        else
        {
-    	   
+    	   // The last screen in the sequence (the YesNoAlert) doesn't
+    	   // have an OK button, so this shouldn't get called.
+    	   throw new Exception("Unknown screen in sequence");
        }
    }
 }

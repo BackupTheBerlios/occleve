@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient;
@@ -26,8 +26,8 @@ package org.occleve.mobileclient;
 file downloaded from the wiki.*/
 public class Config
 {
-    // 0.9.3 in a form that can be used for comparisons: 000903
-    public static final long VERSION = 903;
+    // 0.9.4 in a form that can be used for comparisons: 000904
+    public static final long VERSION = 904;
 
     public static final String MIN_RELEASE_DIRECTIVE = "!MIN_RELEASE=";
 
@@ -79,5 +79,14 @@ public class Config
        ////"http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
 
     public static final String WIKIVERSITY_QUIZ_TAG_STUB = "<quiz";
+
+    ////////////////////////////////////////////////////////////////////
+    // File extensions
+    ////////////////////////////////////////////////////////////////////
+    
+    public static final String OCCLEVE_XML_FILETYPE = ".oxml";
+    public static final String WIKIVERSITY_FILETYPE = ".wvq";
+    public static final String WIKIVERSITY_ADDITIONS_FILETYPE = ".wvq2";
+    public static final String AUDIO_FILETYPE = ".mp3";
 }
 
