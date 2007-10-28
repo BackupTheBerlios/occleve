@@ -97,6 +97,7 @@ implements CommandListener
             m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
 
             addCommand(m_BrowseWikiversityCommand);
+            addCommand(m_BrowseFrenchWikiversityCommand);
             addCommand(m_BrowseOccleveCommand);
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
@@ -185,6 +186,14 @@ implements CommandListener
             ServerBrowser browser =
                new ServerBrowser(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
                                  Config.WIKIVERSITY_QUIZ_URL_STUB,
+                                 Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
+            browser.populateAndDisplay();
+        }
+        else if (c==m_BrowseFrenchWikiversityCommand)
+        {
+            ServerBrowser browser =
+               new ServerBrowser(Config.FRENCH_WIKIVERSITY_LIST_OF_QUIZZES_URL,
+                                 Config.FRENCH_WIKIVERSITY_QUIZ_URL_STUB,
                                  Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
             browser.populateAndDisplay();
         }
