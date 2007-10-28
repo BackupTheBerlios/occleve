@@ -68,9 +68,10 @@ implements CommandListener
     protected Command m_ViewCommand;
     protected Command m_RedownloadCommand;
     protected Command m_SearchAllTestsCommand;
-    protected Command m_PauseCommand;
+    //protected Command m_PauseCommand;
     protected Command m_DevStuffScreenCommand;
     protected Command m_ShowLicenseCommand;
+    protected CommonCommands m_CommonCommands;
 
     protected Command m_EditCommand;
     protected Command m_RapidAddCommand;
@@ -90,11 +91,12 @@ implements CommandListener
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
-            m_PauseCommand = new Command("Pause", Command.ITEM, 2);
+            //m_PauseCommand = new Command("Pause", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
             m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
             m_EditCommand = new Command("Edit", Command.ITEM, 2);
             m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
+            m_CommonCommands = new CommonCommands();
 
             addCommand(m_BrowseWikiversityCommand);
             addCommand(m_BrowseFrenchWikiversityCommand);
@@ -103,11 +105,12 @@ implements CommandListener
             addCommand(m_ViewCommand);
             addCommand(m_RedownloadCommand);
             addCommand(m_SearchAllTestsCommand);
-            addCommand(m_PauseCommand);
+            ///addCommand(m_PauseCommand);
             addCommand(m_DevStuffScreenCommand);
             addCommand(m_ShowLicenseCommand);
             addCommand(m_EditCommand);
             addCommand(m_RapidAddCommand);
+            m_CommonCommands.addToDisplayable(this);
         }
 
         populateWithFilenames();
@@ -238,10 +241,6 @@ implements CommandListener
             SearchAllFilesForm saff = new SearchAllFilesForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(saff);
         }
-        else if (c==m_PauseCommand)
-        {
-            OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
-        }
         else if (c==m_EditCommand)
         {
             Screen returnTo = this;
@@ -258,7 +257,9 @@ implements CommandListener
         }
         else
         {
-            // Could be an external command so don't object if the command
+        	m_CommonCommands.commandAction(c,this);
+
+        	// Could be an external command so don't object if the command
             // is unknown.
         }
     }
