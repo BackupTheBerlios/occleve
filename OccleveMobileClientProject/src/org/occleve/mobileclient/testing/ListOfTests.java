@@ -17,12 +17,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.testing;
 
 import java.util.*;
+
+import javax.microedition.io.*;
+import javax.microedition.io.file.*;
+import javax.microedition.lcdui.Alert;
+import javax.microedition.media.Manager;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 
@@ -65,6 +71,12 @@ public class ListOfTests
     {
         ListOfTests_LoadFromJar();
         ListOfTests_LoadFromRS();
+        
+        if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
+        {
+        	ListOfTests_LoadFromFilesystem();
+        }
+        
         ListOfTests_AlphaSort();
         System.out.println("Number of tests = " + m_vEntries.size());
     }
@@ -158,6 +170,41 @@ public class ListOfTests
                 }
             }
         }
+    }
+
+    /**Subfunction for code clarity.
+    Now get the list of tests that are in the phone's filesystem.
+    From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
+    private void ListOfTests_LoadFromFilesystem() throws Exception
+    {
+		Enumeration drives = FileSystemRegistry.listRoots();
+		while (drives.hasMoreElements())
+		{
+			String root = (String) drives.nextElement();
+			
+			FileConnection fc = (FileConnection)
+			Connector.open("file:///" + root);
+			
+			// Get a filtered list of all files and directories.
+			// True means: include hidden files.
+			// To list just visible files and directories, use
+			// list() with no arguments.
+			System.out.println("List of files and directories under " + root);
+			Enumeration filelist = fc.list("*.xml", true);
+			while(filelist.hasMoreElements())
+			{
+			    String fileName = (String) filelist.nextElement();
+			    System.out.println(fileName);
+
+	            Entry entry = new Entry();
+	            entry.m_sFilename = "file:///" + root + fileName;
+	            entry.m_iRecordStoreID = null;
+
+	            m_vEntries.addElement(entry);
+	            m_htEntriesKeyedByFilename.put(entry.m_sFilename, entry);
+			}   
+			fc.close();
+		}
     }
 
     /**Subfunction for code clarity.

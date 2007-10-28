@@ -243,5 +243,13 @@ implements CommandListener,Runnable
             }
             catch (Exception e) {onError(e);}
         }
+        
+        public boolean isLocalFilesystemAvailable()
+        {
+            String sPropName = "microedition.io.file.FileConnection.version";
+            String sResult = System.getProperty(sPropName);
+            return (sResult!=null);
+        }
+
 }
 
