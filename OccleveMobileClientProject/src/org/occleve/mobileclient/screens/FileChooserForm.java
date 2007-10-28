@@ -62,6 +62,7 @@ implements CommandListener
     protected ChineseTestOptionsScreen m_ChineseTestOptionsScreen;
 
     protected Command m_BrowseWikiversityCommand;
+    protected Command m_BrowseFrenchWikiversityCommand;
     protected Command m_BrowseOccleveCommand;
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
@@ -82,6 +83,7 @@ implements CommandListener
         if (bAddCommands)
         {
             m_BrowseWikiversityCommand = new Command("Download Wikiversity quizzes", Command.ITEM, 2);
+            m_BrowseFrenchWikiversityCommand = new Command("Download French Wikiversity quizzes", Command.ITEM, 2);
             m_BrowseOccleveCommand = new Command("Download Occleve tests", Command.ITEM, 2);
 
             m_TestCommand = new Command("Test", Command.ITEM, 1);
