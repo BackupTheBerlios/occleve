@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.testing.qacontrol;
@@ -40,7 +40,6 @@ public class MagicTypewriterController
     protected TestResults m_TestResults;
 
     /////protected int m_iCurrentQAIndex;
-
     /////protected QuestionView m_TestController.getQuestionView();
 
     public void appendToAnswerFragment(char c) throws Exception
@@ -97,16 +96,7 @@ public class MagicTypewriterController
 
         if (bUnicode && (iCount==1) && (bIsCheatKey == false))
         {
-            Vector v = m_TestController.getCurrentQA().getNextPossibleChars();
-            Character c = (Character)v.elementAt(0);
-            char desiredChar = c.charValue();
-
-            ////////////// TO DO - allow UnicodeInputScreen to take
-            /////////////          multiple desired chars
-            UnicodeInputScreen uis =
-                    new UnicodeInputScreen( desiredChar, this,
-                                           m_TestResults);
-            OccleveMobileMidlet.getInstance().setCurrentForm(uis);
+        	invokeUnicodeInputScreen();
         }
         else
         {
@@ -118,6 +108,24 @@ public class MagicTypewriterController
         }
     }
 
+    public void invokeUnicodeInputScreen() throws Exception
+    {
+    	// Deal gracefully with multiple calls in quick succession.
+        Displayable current =
+        	OccleveMobileMidlet.getInstance().getCurrentDisplayable();
+        if (current instanceof UnicodeInputScreen) return;
+            	
+        Vector v = m_TestController.getCurrentQA().getNextPossibleChars();
+        Character c = (Character)v.elementAt(0);
+        char desiredChar = c.charValue();
+
+        ////////////// TO DO - allow UnicodeInputScreen to take
+        /////////////          multiple desired chars
+        UnicodeInputScreen uis =
+                new UnicodeInputScreen(desiredChar,this,m_TestResults);
+        OccleveMobileMidlet.getInstance().setCurrentForm(uis);    	
+    }
+    
     protected void processKeypress(int iKeycode) throws Exception
     {
         // Star is the cheat key for single characters,

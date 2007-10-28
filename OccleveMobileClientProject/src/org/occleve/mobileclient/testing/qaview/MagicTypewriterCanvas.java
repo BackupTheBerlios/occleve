@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.testing.qaview;
@@ -57,6 +57,36 @@ implements QuestionView
         m_Controller.onKeyPressed(keyCode);
     }
 
+    /**0.9.4: If the pointer is pressed, jump straight into the Unicode input screen.
+    This behaviour is so that, if you're using a pen phone to input Hanzi
+    or similar pictographic characters,
+    starting to write the character will immediately invoke the
+    appropriate input screen.*/
+    protected void pointerPressed(int x,int y)
+    {
+    	try
+    	{
+    		m_Controller.invokeUnicodeInputScreen();
+    	}
+    	catch (Exception e)
+    	{
+    		OccleveMobileMidlet.getInstance().onError(e);
+    	}
+    }
+
+    /**See pointerPressed().*/
+    protected void pointerDragged(int x,int y)
+    {
+    	try
+    	{
+    		m_Controller.invokeUnicodeInputScreen();
+    	}
+    	catch (Exception e)
+    	{
+    		OccleveMobileMidlet.getInstance().onError(e);
+    	}
+    }
+    
     public void paint(Graphics g)
     {
         if (m_iRepaintScrollUpBy!=0)
