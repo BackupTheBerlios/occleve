@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.serverbrowser;
 
 import java.io.*;
+
 import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
 
@@ -38,6 +39,8 @@ public class WikiConnection
     private InputStreamReader m_InputStreamReader;
     private DataInputStream m_DataInputStream;
 
+    /**The total amount of data in the page (or MP3 file, etc) in bytes.
+    Useful for checking we've read the whole thing.*/
     private int m_iPageLengthInBytes;
     public int getPageLength() {return m_iPageLengthInBytes;}
 
@@ -154,4 +157,34 @@ public class WikiConnection
         throw new Exception("Raw data from connection: " + rawChars.toString());
     }
 
+    /**New in 0.9.4: reads from the specified URL, and blocks until the
+    number of bytes specified by the HTTP content-length
+    header field have been read.*/
+    public byte[] readAllBytes(String sURL,Alert progressAlert)
+    throws Exception
+    {
+        DataInputStream dis = openDIS(sURL,progressAlert);
+        System.out.println("Opened DataInputStream ok");
+
+        int iBufferSize = getPageLength();
+        System.out.println("iBufferSize = " + iBufferSize);
+        byte[] theData = new byte[iBufferSize];
+
+        int iBytesRead;
+        int iOffset = 0;
+
+        do
+        {
+            iBytesRead = dis.read(theData,iOffset,iBufferSize-iOffset);
+            iOffset += iBytesRead;
+            progressAlert.setString("Loaded " + iOffset + " of " +
+                                      iBufferSize + " bytes");
+        } while (iBytesRead < iBufferSize);
+
+        dis.close();
+
+        System.out.println("Number of bytes read = " + iOffset);
+        return theData;
+    }
 }
+

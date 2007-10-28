@@ -307,7 +307,67 @@ implements CommandListener,Runnable
         }
     }
 
+    /**New in 0.9.4: rewritten to be guaranteed to read all bytes from the URL
+    where the test is stored.*/
     private void downloadTest(WikiConnection wc) throws Exception
+    {
+        m_ProgressAlert = new Alert(null, "Getting test from server...",
+                                    null, null);
+        m_ProgressAlert.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(m_ProgressAlert);
+        OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
+
+        String sPageNameUnderscores = m_sPageNameToDownload.replace(' ','_');
+        String sURL = m_sQuizURLStub + sPageNameUnderscores + m_sQuizURLSuffix;
+        System.out.println("Quiz URL = " + sURL);
+
+        boolean bIsISPWelcomePage = true;
+        int iTries = 0;
+    	String sQuizData;
+
+    	do
+        {
+        	byte[] quizData = wc.readAllBytes(sURL,m_ProgressAlert);        	
+        	sQuizData = new String(quizData,Config.ENCODING);
+            pause(1000);
+            
+        	int iPreIndex = sQuizData.indexOf("<pre>");
+            int iClosingPreIndex = sQuizData.indexOf("</pre>");
+            int iQuizIndex = sQuizData.indexOf(Config.WIKIVERSITY_QUIZ_TAG_STUB);
+
+            if ((iPreIndex!=-1) || (iClosingPreIndex!=-1) || (iQuizIndex!=-1))
+            {
+                // If there's any of these tags we can guess it's
+                // not the ISP welcome page.
+                bIsISPWelcomePage = false;
+            }
+
+            iTries++;
+        } while (bIsISPWelcomePage && (iTries<Config.CONNECTION_TRIES_LIMIT));
+
+        wc.close();
+
+        if (bIsISPWelcomePage)
+        {
+            throw new Exception("Failed to load test from wiki");
+        }
+        else
+        {
+            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+            mgr.createFileInRecordStore(m_sPageNameToDownload, sQuizData,
+                                        false);
+        }
+
+        String sMsg = "Successfully loaded " + m_sPageNameToDownload;
+        if (iTries>1) sMsg += " (after " + iTries + " attempts)";
+        m_ProgressAlert.setString(sMsg);
+
+        // Pause briefly so the user can actually read the message.
+        pause(2000);
+    }
+
+    /**The pre-0.9.4 version of downloadTest(). Defunct.*/
+    private void OLD_downloadTest(WikiConnection wc) throws Exception
     {
         m_ProgressAlert = new Alert(null, "Getting test from server...",
                                     null, null);
@@ -323,11 +383,13 @@ implements CommandListener,Runnable
         int iTries = 0;
         InputStreamReader reader;
         StringBuffer sbSource;
+        int iTotalBytesRead;
         do
         {
             reader = wc.openISR(sURL, m_ProgressAlert);
 
             sbSource = new StringBuffer();
+            iTotalBytesRead = 0;
             do
             {
                 String sLine = StaticHelpers.readFromISR(reader, true);
@@ -347,6 +409,13 @@ implements CommandListener,Runnable
                     // not the ISP welcome page.
                     bIsISPWelcomePage = false;
                 }
+
+                // Update progress display.
+                int iBytesInLine = sLine.getBytes(Config.ENCODING).length + 1;
+                iTotalBytesRead += iBytesInLine;
+                
+                m_ProgressAlert.setString("Loaded " + iTotalBytesRead + " of " +
+                		wc.getPageLength() + " bytes");
             } while (reader.ready());
 
             iTries++;
@@ -365,7 +434,9 @@ implements CommandListener,Runnable
                                         false);
         }
 
-        String sMsg = "Successfully loaded " + m_sPageNameToDownload;
+        String sMsg = "Successfully loaded " + m_sPageNameToDownload +
+        				" (loaded " + iTotalBytesRead + " of " +
+        				wc.getPageLength() + " bytes)";
         if (iTries>1) sMsg += " (after " + iTries + " attempts)";
         m_ProgressAlert.setString(sMsg);
 
