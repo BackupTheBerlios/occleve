@@ -103,17 +103,48 @@ public class TestbedCanvas extends GameCanvas implements CommandListener
        int y = MARGIN;
        int STEP = 15;
 
+       ////////////////////////////////////////////////////////////////////////////////////
+       // Monospace Plain
+       ////////////////////////////////////////////////////////////////////////////////////
+       
        g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN, Font.SIZE_SMALL));
        g.drawString("Monospace Small Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
+       g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
+       g.drawString("Monospace Medium Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
+       g.setFont(Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN, Font.SIZE_LARGE));
+       g.drawString("Monospace Large Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
+       ////////////////////////////////////////////////////////////////////////////////////
+       // Proportional Plain
+       ////////////////////////////////////////////////////////////////////////////////////
+       
+       g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_SMALL));
+       g.drawString("Proportional Small Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
+       g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
+       g.drawString("Proportional Medium Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
+       g.setFont(Font.getFont(Font.FACE_PROPORTIONAL, Font.STYLE_PLAIN, Font.SIZE_LARGE));
+       g.drawString("Proportional Large Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
+       ////////////////////////////////////////////////////////////////////////////////////
+       // System Plain
+       ////////////////////////////////////////////////////////////////////////////////////
 
        g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL));
        g.drawString("System Small Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
 
+       g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
+       g.drawString("System Med Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+
        g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
        g.drawString("System Large Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
 
-       g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
-       g.drawString("System Med Plain", MARGIN, y+=STEP, g.LEFT | g.TOP);
+       ////////////////////////////////////////////////////////////////////////////////////
+       // Others
+       ////////////////////////////////////////////////////////////////////////////////////
 
        g.setFont(Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
        g.drawString("System Med Bold", MARGIN, y+=STEP, g.LEFT | g.TOP);
