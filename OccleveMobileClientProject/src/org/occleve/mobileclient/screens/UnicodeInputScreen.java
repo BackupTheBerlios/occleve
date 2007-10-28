@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.screens;
@@ -72,7 +72,7 @@ implements CommandListener,Runnable
             String sChar = new String();
             sChar += m_UnicodeCharToInput;
             Alert alert = new Alert(null,sChar,null,null);
-            alert.setTimeout(500);
+            alert.setTimeout(2000);
             OccleveMobileMidlet.getInstance().displayAlert(alert,this);
 
             // Peeking at the character counts as a "wrong" keypress.
