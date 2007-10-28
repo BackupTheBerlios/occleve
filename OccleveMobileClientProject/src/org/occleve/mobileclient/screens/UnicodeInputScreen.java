@@ -37,6 +37,7 @@ implements CommandListener,Runnable
 
     protected Command m_PeekCommand;
     protected Command m_CancelCommand;
+    protected Command m_PauseCommand;
 
     protected boolean m_bExitThread;
 
@@ -54,11 +55,12 @@ implements CommandListener,Runnable
         m_TestResults = results;
 
         m_PeekCommand = new Command("Peek",Command.ITEM,0);
-        addCommand(m_PeekCommand);
-
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
-        addCommand(m_CancelCommand);
+        m_PauseCommand = new Command("Pause",Command.ITEM,0);
 
+        addCommand(m_PeekCommand);
+        addCommand(m_CancelCommand);
+        addCommand(m_PauseCommand);
         setCommandListener(this);
 
         new Thread(this).start();
@@ -86,6 +88,10 @@ implements CommandListener,Runnable
                 m_TestControllerThatInvokedThis.setVisible();
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        }
+        else if (c==m_PauseCommand)
+        {
+            OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
         }
         else
         {
