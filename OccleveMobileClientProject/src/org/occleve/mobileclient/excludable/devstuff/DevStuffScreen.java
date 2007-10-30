@@ -23,7 +23,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.excludable.devstuff;
 
 import java.util.*;
+
 import javax.microedition.lcdui.*;
+import javax.microedition.io.Connector;
 import javax.microedition.io.file.*;
 import javax.microedition.media.*;
 import javax.microedition.rms.*;
@@ -73,6 +75,7 @@ implements CommandListener,Excludable,Runnable
     protected final String DISPLAY_MEMORY_STATS = "Memory stats";
     protected final String RUN_GARBAGE_COLLECTOR = "Run gc";
     protected final String SHOW_FILESYSTEM_ROOTS = "Show filesystem roots";
+    protected final String SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS = "Show all files and dirs in filesystem roots";
     protected final String IS_FILECONNECTION_API_AVAILABLE = "FileConnection API available?";
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
@@ -108,6 +111,7 @@ implements CommandListener,Excludable,Runnable
         append(DISPLAY_MEMORY_STATS,null);
         append(RUN_GARBAGE_COLLECTOR,null);
         append(SHOW_FILESYSTEM_ROOTS,null);
+        append(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS,null);
         append(IS_FILECONNECTION_API_AVAILABLE,null);
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
@@ -243,6 +247,11 @@ implements CommandListener,Excludable,Runnable
         else if (sOption.equals(SHOW_FILESYSTEM_ROOTS))
         {
             m_sThreadAction = SHOW_FILESYSTEM_ROOTS;
+            new Thread(this).start();
+        }
+        else if (sOption.equals(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS))
+        {
+            m_sThreadAction = SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS;
             new Thread(this).start();
         }
         else if (sOption.equals(IS_FILECONNECTION_API_AVAILABLE))
@@ -405,6 +414,36 @@ implements CommandListener,Excludable,Runnable
         OccleveMobileMidlet.getInstance().displayAlert(alert,this);
     }
 
+    /**From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
+    private void showRootFilesAndDirs() throws Exception
+    {
+        String sMsg = "All files and directories under roots:" + Constants.NEWLINE;
+
+    	Enumeration drives = FileSystemRegistry.listRoots();
+		while (drives.hasMoreElements())
+		{
+			String root = (String) drives.nextElement();
+			
+			FileConnection fc = (FileConnection)
+			Connector.open("file:///" + root);
+			
+			// Include hidden files.
+			System.out.println("List of files and directories under " + root);
+			Enumeration filelist = fc.list("*", true);
+			while(filelist.hasMoreElements())
+			{
+			    String fileName = (String) filelist.nextElement();
+			    System.out.println(fileName);
+			    sMsg += fileName + Constants.NEWLINE;
+			}   
+			fc.close();
+		}
+
+		Alert alert = new Alert(null, sMsg, null, null);
+		alert.setTimeout(Alert.FOREVER);
+        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+    }
+    
     /**Since:
     "Warning: To avoid potential deadlock, operations that may block, such as
     networking, should be performed in a different thread than the
@@ -422,6 +461,10 @@ implements CommandListener,Excludable,Runnable
             else if (m_sThreadAction.equals(SHOW_FILESYSTEM_ROOTS))
             {
                 showFilesystemRoots();
+            }
+            else if (m_sThreadAction.equals(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS))
+            {
+                showRootFilesAndDirs();
             }
             else if (m_sThreadAction.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
             {
