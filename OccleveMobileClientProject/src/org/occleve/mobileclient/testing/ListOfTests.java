@@ -87,10 +87,11 @@ public class ListOfTests
         ListOfTests_LoadFromJar();
         ListOfTests_LoadFromRS();
         
-        if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
-        {
-        	ListOfTests_LoadFromFilesystem();
-        }
+        ////// DISABLED FOR NOW
+        ///if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
+        ///{
+        ///	ListOfTests_LoadFromFilesystem();
+        ///}
         
         ListOfTests_AlphaSort();
         System.out.println("Number of tests = " + m_vEntries.size());
@@ -183,7 +184,7 @@ public class ListOfTests
         }
     }
 
-    /**Subfunction for code clarity.
+    /**New in 0.9.4: Subfunction for code clarity.
     Now get the list of tests that are in the phone's filesystem.
     From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
     private void ListOfTests_LoadFromFilesystem() throws Exception
@@ -201,17 +202,20 @@ public class ListOfTests
 			// To list just visible files and directories, use
 			// list() with no arguments.
 			System.out.println("List of files and directories under " + root);
-			Enumeration filelist = fc.list("*.xml", true);
+			Enumeration filelist = fc.list("*", true);
 			while(filelist.hasMoreElements())
 			{
 			    String fileName = (String) filelist.nextElement();
 			    System.out.println(fileName);
-
-			    ListOfTestsEntry entry = new ListOfTestsEntry(fileName,null,
-			    		"file:///" + root + fileName);
-
-	            m_vEntries.addElement(entry);
-	            m_htEntriesKeyedByFilename.put(entry.getFilename(), entry);
+			    
+			    if (fileName.endsWith(".xml"))
+			    {
+				    ListOfTestsEntry entry = new ListOfTestsEntry(fileName,null,
+				    		"file:///" + root + fileName);
+	
+		            m_vEntries.addElement(entry);
+		            m_htEntriesKeyedByFilename.put(entry.getFilename(), entry);
+			    }
 			}   
 			fc.close();
 		}
