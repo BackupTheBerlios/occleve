@@ -41,5 +41,7 @@ public class ListOfTestsEntry
 	public Integer getRecordStoreID() {return m_iRecordStoreID;}
 	
 	public String getLocalFilesystemURL() {return m_sLocalFilesystemURL;}
+	
+	public void setRecordStoreID(Integer iRSID) {m_iRecordStoreID = iRSID;}
 }
 

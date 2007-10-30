@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.excludable.raweditor;
@@ -27,6 +27,7 @@ import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
+import org.occleve.mobileclient.testing.*;
 
 /**Format of a record is the filename (as a UTF-encoded string), followed
 by the UTF-encoded file data.*/
@@ -35,16 +36,18 @@ implements CommandListener,Excludable,ItemCommandListener
 {
     private static String INITIAL_TEXT = "abc";
 
-    protected int m_iRecordID;
-    protected String m_sFilename;
+    protected ListOfTestsEntry m_Entry;
+    //protected int m_iRecordID;
+    //protected String m_sFilename;
     protected Displayable m_ScreenToReturnTo;
     protected Integer m_iQAIndex;
 
     ////////////// Implementation of Excludable /////////////////////
     public void setQAIndex(Integer i) {m_iQAIndex=i;}
     public void setScreenToReturnTo(Displayable d) {m_ScreenToReturnTo=d;}
-    public void setTestFilename(String s) {m_sFilename=s;}
-    public void setTestRecordStoreID(Integer i) {m_iRecordID=i.intValue();}
+    //public void setTestFilename(String s) {m_sFilename=s;}
+    //public void setTestRecordStoreID(Integer i) {m_iRecordID=i.intValue();}
+    public void setListOfTestsEntry(ListOfTestsEntry e) {m_Entry = e;}
     /////////////////////////////////////////////////////////////////
 
     /**Because of size limitations on the amount of text in a TextBox,
@@ -92,7 +95,7 @@ implements CommandListener,Excludable,ItemCommandListener
         m_ConvertersScreen = new RawEditorConverters(this);
 
         VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        String sContents = mgr.getTestContents(m_iRecordID,m_sFilename);
+        String sContents = mgr.getTestContents(m_Entry);
         m_StringChunks = breakContentsIntoChunks(sContents);
 
         int iMaxSize = 5000;
@@ -116,7 +119,7 @@ implements CommandListener,Excludable,ItemCommandListener
 
         // If a bookmark exists, start by editing the bookmarked chunk,
         // else start by editing the last chunk.
-        Integer bookmark = RawEditorBookmarks.getBookmark(m_sFilename);
+        Integer bookmark = RawEditorBookmarks.getBookmark(m_Entry.getFilename());
         int iInitialChunkIndex;
         if (bookmark==null)
         {
@@ -292,8 +295,8 @@ implements CommandListener,Excludable,ItemCommandListener
          // Append the current chunk to the selected test.
          String sCurrentChunk = getString();
          VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-         mgr.appendToTest(iRecordID, sFilename,
-                                              sCurrentChunk);
+         ListOfTestsEntry entry = new ListOfTestsEntry(sFilename,new Integer(iRecordID),null);
+         mgr.appendToTest(entry,sCurrentChunk);
 
          // Now wipe out the current chunk, both in the array
          // and on the screen.
@@ -358,7 +361,7 @@ implements CommandListener,Excludable,ItemCommandListener
         }
 
         VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        mgr.setTestContents(m_iRecordID, m_sFilename,sb.toString());
+        mgr.setTestContents(m_Entry,sb.toString());
     }
 
     /**Sets the bookmark for this test to the current chunk.*/
@@ -366,7 +369,7 @@ implements CommandListener,Excludable,ItemCommandListener
     {
         try
         {
-            RawEditorBookmarks.setBookmark(m_sFilename,m_iCurrentChunkIndex);
+            RawEditorBookmarks.setBookmark(m_Entry,m_iCurrentChunkIndex);
         }
         catch (Exception e)
         {

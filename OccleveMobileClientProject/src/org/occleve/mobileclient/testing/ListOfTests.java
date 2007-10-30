@@ -43,29 +43,44 @@ public class ListOfTests
 
     protected Hashtable m_htEntriesKeyedByFilename = new Hashtable();
 
+    public ListOfTestsEntry getEntry(int i)
+    {
+    	ListOfTestsEntry entry = (ListOfTestsEntry)m_vEntries.elementAt(i);
+        return entry;
+    }
+
     public String getFilename(int i)
     {
-        Entry entry = (Entry)m_vEntries.elementAt(i);
-        return entry.m_sFilename;
+    	ListOfTestsEntry entry = (ListOfTestsEntry)m_vEntries.elementAt(i);
+        return entry.getFilename();
     }
 
     public Integer getRecordStoreIDByIndex(int iIndex)
     {
-        Entry entry = (Entry)m_vEntries.elementAt(iIndex);
-        return entry.m_iRecordStoreID;
+        ListOfTestsEntry entry = (ListOfTestsEntry)m_vEntries.elementAt(iIndex);
+        return entry.getRecordStoreID();
+    }
+
+    public String getLocalFilesystemURLByIndex(int iIndex)
+    {
+        ListOfTestsEntry entry = (ListOfTestsEntry)m_vEntries.elementAt(iIndex);
+        return entry.getLocalFilesystemURL();
     }
 
     public Integer getRecordStoreID(String sFilename)
     {
-        Entry entry = (Entry)m_htEntriesKeyedByFilename.get(sFilename);
-        return entry.m_iRecordStoreID;
+    	ListOfTestsEntry entry = (ListOfTestsEntry)m_htEntriesKeyedByFilename.get(sFilename);
+        return entry.getRecordStoreID();
     }
 
+    /*
     private class Entry
     {
         private String m_sFilename;
         private Integer m_iRecordStoreID;
+        private String m_sLocalFilesystemURL;
     }
+    */
 
     public ListOfTests() throws Exception
     {
@@ -115,9 +130,7 @@ public class ListOfTests
                                             sFilename.length() - Constants.NEWLINE_LENGTH);
             }
 
-            Entry entry = new Entry();
-            entry.m_sFilename = sFilename;
-            entry.m_iRecordStoreID = null;
+            ListOfTestsEntry entry = new ListOfTestsEntry(sFilename,null,null);
 
             m_vEntries.addElement(entry);
             m_htEntriesKeyedByFilename.put(sFilename, entry);
@@ -151,22 +164,20 @@ public class ListOfTests
             {
                 Integer rsID = (Integer) rsIndex.get(rsFilename);
 
-                Entry entry = (Entry) m_htEntriesKeyedByFilename.get(rsFilename);
+                ListOfTestsEntry entry = (ListOfTestsEntry) m_htEntriesKeyedByFilename.get(rsFilename);
                 if (entry != null)
                 {
                     // The entry already exists in the JAR. Record the record store ID.
-                    entry.m_iRecordStoreID = rsID;
+                    entry.setRecordStoreID(rsID);
                 }
                 else
                 {
                     // This is a new test that isn't in the JAR.
                     // For convenience, put it at the start of the list.
-                    entry = new Entry();
-                    entry.m_sFilename = rsFilename;
-                    entry.m_iRecordStoreID = rsID;
+                	ListOfTestsEntry entry2 = new ListOfTestsEntry(rsFilename,rsID,null);
 
-                    m_vEntries.insertElementAt(entry, 0);
-                    m_htEntriesKeyedByFilename.put(rsFilename, entry);
+                    m_vEntries.insertElementAt(entry2, 0);
+                    m_htEntriesKeyedByFilename.put(rsFilename, entry2);
                 }
             }
         }
@@ -196,12 +207,11 @@ public class ListOfTests
 			    String fileName = (String) filelist.nextElement();
 			    System.out.println(fileName);
 
-	            Entry entry = new Entry();
-	            entry.m_sFilename = "file:///" + root + fileName;
-	            entry.m_iRecordStoreID = null;
+			    ListOfTestsEntry entry = new ListOfTestsEntry(fileName,null,
+			    		"file:///" + root + fileName);
 
 	            m_vEntries.addElement(entry);
-	            m_htEntriesKeyedByFilename.put(entry.m_sFilename, entry);
+	            m_htEntriesKeyedByFilename.put(entry.getFilename(), entry);
 			}   
 			fc.close();
 		}
@@ -220,12 +230,12 @@ public class ListOfTests
             bSorted = true;
             for (int i = 0; i < iLastIndex; i++)
             {
-                Entry entryA = (Entry)m_vEntries.elementAt(i);
-                Entry entryB = (Entry)m_vEntries.elementAt(i+1);
+                ListOfTestsEntry entryA = (ListOfTestsEntry)m_vEntries.elementAt(i);
+                ListOfTestsEntry entryB = (ListOfTestsEntry)m_vEntries.elementAt(i+1);
 
-                int comp = entryA.m_sFilename.toLowerCase().compareTo
+                int comp = entryA.getFilename().toLowerCase().compareTo
                 (
-                    entryB.m_sFilename.toLowerCase()
+                    entryB.getFilename().toLowerCase()
                 );
 
                 if (comp > 0)

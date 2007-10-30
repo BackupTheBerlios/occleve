@@ -27,6 +27,7 @@ import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
 import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
+import org.occleve.mobileclient.testing.*;
 
 public class MultipleChoiceWQARapidAddController extends RapidAddController
 {
@@ -83,7 +84,7 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
 	{
 		VocabRecordStoreManager mgr = new VocabRecordStoreManager();
 		
-		String sAdditionsFilename = m_sFilename + Config.ADDITIONS_FILENAME_EXT;
+		String sAdditionsFilename = m_Entry.getFilename() + Config.ADDITIONS_FILENAME_EXT;
 		Integer rsid = mgr.findRecordByFilename(sAdditionsFilename);
 		
 		if (rsid==null)
@@ -103,8 +104,9 @@ public class MultipleChoiceWQARapidAddController extends RapidAddController
 		}
 		
 		String sQuestionWikitext = qa.toWikitext();
-		mgr.appendToTest(rsid.intValue(),sAdditionsFilename,
-							sQuestionWikitext);		
+		
+		ListOfTestsEntry entry = new ListOfTestsEntry(sAdditionsFilename,rsid,null);
+		mgr.appendToTest(entry,sQuestionWikitext);		
 	}
 
    /**Override of RapidAddController.commandAction().*/

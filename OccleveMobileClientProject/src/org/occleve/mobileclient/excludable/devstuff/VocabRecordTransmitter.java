@@ -74,16 +74,15 @@ public class VocabRecordTransmitter implements Runnable
 
             for (int i=0; i<list.getSize(); i++)
             {
-               String sFilename = list.getFilename(i);
-               Integer iRSID = list.getRecordStoreIDByIndex(i);
-               String sSource = Test.readTestSource(sFilename,iRSID);
+               ListOfTestsEntry entry = list.getEntry(i);
+               String sSource = Test.readTestSource(entry);
                Vector vSource = StaticHelpers.stringToVector(sSource);
 
                String sCompletion = " (" + (i+1) + "/" + list.getSize() + ")";
-               m_ProgressAlert.setString("Sending " + sFilename + sCompletion);
+               m_ProgressAlert.setString("Sending " + entry.getFilename() + sCompletion);
                //////pause();
 
-               transmitOneTestFile(sIPAddress, sFilename, vSource);
+               transmitOneTestFile(sIPAddress, entry.getFilename(), vSource);
             }
 
             String sMsg = "Sent " + list.getSize() + " tests over the Internet";

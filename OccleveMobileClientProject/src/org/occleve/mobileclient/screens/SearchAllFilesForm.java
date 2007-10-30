@@ -107,19 +107,17 @@ implements CommandListener,Runnable
 
         for (int i=0; i<noOfTests; i++)
         {
-            String sFilename = list.getFilename(i);
-            Integer iRSID = list.getRecordStoreIDByIndex(i);
-
-            m_ProgressAlert.setString("Searching " + sFilename);
-            System.out.println("Searching " + sFilename);
+        	ListOfTestsEntry entry = list.getEntry(i);
+            m_ProgressAlert.setString("Searching " + entry.getFilename());
+            System.out.println("Searching " + entry.getFilename());
 
             // String sTestContents = StaticHelpers.readUnicodeFile("/" + sFilename);
-            String sTestSource = Test.readTestSource(sFilename,iRSID);
+            String sTestSource = Test.readTestSource(entry);
 
             if (sTestSource.indexOf(sSearchString) != -1)
             {
                 boolean bMatchingQA =
-                   doSearch_MatchFoundInRawTextOfFile(sFilename,iRSID,sSearchString);
+                   doSearch_MatchFoundInRawTextOfFile(entry,sSearchString);
                 if (bMatchingQA) return;
             }
         }
@@ -133,12 +131,12 @@ implements CommandListener,Runnable
     /**Subfunction for code clarity.*/
     private boolean doSearch_MatchFoundInRawTextOfFile
     (
-        String sFilename,Integer iRecordStoreID,String sSearchString
+    	ListOfTestsEntry entry,String sSearchString
     )
     throws Exception
     {
-        Test theTest = new Test(sFilename,iRecordStoreID);
-        VocabViewerScreen viewerForm = new VocabViewerScreen(sFilename,theTest);
+        Test theTest = new Test(entry);
+        VocabViewerScreen viewerForm = new VocabViewerScreen(entry.getFilename(),theTest);
 
         boolean bMatchingQA = viewerForm.searchVocabFile(sSearchString);
         if (bMatchingQA)

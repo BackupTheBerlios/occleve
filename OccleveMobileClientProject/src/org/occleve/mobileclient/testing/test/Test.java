@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.testing.test;
@@ -30,16 +30,15 @@ import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
 import org.occleve.mobileclient.recordstore.*;
+import org.occleve.mobileclient.testing.ListOfTestsEntry;
 
 public class Test
 {
-    /**If non-null, the ID of the RecordStore entry that stores this test.*/
-    protected Integer m_iRecordStoreID;
-    public Integer getRecordStoreID() {return m_iRecordStoreID;}
-
-    /**This test's filename.*/
-    protected String m_sFilename;
-    public String getFilename() {return m_sFilename;}
+	protected ListOfTestsEntry m_ListOfTestsEntry;
+	public ListOfTestsEntry getEntry() {return m_ListOfTestsEntry;}
+	
+    public Integer getRecordStoreID() {return m_ListOfTestsEntry.getRecordStoreID();}
+    public String getFilename() {return m_ListOfTestsEntry.getFilename();}
 
     /**ISO code of first language in language pair.*/
     protected String m_sFirsteseISOCode;
@@ -55,24 +54,22 @@ public class Test
     public QA getQA(int iIndex) {return (QA)m_QAs.elementAt(iIndex);}
     public int getQACount() {return m_QAs.size();}
 
-    public Test(String sTestFilename,Integer iRecordStoreID) throws Exception
+    public Test(ListOfTestsEntry entry) throws Exception
     {
-        load(sTestFilename,iRecordStoreID);
+        load(entry);
     }
 
-    public void load(String sTestFilename,Integer iRecordStoreID) throws Exception
+    public void load(ListOfTestsEntry entry) throws Exception
     {
-        load_Inner(sTestFilename,iRecordStoreID);
+        load_Inner(entry);
         System.out.println("Loaded " + m_QAs.size() + " QAs");
     }
 
-    private void load_Inner(String sTestFilename,Integer iRecordStoreID)
-    throws Exception
+    private void load_Inner(ListOfTestsEntry entry) throws Exception
     {
-        m_sFilename = sTestFilename;
-        m_iRecordStoreID = iRecordStoreID;
+    	m_ListOfTestsEntry = entry;
 
-        String sTestSource = readTestSource(sTestFilename,iRecordStoreID);
+        String sTestSource = readTestSource(entry);
 
         m_QuestionAskedFlags = new Vector();
         m_QAs = new Vector();
@@ -82,11 +79,11 @@ public class Test
 
         if (sTestSource.indexOf(XML.TEST) != -1)
         {
-            xmlLoadQuestions(sTestFilename,sTestSource);
+            xmlLoadQuestions(entry.getFilename(),sTestSource);
         }
         else if (sTestSource.indexOf(Config.WIKIVERSITY_QUIZ_TAG_STUB) != -1)
         {
-            loadWikiversityQuiz(sTestFilename,sTestSource);
+            loadWikiversityQuiz(entry.getFilename(),sTestSource);
         }
         else
         {
@@ -182,21 +179,24 @@ public class Test
     }
 
     /**If the file exists in the RecordStore, read it from there, otherwise
-     read it from the JAR.*/
-    public static String readTestSource(String sFilename,
-                                        Integer iRecordStoreID)
-                                        throws Exception
+     read it from the JAR.
+     0.9.4: If the filename begins with the "file://" prefix, read it from the phone's
+     filesystem.*/
+    public static String readTestSource(ListOfTestsEntry entry)
+    throws Exception
     {
         String sTestSource;
-        if (iRecordStoreID == null)
+        if (entry.getRecordStoreID() == null)
         {
-            sTestSource = StaticHelpers.readUnicodeFile("/" + sFilename);
+        	if (entry.getLocalFilesystemURL() != null)
+        		sTestSource = StaticHelpers.readUnicodeFile(entry.getLocalFilesystemURL());
+        	else
+        		sTestSource = StaticHelpers.readUnicodeFile("/" + entry.getFilename());
         }
         else
         {
-            int id = iRecordStoreID.intValue();
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-            sTestSource = mgr.getTestContents(id, sFilename);
+            sTestSource = mgr.getTestContents(entry);
         }
 
         return sTestSource;

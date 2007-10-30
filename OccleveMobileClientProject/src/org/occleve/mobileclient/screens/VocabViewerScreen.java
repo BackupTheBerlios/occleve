@@ -145,8 +145,7 @@ implements CommandListener,ItemCommandListener
         {
             String sQuestionNo = m_QuestionNoTextBox.getString();
             int iQuestionIndex = Integer.parseInt(sQuestionNo) - 1;
-            ExcludableHooks.editQA(m_Test.getFilename(),
-                                   m_Test.getRecordStoreID(),
+            ExcludableHooks.editQA(m_Test.getEntry(),
                                    new Integer(iQuestionIndex),this);
             return;
         }

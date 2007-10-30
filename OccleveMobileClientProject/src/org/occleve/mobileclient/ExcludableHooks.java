@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient;
 
 import javax.microedition.lcdui.*;
+import org.occleve.mobileclient.testing.*;
 
 public class ExcludableHooks
 {
@@ -42,36 +43,36 @@ public class ExcludableHooks
         }
     }
 
-    public static void displayDevStuffScreen(String sSelectedFilename,
-                                             Integer iSelectedRecordStoreID)
-                                             throws Exception
+    public static void displayDevStuffScreen(ListOfTestsEntry entry)
+    throws Exception
     {
         Class dvsClass = classForName("org.occleve.mobileclient.excludable.devstuff.DevStuffScreen");
         Excludable dvs = (Excludable)dvsClass.newInstance();
 
-        dvs.setTestFilename(sSelectedFilename);
-        dvs.setTestRecordStoreID(iSelectedRecordStoreID);
+        dvs.setListOfTestsEntry(entry);
+        //dvs.setTestFilename(sSelectedFilename);
+        //dvs.setTestRecordStoreID(iSelectedRecordStoreID);
 
         OccleveMobileMidlet.getInstance().setCurrentForm((Displayable)dvs);
     }
 
-    public static void displayRapidAdd(String sFilename,Integer iRecordStoreID)
+    public static void displayRapidAdd(ListOfTestsEntry entry)
                                        throws Exception
     {
         Class racClass = classForName("org.occleve.mobileclient.excludable.rapidadd.MultipleChoiceWQARapidAddController");
         Excludable rac = (Excludable)racClass.newInstance();
 
-        rac.setTestFilename(sFilename);
-        rac.setTestRecordStoreID(iRecordStoreID);
+        //rac.setTestFilename(sFilename);
+        //rac.setTestRecordStoreID(iRecordStoreID);
+        rac.setListOfTestsEntry(entry);
         rac.initialize();
     }
 
-    public static void editQA(String sFilename,
-                              Integer iRecordID,
+    public static void editQA(ListOfTestsEntry entry,
                               Integer iQAIndex,
                               Displayable screenToReturnTo)
     {
-        if (iRecordID==null)
+        if (entry.getRecordStoreID()==null)
         {
             OccleveMobileMidlet.getInstance().onError("Error - record store ID is null");
         }
@@ -83,8 +84,9 @@ public class ExcludableHooks
 
             rawEditor.setQAIndex(iQAIndex);
             rawEditor.setScreenToReturnTo(screenToReturnTo);
-            rawEditor.setTestFilename(sFilename);
-            rawEditor.setTestRecordStoreID(iRecordID);
+            //rawEditor.setTestFilename(sFilename);
+            //rawEditor.setTestRecordStoreID(iRecordID);
+            rawEditor.setListOfTestsEntry(entry);
             rawEditor.initialize();
 
             OccleveMobileMidlet.getInstance().setCurrentForm((Displayable)rawEditor);

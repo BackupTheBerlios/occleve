@@ -17,13 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient;
 
 import java.io.*;
 import java.util.*;
+import javax.microedition.io.*;
+import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
 
 public class StaticHelpers
@@ -34,19 +36,32 @@ public class StaticHelpers
         InputStream is = null;
         InputStreamReader isr = null;
 
-        // We are reading files from the OccleveMobileClient jar,
-        // therefore call getResourceAsStream() on the midlet class
-        // in order to ensure that the correct JAR is read from.
-        Class c = OccleveMobileMidlet.getInstance().getClass();
-        is = c.getResourceAsStream(filename);
-        if (is == null)
+        if (filename.startsWith("file:"))
         {
-            System.out.println("Length of filename = " + filename.length());
-            char lastChar = filename.charAt( filename.length()-1 );
-            System.out.println("Last char in filename = " + ((long)lastChar));
-            throw new Exception("File " + filename + " does not exist");
+        	// Read the file from the local filesystem.
+            FileConnection fc = (FileConnection)Connector.open(filename);
+            if(!fc.exists())
+            {
+            	throw new IOException("File does not exist");
+            }
+            is = fc.openInputStream();        	
         }
-
+        else
+        {
+	        // Reading the file from the OccleveMobileClient jar,
+	        // therefore call getResourceAsStream() on the midlet class
+	        // in order to ensure that the correct JAR is read from.
+	        Class c = OccleveMobileMidlet.getInstance().getClass();
+	        is = c.getResourceAsStream(filename);
+	        if (is == null)
+	        {
+	            System.out.println("Length of filename = " + filename.length());
+	            char lastChar = filename.charAt( filename.length()-1 );
+	            System.out.println("Last char in filename = " + ((long)lastChar));
+	            throw new Exception("File " + filename + " does not exist");
+	        }
+        }
+        
         // Specifying UTF8 encoding here makes the Sony-E K300 throw
         // an UnsupportedEncodingException... and it's not necessary anyway.
         isr = new InputStreamReader(is,"UTF-8");

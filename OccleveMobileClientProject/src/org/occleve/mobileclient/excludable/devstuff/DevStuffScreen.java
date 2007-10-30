@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -38,12 +38,10 @@ import org.occleve.mobileclient.excludable.translation.*;
 public class DevStuffScreen extends javax.microedition.lcdui.List
 implements CommandListener,Excludable,Runnable
 {
-    protected String m_sSelectedFilename;
-    protected Integer m_iSelectedRecordStoreID;
+	protected ListOfTestsEntry m_SelectedListOfTestsEntry;
 
     ////////////// Implementation of Excludable ////////////////////////////////
-    public void setTestFilename(String s) {m_sSelectedFilename=s;}
-    public void setTestRecordStoreID(Integer i) {m_iSelectedRecordStoreID=i;}
+    public void setListOfTestsEntry(ListOfTestsEntry e) {m_SelectedListOfTestsEntry = e;}
 
     // Not relevant in this class:
     public void initialize() {}
@@ -177,7 +175,7 @@ implements CommandListener,Excludable,Runnable
         else if (sSelectedPrompt.equals(COPY_TO_RECORDSTORE))
         {
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-            mgr.copyFileToRecordStore(m_sSelectedFilename);
+            mgr.copyFileToRecordStore(m_SelectedListOfTestsEntry.getFilename());
         }
         else if (sSelectedPrompt.equals(CONVERT_TO_XML))
         {
@@ -280,15 +278,15 @@ implements CommandListener,Excludable,Runnable
     protected void countNewlinesInSelectedFile() throws Exception
     {
         String sTestContents;
-        if (m_iSelectedRecordStoreID!=null)
+        if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
         {
-            int id = m_iSelectedRecordStoreID.intValue();
+            int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-            sTestContents = mgr.getTestContents(id,m_sSelectedFilename);
+            sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
         }
         else
         {
-            sTestContents = StaticHelpers.readUnicodeFile("/" + m_sSelectedFilename);
+            sTestContents = StaticHelpers.readUnicodeFile("/" + m_SelectedListOfTestsEntry.getFilename());
         }
 
         int lfCount = getSubstringCount(sTestContents,"\n");
@@ -323,18 +321,19 @@ implements CommandListener,Excludable,Runnable
     {
         VocabRecordStoreManager mgr = new VocabRecordStoreManager();
         String sTestContents;
-        if (m_iSelectedRecordStoreID != null)
+        if (m_SelectedListOfTestsEntry.getRecordStoreID() != null)
         {
-            int id = m_iSelectedRecordStoreID.intValue();
-            sTestContents = mgr.getTestContents(id, m_sSelectedFilename);
+            int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
+            sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
         }
         else
         {
-            sTestContents = StaticHelpers.readUnicodeFile("/" + m_sSelectedFilename);
+            sTestContents = StaticHelpers.readUnicodeFile("/" + 
+            		m_SelectedListOfTestsEntry.getFilename());
         }
 
         String sBackupFilename = "Backup " + System.currentTimeMillis() +
-                                 " " + m_sSelectedFilename;
+                                 " " + m_SelectedListOfTestsEntry.getFilename();
         mgr.createFileInRecordStore(sBackupFilename,
                 sTestContents,true);
     }
@@ -346,8 +345,8 @@ implements CommandListener,Excludable,Runnable
 
         for (int i=0; i<list.getSize(); i++)
         {
-            String sFilename = list.getFilename(i);
-            Integer iRSID = list.getRecordStoreIDByIndex(i);
+        	ListOfTestsEntry entry = list.getEntry(i);
+        	String sFilename = entry.getFilename();
 
             if (sFilename.endsWith(Constants.NEWLINE))
             {
@@ -356,7 +355,7 @@ implements CommandListener,Excludable,Runnable
             }
 
             System.out.println("COUNTING: " + sFilename);
-            Test theTest = new Test(sFilename,iRSID);
+            Test theTest = new Test(entry);
             iTotalQuestions += theTest.getQACount();
         }
 
@@ -416,7 +415,7 @@ implements CommandListener,Excludable,Runnable
         {
             if (m_sThreadAction.equals(PRINT_TO_FILE))
             {
-                Test test = new Test(m_sSelectedFilename,m_iSelectedRecordStoreID);
+                Test test = new Test(m_SelectedListOfTestsEntry);
                 VocabViewerScreen viewer = new VocabViewerScreen("",test);
                 viewer.printToFile();
             }
@@ -461,12 +460,12 @@ implements CommandListener,Excludable,Runnable
 
     protected void deleteSelectedTest() throws Exception
     {
-        if (m_iSelectedRecordStoreID != null)
+        if (m_SelectedListOfTestsEntry.getRecordStoreID() != null)
         {
             DeleteTestConfirmationScreen conf =
                     new DeleteTestConfirmationScreen(
-                           m_iSelectedRecordStoreID.intValue(),
-                           m_sSelectedFilename,
+                           m_SelectedListOfTestsEntry.getRecordStoreID().intValue(),
+                           m_SelectedListOfTestsEntry.getFilename(),
                            this);
             OccleveMobileMidlet.getInstance().setCurrentForm(conf);
         }
@@ -475,26 +474,26 @@ implements CommandListener,Excludable,Runnable
     protected void viewSourceOfSelectedFile() throws Exception
     {
         String sTestContents;
-        if (m_iSelectedRecordStoreID!=null)
+        if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
         {
-            int id = m_iSelectedRecordStoreID.intValue();
+            int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-            sTestContents = mgr.getTestContents(id,m_sSelectedFilename);
+            sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
         }
         else
         {
-            sTestContents = StaticHelpers.readUnicodeFile("/" + m_sSelectedFilename);
+            sTestContents = StaticHelpers.readUnicodeFile("/" + m_SelectedListOfTestsEntry.getFilename());
         }
 
         Vector vContents = StaticHelpers.stringToVector(sTestContents);
-        TestSourceViewer viewer = new TestSourceViewer(m_sSelectedFilename,
+        TestSourceViewer viewer = new TestSourceViewer(m_SelectedListOfTestsEntry.getFilename(),
                                                        vContents);
         OccleveMobileMidlet.getInstance().setCurrentForm(viewer);
     }
 
     protected void convertSelectedFileToXML() throws Exception
     {
-        Test test = new Test(m_sSelectedFilename,m_iSelectedRecordStoreID);
+        Test test = new Test(m_SelectedListOfTestsEntry);
         String sXML = test.toXML();
 
         // Add a newline since the convention is that all toXML() functions
@@ -505,12 +504,12 @@ implements CommandListener,Excludable,Runnable
 
         /*
         Vector vXML = StaticHelpers.stringToVector(test.toXML());
-        String sTitle = m_sSelectedFilename + " to XML";
+        String sTitle = m_SelectedListOfTestsEntry.getFilename() + " to XML";
         TestSourceViewer vwr = new TestSourceViewer(sTitle,vXML);
         OccleveMobileMidlet.getInstance().setCurrentForm(vwr);
         */
 
-       String sNameOfXmlFile = "XML " + m_sSelectedFilename;
+       String sNameOfXmlFile = "XML " + m_SelectedListOfTestsEntry.getFilename();
        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
        mgr.createFileInRecordStore(sNameOfXmlFile,sXML,true);
     }

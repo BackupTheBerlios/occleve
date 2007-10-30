@@ -26,16 +26,19 @@ import java.util.*;
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
+import org.occleve.mobileclient.testing.ListOfTestsEntry;
 
 public abstract class RapidAddController
 implements CommandListener,Excludable
 {
-    protected int m_iRecordStoreID;
-    protected String m_sFilename;
+	protected ListOfTestsEntry m_Entry;
+    //protected int m_iRecordStoreID;
+    //protected String m_sFilename;
 
     ////////////// Implementation of Excludable /////////////////////
-    public void setTestFilename(String s) {m_sFilename=s;}
-    public void setTestRecordStoreID(Integer i) {m_iRecordStoreID=i.intValue();}
+    //public void setTestFilename(String s) {m_sFilename=s;}
+    //public void setTestRecordStoreID(Integer i) {m_iRecordStoreID=i.intValue();}
+    public void setListOfTestsEntry(ListOfTestsEntry e) {m_Entry = e;}
 
     // Not relevant to this class:
     public void setQAIndex(Integer i) {}

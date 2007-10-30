@@ -70,21 +70,20 @@ public class XMLConverter implements Runnable
 
         for (int i=0; i<list.getSize(); i++)
         {
-            String sFilename = list.getFilename(i);
-            Integer iRSID = list.getRecordStoreIDByIndex(i);
+        	ListOfTestsEntry entry = list.getEntry(i);
 
-            if (sFilename.startsWith("XML")==false)
+            if (entry.getFilename().startsWith("XML")==false)
             {
-                m_ProgressAlert.setString("Converting " + sFilename);
+                m_ProgressAlert.setString("Converting " + entry.getFilename());
 
-                Test test = new Test(sFilename, iRSID);
+                Test test = new Test(entry);
                 String sXML = test.toXML();
 
                 // Add a newline since the convention is that all toXML() functions
                 // don't add a trailing newline.
                 sXML += Constants.NEWLINE;
 
-                String sFilenameStub = StaticHelpers.stripEnding(sFilename,".txt");
+                String sFilenameStub = StaticHelpers.stripEnding(entry.getFilename(),".txt");
 
                 String sNameOfXmlFile = "XML " + sFilenameStub + ".xml";
                 boolean bDoUIStuff = false;

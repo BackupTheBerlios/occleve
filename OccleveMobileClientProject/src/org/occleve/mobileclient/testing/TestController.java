@@ -171,9 +171,7 @@ public abstract class TestController implements CommandListener
         {
             Displayable returnTo =
                     OccleveMobileMidlet.getInstance().getCurrentDisplayable();
-            ExcludableHooks.editQA(
-                                   m_Test.getFilename(),
-                                   m_Test.getRecordStoreID(),
+            ExcludableHooks.editQA(m_Test.getEntry(),
                                    new Integer(m_iCurrentQAIndex),
                                    returnTo);
         }

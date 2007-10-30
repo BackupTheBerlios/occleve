@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient;
 
 import javax.microedition.lcdui.*;
+import org.occleve.mobileclient.testing.*;
 
 /**This interface should be implemented by classes which can be excluded
 from the end-user release of the project.
@@ -31,9 +32,12 @@ public interface Excludable
 {
     public void setQAIndex(Integer i);
     public void setScreenToReturnTo(Displayable d);
-    public void setTestFilename(String s);
-    public void setTestRecordStoreID(Integer i);
 
+    //public void setTestFilename(String s);
+    //public void setTestRecordStoreID(Integer i);
+
+    public void setListOfTestsEntry(ListOfTestsEntry e);
+        
     public void initialize() throws Exception;
 }
 

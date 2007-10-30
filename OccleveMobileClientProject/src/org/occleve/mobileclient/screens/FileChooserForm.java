@@ -217,24 +217,23 @@ implements CommandListener
         }
 
         int iSelIndex = getSelectedIndex();
-        String sFilename = m_ListOfTests.getFilename(iSelIndex);
-        Integer iRSID = m_ListOfTests.getRecordStoreIDByIndex(iSelIndex);
+        ListOfTestsEntry entry = m_ListOfTests.getEntry(iSelIndex);
 
         if (c==m_TestCommand)
         {
-            displayTestOptions(sFilename,iRSID);
+            displayTestOptions(entry);
         }
         else if (c==m_ViewCommand)
         {
-            OccleveMobileMidlet.getInstance().displayTest(sFilename,iRSID);
+            OccleveMobileMidlet.getInstance().displayTest(entry);
         }
         else if (c==m_RedownloadCommand)
         {
-            redownloadQuiz(sFilename,iRSID);
+            redownloadQuiz(entry);
         }
         else if (c==m_DevStuffScreenCommand)
         {
-            ExcludableHooks.displayDevStuffScreen(sFilename,iRSID);
+            ExcludableHooks.displayDevStuffScreen(entry);
         }
         else if (c==m_SearchAllTestsCommand)
         {
@@ -244,11 +243,11 @@ implements CommandListener
         else if (c==m_EditCommand)
         {
             Screen returnTo = this;
-            ExcludableHooks.editQA(sFilename,iRSID,null,returnTo);
+            ExcludableHooks.editQA(entry,null,returnTo);
         }
         else if (c==m_RapidAddCommand)
         {
-            ExcludableHooks.displayRapidAdd(sFilename,iRSID);
+            ExcludableHooks.displayRapidAdd(entry);
         }
         else if (c==m_ShowLicenseCommand)
         {
@@ -264,10 +263,10 @@ implements CommandListener
         }
     }
 
-    protected void displayTestOptions(String sFilename,Integer iRecordStoreID)
+    protected void displayTestOptions(ListOfTestsEntry entry)
     throws Exception
     {
-       Test theTest = new Test(sFilename,iRecordStoreID);
+       Test theTest = new Test(entry);
 
        // Until this software supports all wikiversity question types,
        // this is a definite possibility.
@@ -310,11 +309,11 @@ implements CommandListener
         */
     }
 
-    protected void redownloadQuiz(String sFilename,Integer iRSID)
+    protected void redownloadQuiz(ListOfTestsEntry entry)
     throws Exception
     {
         VocabRecordStoreManager rsMgr = new VocabRecordStoreManager();
-        String sTestSource = rsMgr.getTestContents(iRSID.intValue(),sFilename);
+        String sTestSource = rsMgr.getTestContents(entry);
 
         boolean bIsWikiversityQuiz = (sTestSource.indexOf("<quiz") != -1);
 
@@ -334,7 +333,7 @@ implements CommandListener
                                       Config.OCCLEVE_QUIZ_URL_SUFFIX);
         }
 
-        browser.startDownloadingTest(sFilename,this);
+        browser.startDownloadingTest(entry.getFilename(),this);
     }
 }
 

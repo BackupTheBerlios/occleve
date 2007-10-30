@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 OccleveMobileMidlet.java
 */
 
@@ -28,6 +28,7 @@ import javax.microedition.media.*;
 import javax.microedition.midlet.*;
 
 import org.occleve.mobileclient.screens.*;
+import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class OccleveMobileMidlet extends MIDlet
@@ -45,8 +46,10 @@ implements CommandListener,Runnable
     protected Displayable m_CurrentForm;
     protected FileChooserForm m_FileChooserForm;
 
-    protected String m_sFilenameCache;
-    protected Integer m_iRecordStoreIDCache;
+    protected ListOfTestsEntry m_EntryCache;
+    //protected String m_sFilenameCache;
+    //protected Integer m_iRecordStoreIDCache;
+    //protected String m_sLocalFilesystemURLCache;
 
 	public OccleveMobileMidlet()
 	{
@@ -182,16 +185,18 @@ implements CommandListener,Runnable
             setCurrentForm(ef);
         }
 
-        public void displayTest(String sFilename,Integer iRecordStoreID)
+        public void displayTest(ListOfTestsEntry entry)
         throws Exception
         {
-            Alert alt = new Alert(null, "Loading " + sFilename, null, null);
+            Alert alt = new Alert(null, "Loading " + entry.getFilename(), null, null);
             alt.setTimeout(Alert.FOREVER);
             StaticHelpers.safeAddGaugeToAlert(alt);
             Display.getDisplay(this).setCurrent(alt);
 
-            m_sFilenameCache = sFilename;
-            m_iRecordStoreIDCache = iRecordStoreID;
+            m_EntryCache = entry;
+            //m_sFilenameCache = sFilename;
+            //m_iRecordStoreIDCache = iRecordStoreID;
+            //m_sLocalFilesystemURLCache = sLocalFilesystemURL;
             new Thread(this).start();
         }
 
@@ -199,18 +204,18 @@ implements CommandListener,Runnable
         {
             try
             {
-                displayTest_Thread(m_sFilenameCache, m_iRecordStoreIDCache);
+                displayTest_Thread(m_EntryCache);
             }
             catch (Exception e) {onError(e);}
         }
 
-        private void displayTest_Thread(String sFilename,Integer iRecordStoreID)
+        private void displayTest_Thread(ListOfTestsEntry entry)
         throws Exception
         {
-            Test theTest = new Test(sFilename,iRecordStoreID);
+            Test theTest = new Test(entry);
 
             // Strip .txt from screen heading.
-            String sHeading = sFilename;
+            String sHeading = entry.getFilename();
             if (sHeading.endsWith(".txt"))
             {
                 sHeading = sHeading.substring(0, sHeading.length() - 4);

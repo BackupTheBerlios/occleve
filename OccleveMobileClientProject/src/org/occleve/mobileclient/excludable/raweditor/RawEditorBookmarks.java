@@ -17,13 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.excludable.raweditor;
 
 import java.io.*;
 import javax.microedition.rms.*;
+import org.occleve.mobileclient.testing.*;
 
 /**Keeps track of bookmarks for the RawEditor.*/
 public class RawEditorBookmarks
@@ -76,14 +77,14 @@ public class RawEditorBookmarks
     ///////////////////////////////////////////////////////////////////////////////
 
     /**Sets a bookmark for the specified filename.*/
-    public static void setBookmark(String sFilename,int iChunkIndex)
+    public static void setBookmark(ListOfTestsEntry entry,int iChunkIndex)
     throws Exception
     {
         RecordStore rs = null;
         try
         {
             rs = RecordStore.openRecordStore(BOOKMARK_RECORDSTORE_NAME, true);
-            setBookmark_Inner(sFilename,iChunkIndex,rs);
+            setBookmark_Inner(entry,iChunkIndex,rs);
             rs.closeRecordStore();
         }
         catch (Exception e)
@@ -94,7 +95,7 @@ public class RawEditorBookmarks
     }
 
     /**Subfunction for code clarity.*/
-    private static void setBookmark_Inner(String sFilename,int iChunkIndex,
+    private static void setBookmark_Inner(ListOfTestsEntry entry,int iChunkIndex,
                                              RecordStore rs)
     throws Exception
     {
@@ -102,7 +103,7 @@ public class RawEditorBookmarks
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream outputStream = new DataOutputStream(baos);
-        outputStream.writeUTF(sFilename);
+        outputStream.writeUTF( entry.getFilename() );
         outputStream.writeInt(iChunkIndex);
         byte[] bytesToWrite = baos.toByteArray();
         outputStream.close();
@@ -121,7 +122,7 @@ public class RawEditorBookmarks
             DataInputStream dis = new DataInputStream(bais);
             String sFilename2 = dis.readUTF();
 
-            if (sFilename2.equals(sFilename))
+            if (sFilename2.equals( entry.getFilename() ))
             {
                 rs.setRecord(recID,bytesToWrite,0,bytesToWrite.length);
                 return;

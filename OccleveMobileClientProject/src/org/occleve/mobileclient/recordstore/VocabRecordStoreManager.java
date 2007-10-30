@@ -28,6 +28,8 @@ import javax.microedition.lcdui.*;
 import javax.microedition.rms.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.testing.ListOfTestsEntry;
+
 import javax.microedition.io.file.FileConnection;
 import javax.microedition.io.Connector;
 
@@ -129,11 +131,11 @@ public class VocabRecordStoreManager
         return sFilename;
     }
 
-    public String getTestContents(int iRecordID,String sFilename)
+    public String getTestContents(ListOfTestsEntry entry)
     throws Exception
     {
         RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
-        byte[] recData = rs.getRecord(iRecordID);
+        byte[] recData = rs.getRecord(entry.getRecordStoreID().intValue());
         rs.closeRecordStore();
 
         String sFilenameFromRecord;
@@ -158,12 +160,12 @@ public class VocabRecordStoreManager
 //bStdUTF = true;
         }
 
-        if (sFilenameFromRecord.equals( sFilename )==false)
+        if (sFilenameFromRecord.equals( entry.getFilename() )==false)
         {
             String sErr =
                 "Error! Filename retrieved from record is incorrect" +
                 Constants.NEWLINE +
-                "Filename supplied = " + sFilename + Constants.NEWLINE +
+                "Filename supplied = " + entry.getFilename() + Constants.NEWLINE +
                 "Filename in record = " + sFilenameFromRecord;
             throw new Exception(sErr);
         }
@@ -178,7 +180,7 @@ public class VocabRecordStoreManager
         return sTestContents;
     }
 
-    public void setTestContents(int iRecordID,String sFilename,String sTestContents)
+    public void setTestContents(ListOfTestsEntry entry,String sTestContents)
     throws Exception
     {
         RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
@@ -186,9 +188,9 @@ public class VocabRecordStoreManager
         // Sanity check: look at the existing record to make sure the filename
         // is the same.
 
-        byte[] existingBytes = rs.getRecord(iRecordID);
+        byte[] existingBytes = rs.getRecord(entry.getRecordStoreID().intValue());
         String sFilenameFromRecord = getFilenameFromRecordData(existingBytes);
-        if (sFilenameFromRecord.equals( sFilename )==false)
+        if (sFilenameFromRecord.equals( entry.getFilename() )==false)
         {
             rs.closeRecordStore();
             throw new Exception("Error! Filename retrieved from record is incorrect");
@@ -197,11 +199,11 @@ public class VocabRecordStoreManager
         // Now write the new test contents to the record.
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        flexiWriteUTF(baos,sFilename);
+        flexiWriteUTF(baos,entry.getFilename());
         flexiWriteUTF(baos,sTestContents);
 
         byte[] newBytes = baos.toByteArray();
-        rs.setRecord(iRecordID,newBytes,0,newBytes.length);
+        rs.setRecord(entry.getRecordStoreID().intValue(),newBytes,0,newBytes.length);
         baos.close();
 
         rs.closeRecordStore();
@@ -370,12 +372,12 @@ System.out.println("Comparing " + sFilename + " to " + sFindMe);
     }
 
     /**Appends the specified string to a test.*/
-    public void appendToTest(int iRecordID,String sFilename,String sAppendThis)
+    public void appendToTest(ListOfTestsEntry entry,String sAppendThis)
     throws Exception
     {
-        String contents = getTestContents(iRecordID,sFilename);
+        String contents = getTestContents(entry);
         contents += Constants.NEWLINE + sAppendThis;
-        setTestContents(iRecordID,sFilename,contents);
+        setTestContents(entry,contents);
     }
 
     /**Delete all files whose filenames begin with "XML".
@@ -460,7 +462,9 @@ System.out.println("Comparing " + sFilename + " to " + sFindMe);
             int recID = recEnum.nextRecordId();
             byte[] recData = rs.getRecord(recID);
             String sFilenameInRecord = getFilenameFromRecordData(recData);
-            String sContents = getTestContents(recID,sFilenameInRecord);
+            ListOfTestsEntry entry =
+            	new ListOfTestsEntry(sFilenameInRecord,new Integer(recID),null);
+            String sContents = getTestContents(entry);
 
             String sFilenameOnFS = "file:///root1/" + sFilenameInRecord;
             FileConnection filecon =
