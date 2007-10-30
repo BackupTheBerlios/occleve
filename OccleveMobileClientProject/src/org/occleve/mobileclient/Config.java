@@ -67,19 +67,19 @@ public class Config
     //////////////////////////////////////////////////////////////////////
 
     public static final String FRENCH_WIKIVERSITY_QUIZ_URL_STUB =
-        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?frquiz=";
+        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=fr&quiz=";
 
     public static final String FRENCH_WIKIVERSITY_LIST_OF_QUIZZES_URL =
-        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?frquiz=ListOfQuizzesForMobileClient";
+        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=fr&quiz=ListOfQuizzesForMobileClient";
 
     public static final String WIKIVERSITY_QUIZ_URL_STUB =
-       "http://occleve.berlios.de/fetch_wv_quiz_raw.php?quiz=";
+       "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=en&quiz=";
        /////"http://en.wikiversity.org/w/index.php?title=";
 
     public static final String WIKIVERSITY_QUIZ_URL_SUFFIX = ""; //"&action=raw";
 
     public static final String WIKIVERSITY_LIST_OF_QUIZZES_URL =
-       "http://occleve.berlios.de/fetch_wv_quiz_raw.php?quiz=ListOfQuizzesForMobileClient";
+       "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=en&quiz=ListOfQuizzesForMobileClient";
        ////"http://en.wikiversity.org/w/index.php?title=ListOfQuizzesForMobileClient&action=raw";
 
     public static final String WIKIVERSITY_QUIZ_TAG_STUB = "<quiz";
