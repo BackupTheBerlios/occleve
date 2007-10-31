@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -27,7 +27,7 @@ import javax.microedition.lcdui.game.*;
 
 import org.occleve.mobileclient.*;
 
-public class TestbedCanvas extends GameCanvas implements CommandListener
+public class TestbedCanvas extends Canvas implements CommandListener
 {
     private static final int MARGIN = 5;
 
@@ -37,18 +37,19 @@ public class TestbedCanvas extends GameCanvas implements CommandListener
     public TestbedCanvas(DevStuffScreen dvs)
     throws Exception
     {
-        super(false);
+        ////super(false);
         m_DevStuffScreen = dvs;
 
         m_BackCommand = new Command("Back",Command.BACK,0);
         addCommand(m_BackCommand);
         setCommandListener(this);
 
-        paintOffscreenBuffer();
+        ////paintOffscreenBuffer();
 
         setFullScreenMode(true);
     }
 
+    /*
     protected void paintOffscreenBuffer()
     {
         Graphics g = this.getGraphics();
@@ -60,6 +61,7 @@ public class TestbedCanvas extends GameCanvas implements CommandListener
         // Test using character for wo3 (pronoun 'I').
         drawZoomedCharacter(g,'\u6211');
     }
+    */
 
     protected void drawZoomedCharacter(Graphics g,char c)
     {
@@ -87,14 +89,11 @@ public class TestbedCanvas extends GameCanvas implements CommandListener
 
     public void paint(Graphics g)
     {
-        // FontCanvasMIDlet_paint(g);
-        flushGraphics();
-
+        paintLotsOfDifferentFonts(g);
+        ////flushGraphics();
     }
 
-    /**From http://www.java2s.com/Code/Java/J2ME/FontCanvasMIDlet.htm
-    Learning Wireless Java, Help for New J2ME Developers, By Qusay Mahmoud.*/
-    protected void FontCanvasMIDlet_paint(Graphics g)
+    protected void paintLotsOfDifferentFonts(Graphics g)
     {
        g.setColor(0xffffff);
        g.fillRect(0, 0, getWidth(), getHeight());
