@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -166,20 +166,40 @@ public class WikiConnection
         DataInputStream dis = openDIS(sURL,progressAlert);
         System.out.println("Opened DataInputStream ok");
 
-        int iBufferSize = getPageLength();
-        System.out.println("iBufferSize = " + iBufferSize);
+        int iPageLength = getPageLength();
+        System.out.println("iPageLength = " + iPageLength);
+        
+        // TODO - more elegant approach and remove 100k limit for pages of unknown length.
+        int iBufferSize;
+        if (iPageLength==-1)
+        	iBufferSize = 100000;
+        else
+        	iBufferSize = iPageLength;
+        
         byte[] theData = new byte[iBufferSize];
 
         int iBytesRead;
         int iOffset = 0;
 
+        boolean bContinue;
         do
         {
             iBytesRead = dis.read(theData,iOffset,iBufferSize-iOffset);
             iOffset += iBytesRead;
-            progressAlert.setString("Loaded " + iOffset + " of " +
-                                      iBufferSize + " bytes");
-        } while (iBytesRead < iBufferSize);
+
+            String sMsg = "Loaded " + iOffset + " of ";
+            if (iPageLength==-1)
+            	sMsg += "an unknown number of bytes";
+            else
+            	sMsg += iBufferSize + " bytes";
+            
+            progressAlert.setString(sMsg);
+            
+            if (iBufferSize==-1)
+            	bContinue = (iBytesRead!=-1);
+            else
+            	bContinue = (iBytesRead < iPageLength);
+        } while (bContinue);
 
         dis.close();
 
