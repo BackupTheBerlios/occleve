@@ -106,7 +106,20 @@ public class Test
         Node root = parser.parse(sTestSource);
         int[] first = {1};
         Node test = root.find(XML.TEST,first);
-        if (test==null) throw new Exception("Couldn't find Test node");
+        if (test==null)
+    	{
+        	Node pre = root.find(XML.PRE,first);
+            if (pre==null)
+        	{        	
+            	throw new Exception("Couldn't find Test node or pre node");
+        	}
+
+        	test = pre.find(XML.TEST,first);
+        	if (test==null)
+        	{        	
+            	throw new Exception("Couldn't find Test node");
+        	}
+    	}
 
         Node qaNode = null;
         do

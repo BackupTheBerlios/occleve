@@ -17,13 +17,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient;
 
 public class XML
 {
+	// 0.9.4: Tolerate presence of this as by necessity it's contained in Occleve wiki pages.
+	public static final String PRE = "pre";
+	
     public static final String TEST = "Test";
     public static final String QA = "LQA";
 
