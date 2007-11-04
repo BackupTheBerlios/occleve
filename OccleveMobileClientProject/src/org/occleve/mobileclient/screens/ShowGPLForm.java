@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.screens;
@@ -39,7 +39,7 @@ public class ShowGPLForm extends Form implements CommandListener
             "Floating point classes copyright " +
             "(C) 2003, 2004 David Clausen " + Constants.NEWLINE +
             "XML parser copyright " +
-            "(C) 2000 Michael Claﬂen " + Constants.NEWLINE +
+            "(C) 2000 Michael Cla√üen " + Constants.NEWLINE +
             "All rights reserved. ";
         sCopyright += Constants.NEWLINE + Constants.NEWLINE;
         StringItem si = new StringItem(null,sCopyright);

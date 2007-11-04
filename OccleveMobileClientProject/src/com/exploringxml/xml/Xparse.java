@@ -1,4 +1,4 @@
-/* Copyright (c) 2000 Michael Claﬂen <mclassen@internet.com>
+/* Copyright (c) 2000 Michael Cla√üen <mclassen@internet.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * $Id: Xparse.java,v 1.1 2007/02/13 04:33:40 joe_gittings Exp $
+ * $Id: Xparse.java,v 1.2 2007/11/04 09:47:00 joe_gittings Exp $
  */
 
 // Derived from Javascript version:
@@ -54,8 +54,8 @@ import java.util.Hashtable;
  * the document type declaration(and it's
  * related features, internal entities, etc)."
  *
- * @author    Michael Claﬂen
- * @version   $Revision: 1.1 $
+ * @author    Michael Cla√üen
+ * @version   $Revision: 1.2 $
  */
 public class Xparse {
 
