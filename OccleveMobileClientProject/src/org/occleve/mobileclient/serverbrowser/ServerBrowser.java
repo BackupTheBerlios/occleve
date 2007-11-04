@@ -334,7 +334,11 @@ implements CommandListener,Runnable
         	System.out.println("About to instantiate String from bytes");
 
         	sQuizData = new String(quizData,Config.ENCODING);
-            pause(1000);
+        	System.out.println("Instantiated String from bytes ok");
+        	System.out.println("It's");
+        	System.out.println(sQuizData);
+
+        	pause(1000);
             
         	int iPreIndex = sQuizData.indexOf("<pre>");
             int iClosingPreIndex = sQuizData.indexOf("</pre>");
@@ -351,6 +355,7 @@ implements CommandListener,Runnable
         } while (bIsISPWelcomePage && (iTries<Config.CONNECTION_TRIES_LIMIT));
 
         wc.close();
+        System.out.println("Closed WikiConnection");
 
         if (bIsISPWelcomePage)
         {
@@ -358,9 +363,11 @@ implements CommandListener,Runnable
         }
         else
         {
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	System.out.println("Creating file in RecordStore");
+        	VocabRecordStoreManager mgr = new VocabRecordStoreManager();
             mgr.createFileInRecordStore(m_sPageNameToDownload, sQuizData,
                                         false);
+        	System.out.println("Created file in RecordStore");
         }
 
         String sMsg = "Successfully loaded " + m_sPageNameToDownload;

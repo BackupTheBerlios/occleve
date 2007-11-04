@@ -83,6 +83,7 @@ public class WikiConnection
     throws Exception
     {
     	setConnectionAction("Calling Connector.open()");
+    	System.out.println(sURL);
     	m_HttpConnection =
     		(HttpConnection)Connector.open(sURL,Connector.READ);
 
@@ -205,7 +206,19 @@ public class WikiConnection
         dis.close();
 
         System.out.println("Number of bytes read = " + iOffset);
-        return theData;
+        
+        if (iPageLength==-1)
+        {
+        	// If the page length was unknown, copy the data into an array
+        	// of the correct size.
+        	byte[] finalData = new byte[iOffset];
+        	System.arraycopy(theData, 0, finalData, 0, iOffset);
+        	return finalData;
+        }
+        else
+        {
+        	return theData;
+        }
     }
 }
 
