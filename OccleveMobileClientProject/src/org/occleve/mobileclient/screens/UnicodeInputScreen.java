@@ -71,14 +71,7 @@ implements CommandListener,Runnable
     {
         if (c==m_PeekCommand)
         {
-            String sChar = new String();
-            sChar += m_UnicodeCharToInput;
-            Alert alert = new Alert(null,sChar,null,null);
-            alert.setTimeout(2000);
-            OccleveMobileMidlet.getInstance().displayAlert(alert,this);
-
-            // Peeking at the character counts as a "wrong" keypress.
-            m_TestResults.addResponse(false);
+        	onPeek();
         }
         else if (c==m_CancelCommand)
         {
@@ -99,6 +92,18 @@ implements CommandListener,Runnable
         }
     }
 
+    protected void onPeek()
+    {
+        String sChar = new String();
+        sChar += m_UnicodeCharToInput;
+        Alert alert = new Alert(null,sChar,null,null);
+        alert.setTimeout(2000);
+        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+
+        // Peeking at the character counts as a "wrong" keypress.
+        m_TestResults.addResponse(false);    	
+    }
+    
     public void run()
     {
         try
@@ -117,20 +122,29 @@ implements CommandListener,Runnable
             {
                 String contents = getString();
                 char inputtedChar = contents.charAt(0);
-
-                boolean bCorrect = (inputtedChar==m_UnicodeCharToInput);
-                m_TestResults.addResponse(bCorrect);
-
-                if (bCorrect)
+                
+                // 0.9.4: Allow "?" to invoke the Peek function (useful when using a pen
+                // phone as it allows user to peek by writing "?" with the pen).
+                if ((inputtedChar=='?') && (m_UnicodeCharToInput!='?'))
                 {
-                    m_bExitThread = true;
-                    m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
-                    m_TestControllerThatInvokedThis.setVisible();
-                    m_TestControllerThatInvokedThis.skipPunctuation();
+                	onPeek();
                 }
                 else
                 {
-                    setString("");
+	                boolean bCorrect = (inputtedChar==m_UnicodeCharToInput);
+	                m_TestResults.addResponse(bCorrect);
+	
+	                if (bCorrect)
+	                {
+	                    m_bExitThread = true;
+	                    m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
+	                    m_TestControllerThatInvokedThis.setVisible();
+	                    m_TestControllerThatInvokedThis.skipPunctuation();
+	                }
+	                else
+	                {
+	                    setString("");
+	                }
                 }
             }
 
