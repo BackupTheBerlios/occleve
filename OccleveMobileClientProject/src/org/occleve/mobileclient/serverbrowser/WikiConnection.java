@@ -198,9 +198,10 @@ public class WikiConnection
             if (iBufferSize==-1)
             	bContinue = (iBytesRead!=-1);
             else
-            	bContinue = (iBytesRead < iPageLength);
+            	bContinue = (iOffset < iPageLength);
         } while (bContinue);
 
+        System.out.println("Closing DataInputStream");
         dis.close();
 
         System.out.println("Number of bytes read = " + iOffset);

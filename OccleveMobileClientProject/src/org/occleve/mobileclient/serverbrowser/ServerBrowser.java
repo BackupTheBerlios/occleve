@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.4
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -152,6 +152,8 @@ implements CommandListener,Runnable
         }
         catch (Exception e)
         {
+        	System.err.println(e);
+        	
             try
             {
                 wc.close();
@@ -327,7 +329,10 @@ implements CommandListener,Runnable
 
     	do
         {
+    		System.out.println("About to call readAllBytes");
         	byte[] quizData = wc.readAllBytes(sURL,m_ProgressAlert);        	
+        	System.out.println("About to instantiate String from bytes");
+
         	sQuizData = new String(quizData,Config.ENCODING);
             pause(1000);
             
