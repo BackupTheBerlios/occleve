@@ -70,7 +70,7 @@ public class Config
         "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=fr&quiz=";
 
     public static final String FRENCH_WIKIVERSITY_LIST_OF_QUIZZES_URL =
-        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=fr&quiz=ListOfQuizzesForMobileClient";
+        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=fr&quiz=Utilisateur:Joe_Gittings/ListOfQuizzesForMobileClient";
 
     public static final String WIKIVERSITY_QUIZ_URL_STUB =
        "http://occleve.berlios.de/fetch_wv_quiz_raw.php?lang=en&quiz=";
