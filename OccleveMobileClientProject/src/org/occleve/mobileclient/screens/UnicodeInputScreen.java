@@ -71,7 +71,7 @@ implements CommandListener,Runnable
     {
         if (c==m_PeekCommand)
         {
-        	onPeek();
+        	onPeek(true);
         }
         else if (c==m_CancelCommand)
         {
@@ -92,13 +92,27 @@ implements CommandListener,Runnable
         }
     }
 
-    protected void onPeek()
+    protected void onPeek(boolean bAutoTimeout)
     {
         String sChar = new String();
         sChar += m_UnicodeCharToInput;
         Alert alert = new Alert(null,sChar,null,null);
-        alert.setTimeout(2000);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+
+        if (bAutoTimeout)
+        {
+        	alert.setTimeout(2000);
+        	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        }
+        else
+        {
+        	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+            try
+            {
+                Thread.sleep(2000);
+            }
+            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        	OccleveMobileMidlet.getInstance().setCurrentForm(this);
+        }
 
         // Peeking at the character counts as a "wrong" keypress.
         m_TestResults.addResponse(false);    	
@@ -127,7 +141,8 @@ implements CommandListener,Runnable
                 // phone as it allows user to peek by writing "?" with the pen).
                 if ((inputtedChar=='?') && (m_UnicodeCharToInput!='?'))
                 {
-                	onPeek();
+                	onPeek(false);
+                    setString("");
                 }
                 else
                 {
