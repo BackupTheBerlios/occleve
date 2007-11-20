@@ -195,17 +195,19 @@ implements CommandListener,Excludable,Runnable
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {
+    	/*
         if (sOption.equals(JAVA_UTF_CONVERT_ALL_TO_XML) ||
             sOption.equals(STD_UTF_CONVERT_ALL_TO_XML))
         {
             boolean bJavaUTF = (sOption.equals(JAVA_UTF_CONVERT_ALL_TO_XML));
-
             // Runs in a thread so it can display a progress indicator.
             XMLConverter converter = new XMLConverter(bJavaUTF);
             Thread convThread = new Thread(converter);
             convThread.start();
         }
-        else if (sOption.equals(DELETE_ALL_XML))
+        */
+        
+        if (sOption.equals(DELETE_ALL_XML))
         {
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
             mgr.deleteAllXmlPrefixedFiles();
