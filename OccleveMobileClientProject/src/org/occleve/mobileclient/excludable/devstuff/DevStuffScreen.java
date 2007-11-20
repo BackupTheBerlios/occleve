@@ -59,12 +59,12 @@ implements CommandListener,Excludable,Runnable
     protected final String DELETE_TEST = "Delete test";
     protected final String VIEW_SOURCE = "View source";
     protected final String COPY_TO_RECORDSTORE = "Copy to recordstore";
-    protected final String CONVERT_TO_XML = "Convert to XML";
+    ////protected final String CONVERT_TO_XML = "Convert to XML";
     protected final String PRINT_TO_FILE = "Print to file";
 
     protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests in RecordStore to filesystem";
-    protected final String JAVA_UTF_CONVERT_ALL_TO_XML = "JavaUTF: Convert all to XML";
-    protected final String STD_UTF_CONVERT_ALL_TO_XML = "StdUTF: Convert all to XML";
+    ///protected final String JAVA_UTF_CONVERT_ALL_TO_XML = "JavaUTF: Convert all to XML";
+    ///protected final String STD_UTF_CONVERT_ALL_TO_XML = "StdUTF: Convert all to XML";
     protected final String DELETE_ALL_XML = "Delete all XML-prefixed files";
     protected final String TEST_BABELFISH = "Test Babelfish";
     protected final String TESTBED_CANVAS = "Testbed canvas";
@@ -79,7 +79,7 @@ implements CommandListener,Excludable,Runnable
     protected final String IS_FILECONNECTION_API_AVAILABLE = "FileConnection API available?";
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
-    protected final String TRANSMIT_ALL_RS_TESTS = "Transmit all tests in RecordStore";
+    ////protected final String TRANSMIT_ALL_RS_TESTS = "Transmit all tests in RecordStore";
 
     protected Command m_BackCommand;
 
@@ -94,13 +94,13 @@ implements CommandListener,Excludable,Runnable
         append(CREATE_BACKUP,null);
         append(DELETE_TEST,null);
         append(COPY_TO_RECORDSTORE,null);
-        append(CONVERT_TO_XML,null);
+        /////append(CONVERT_TO_XML,null);
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
         append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
-        append(JAVA_UTF_CONVERT_ALL_TO_XML,null);
-        append(STD_UTF_CONVERT_ALL_TO_XML,null);
+        ////append(JAVA_UTF_CONVERT_ALL_TO_XML,null);
+        ////append(STD_UTF_CONVERT_ALL_TO_XML,null);
         append(DELETE_ALL_XML,null);
         append(TEST_BABELFISH,null);
         append(TESTBED_CANVAS,null);
@@ -115,7 +115,7 @@ implements CommandListener,Excludable,Runnable
         append(IS_FILECONNECTION_API_AVAILABLE,null);
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
-        append(TRANSMIT_ALL_RS_TESTS,null);
+        //////append(TRANSMIT_ALL_RS_TESTS,null);
 
         m_BackCommand = new Command("Back",Command.ITEM,0);
         addCommand(m_BackCommand);
@@ -181,10 +181,10 @@ implements CommandListener,Excludable,Runnable
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
             mgr.copyFileToRecordStore(m_SelectedListOfTestsEntry.getFilename());
         }
-        else if (sSelectedPrompt.equals(CONVERT_TO_XML))
-        {
-            convertSelectedFileToXML();
-        }
+        ////else if (sSelectedPrompt.equals(CONVERT_TO_XML))
+        ///{
+        ///    convertSelectedFileToXML();
+        ////}
         else if (sSelectedPrompt.equals(PRINT_TO_FILE))
         {
             m_sThreadAction = PRINT_TO_FILE;
@@ -269,11 +269,11 @@ implements CommandListener,Excludable,Runnable
             VocabRecordFilenameTextBox tb = new VocabRecordFilenameTextBox();
             OccleveMobileMidlet.getInstance().setCurrentForm(tb);
         }
-        else if (sOption.equals(TRANSMIT_ALL_RS_TESTS))
-        {
-            IPAddressTextBox tb = new IPAddressTextBox();
-            OccleveMobileMidlet.getInstance().setCurrentForm(tb);
-        }
+        ///else if (sOption.equals(TRANSMIT_ALL_RS_TESTS))
+        ///{
+        ///    IPAddressTextBox tb = new IPAddressTextBox();
+        ///    OccleveMobileMidlet.getInstance().setCurrentForm(tb);
+        ///}
         else if (sOption.equals(TEST_BABELFISH))
         {
             BabelFishTranslationEngine eng = new BabelFishTranslationEngine();
