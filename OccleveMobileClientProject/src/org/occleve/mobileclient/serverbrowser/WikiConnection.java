@@ -51,14 +51,14 @@ public class WikiConnection
     public void setConnectionAction(String s) {m_sConnectionAction = s;}
     public String getConnectionAction() {return m_sConnectionAction;}
     
-    public InputStreamReader openISR(String sURL,Alert progressAlert)
+    public InputStreamReader openISR(String sURL,Alert progressAlert,
+    									boolean bForceHttpOnePointZero)
     throws Exception
     {
-
     	//outputRawConnectionDataViaException(sURL);
     	
     	setConnectionAction("Calling WikiConnection.openInputStream");
-        openInputStream(sURL,progressAlert);
+        openInputStream(sURL,progressAlert,bForceHttpOnePointZero);
 
     	setConnectionAction("Creating new InputStreamReader");
         m_InputStreamReader =
@@ -70,16 +70,17 @@ public class WikiConnection
         return m_InputStreamReader;
     }
 
-    public DataInputStream openDIS(String sURL,Alert progressAlert)
+    public DataInputStream openDIS(String sURL,Alert progressAlert,
+    								boolean bForceHttpOnePointZero)
     throws Exception
     {
-        openInputStream(sURL,progressAlert);
+        openInputStream(sURL,progressAlert,bForceHttpOnePointZero);
 
         m_DataInputStream = new DataInputStream(m_InputStream);
         return m_DataInputStream;
     }
 
-    private void openInputStream(String sURL,Alert progressAlert)
+    private void openInputStream(String sURL,Alert progressAlert,boolean bForceHttpOnePointZero)
     throws Exception
     {
     	setConnectionAction("Calling Connector.open()");
@@ -87,6 +88,13 @@ public class WikiConnection
     	m_HttpConnection =
     		(HttpConnection)Connector.open(sURL,Connector.READ);
 
+    	// Force this connection to use HTTP 1.0 if desired (e.g. to turn off chunking)
+    	if (bForceHttpOnePointZero)
+    	{
+    		System.out.println("Setting Connection:close on HTTP connection");
+    		m_HttpConnection.setRequestProperty("Connection", "close");
+    	}
+    	
         if (progressAlert!=null)
         {
             progressAlert.setString("Connecting to " + sURL);
@@ -106,8 +114,27 @@ public class WikiConnection
             throw new IOException("HTTP response code indicates failure: " + rc);
         }
 
+        // New in 0.9.4: test if the response headers indicate chunked encoding
+        // is being used.
+        boolean bChunkedEncoding = false;
+        String sChunkedTest = m_HttpConnection.getHeaderField("Transfer-Encoding");
+        if (sChunkedTest!=null)
+        {
+        	if (sChunkedTest.equals("chunked"))
+        	{
+            	System.out.println("Using chunked encoding....");
+        	}
+        }
+        
     	setConnectionAction("Calling HttpConnection.openInputStream()");
         m_InputStream = m_HttpConnection.openInputStream();
+
+        /*
+        if (bChunkedEncoding)
+        	m_InputStream = new httpChunkedInputStream(istream);
+        else
+        	m_InputStream = istream;
+        */
 
         if (progressAlert!=null)
         {
@@ -161,22 +188,27 @@ public class WikiConnection
     /**New in 0.9.4: reads from the specified URL, and blocks until the
     number of bytes specified by the HTTP content-length
     header field have been read.*/
-    public byte[] readAllBytes(String sURL,Alert progressAlert)
+    public byte[] readAllBytes(String sURL,Alert progressAlert,
+    							boolean bForceHttpOnePointZero)
     throws Exception
     {
-        DataInputStream dis = openDIS(sURL,progressAlert);
+        DataInputStream dis = openDIS(sURL,progressAlert,bForceHttpOnePointZero);
         System.out.println("Opened DataInputStream ok");
 
         int iPageLength = getPageLength();
         System.out.println("iPageLength = " + iPageLength);
-        
-        // TODO - more elegant approach and remove 100k limit for pages of unknown length.
-        int iBufferSize;
+
         if (iPageLength==-1)
-        	iBufferSize = 100000;
+        	return readAllBytes_LengthUnknown(dis, progressAlert);
         else
-        	iBufferSize = iPageLength;
-        
+        	return readAllBytes_LengthKnown(dis, progressAlert,iPageLength);
+    }
+    
+    private byte[] readAllBytes_LengthKnown(DataInputStream dis,Alert progressAlert,
+    										int iPageLength)
+    throws Exception
+    {        
+    	int iBufferSize = iPageLength;
         byte[] theData = new byte[iBufferSize];
 
         int iBytesRead;
@@ -188,11 +220,7 @@ public class WikiConnection
             iBytesRead = dis.read(theData,iOffset,iBufferSize-iOffset);
             iOffset += iBytesRead;
 
-            String sMsg = "Loaded " + iOffset + " of ";
-            if (iPageLength==-1)
-            	sMsg += "an unknown number of bytes";
-            else
-            	sMsg += iBufferSize + " bytes";
+            String sMsg = "Loaded " + iOffset + " of " + iBufferSize + " bytes";
             
             progressAlert.setString(sMsg);
             
@@ -201,24 +229,45 @@ public class WikiConnection
             else
             	bContinue = (iOffset < iPageLength);
         } while (bContinue);
-
+        
         System.out.println("Closing DataInputStream");
         dis.close();
 
-        System.out.println("Number of bytes read = " + iOffset);
-        
-        if (iPageLength==-1)
-        {
-        	// If the page length was unknown, copy the data into an array
-        	// of the correct size.
-        	byte[] finalData = new byte[iOffset];
-        	System.arraycopy(theData, 0, finalData, 0, iOffset);
-        	return finalData;
-        }
-        else
-        {
-        	return theData;
-        }
+        System.out.println("Number of bytes read = " + iOffset);        
+      	return theData; 	
     }
+
+    private byte[] readAllBytes_LengthUnknown(DataInputStream dis,Alert progressAlert)
+    throws Exception
+    {
+        // TODO - more elegant approach and remove 100k limit for pages of unknown length.
+        int iBufferSize = 100000;
+        byte[] theData = new byte[iBufferSize];
+
+        int b;
+        int iBytesRead = 0;
+        do
+        {
+        	b = dis.read();
+        	if (b!=-1)
+        	{
+        		theData[iBytesRead] = (byte)b;
+        		iBytesRead++;
+
+        		if (iBytesRead%100 == 0)
+        		{
+	                String sMsg = "Loaded " + iBytesRead + " bytes";
+	                progressAlert.setString(sMsg);
+        		}
+        	}
+        } while (b!=-1);
+        	
+        System.out.println("iBytesRead = " + iBytesRead);
+        
+    	// Copy the data into an array of the correct size.
+    	byte[] finalData = new byte[iBytesRead];
+    	System.arraycopy(theData, 0, finalData, 0, iBytesRead);
+    	return finalData;
+    }    
 }
 

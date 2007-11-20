@@ -183,7 +183,7 @@ implements CommandListener,Runnable
         do
         {
         	wc.setConnectionAction("Calling WikiConnection.openISR");
-            reader = wc.openISR(m_sListOfTestsURL,m_ProgressAlert);
+            reader = wc.openISR(m_sListOfTestsURL,m_ProgressAlert,true);
 
             int iLineCount = 0;
             do
@@ -330,13 +330,13 @@ implements CommandListener,Runnable
     	do
         {
     		System.out.println("About to call readAllBytes");
-        	byte[] quizData = wc.readAllBytes(sURL,m_ProgressAlert);        	
+        	byte[] quizData = wc.readAllBytes(sURL,m_ProgressAlert,true);        	
         	System.out.println("About to instantiate String from bytes");
 
         	sQuizData = new String(quizData,Config.ENCODING);
         	System.out.println("Instantiated String from bytes ok");
-        	System.out.println("It's");
-        	System.out.println(sQuizData);
+        	////System.out.println("It's");
+        	////System.out.println(sQuizData);
 
         	pause(1000);
             
@@ -398,7 +398,7 @@ implements CommandListener,Runnable
         int iTotalBytesRead;
         do
         {
-            reader = wc.openISR(sURL, m_ProgressAlert);
+            reader = wc.openISR(sURL, m_ProgressAlert,true);
 
             sbSource = new StringBuffer();
             iTotalBytesRead = 0;
@@ -497,7 +497,7 @@ implements CommandListener,Runnable
         do
         {
             System.out.println("Trying to obtain InputStreamReader");
-            reader = wc.openISR(sDescriptorURL, null);
+            reader = wc.openISR(sDescriptorURL, null,false);
             System.out.println("Obtained InputStreamReader ok");
 
             sTrueURL = null;
@@ -529,7 +529,7 @@ implements CommandListener,Runnable
         // Now load the actual MP3 file
 
         progressAlert.setString("Loading the clip itself");
-        DataInputStream dis = wc.openDIS(sTrueURL,m_ProgressAlert);
+        DataInputStream dis = wc.openDIS(sTrueURL,m_ProgressAlert,false);
         System.out.println("Opened DataInputStream ok");
 
         int iBufferSize = wc.getPageLength();
