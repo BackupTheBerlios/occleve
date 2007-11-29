@@ -160,8 +160,12 @@ public class ListOfTests
             String rsFilename = (String) enumKeys.nextElement();
             System.out.println("rsFilename = " + rsFilename);
 
-            // Ignore MP3 files
-            if (rsFilename.toLowerCase().endsWith(".mp3") == false)
+            // Ignore MP3 and (from 0.9.5) GIF files
+            boolean bIgnore = 
+            	(rsFilename.toLowerCase().endsWith(".mp3")) ||
+            	(rsFilename.toLowerCase().endsWith(".gif"));
+            
+            if (bIgnore==false)
             {
                 Integer rsID = (Integer) rsIndex.get(rsFilename);
 
