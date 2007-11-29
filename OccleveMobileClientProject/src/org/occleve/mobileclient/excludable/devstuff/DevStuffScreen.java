@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -88,6 +88,10 @@ implements CommandListener,Excludable,Runnable
     {
         super("Dev stuff",javax.microedition.lcdui.List.IMPLICIT);
 
+//Test EUC-CN support
+java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(System.out,"EUC-CN");
+osw.write("in EUC-CN encoding");
+        
         append("For selected file:",null);
         append(VIEW_SOURCE,null);
         append(COUNT_NEWLINES,null);

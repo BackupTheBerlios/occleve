@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.5
 */
 
 package org.occleve.mobileclient;
@@ -26,8 +26,8 @@ package org.occleve.mobileclient;
 file downloaded from the wiki.*/
 public class Config
 {
-    // 0.9.4 in a form that can be used for comparisons: 000904
-    public static final long VERSION = 904;
+    // Version number in a form that can be used for comparisons: e.g. 000904
+    public static final long VERSION = 905;
 
     public static final String MIN_RELEASE_DIRECTIVE = "!MIN_RELEASE=";
 
@@ -58,6 +58,10 @@ public class Config
     before giving up.*/
     public static final int CONNECTION_TRIES_LIMIT = 3;
 
+    /**The stub URL for the Ocrat GIFs of animated chinese characters.*/
+    public static final String OCRAT_ANIMATIONS_MIRROR_URL_STUB =
+    	"http://lost-theory.org/ocrat/chargif/sod/";
+    
     //////////////////////////////////////////////////////////////////////
     // Wikiversity Quiz support
     // For now the list of Wikiversity quizzes and the quizzes themselves

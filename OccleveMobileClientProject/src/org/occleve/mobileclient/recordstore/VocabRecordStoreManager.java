@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.recordstore;
@@ -46,8 +46,9 @@ public class VocabRecordStoreManager
 
     private boolean m_bUseJavaUTF = true;
 
-    public void useJavaUTF() {m_bUseJavaUTF = true;}
-    public void useStandardUTF() {m_bUseJavaUTF = false;}
+    // 0.9.5: Commented out these - they could only cause trouble!
+    //////public void useJavaUTF() {m_bUseJavaUTF = true;}
+    //////public void useStandardUTF() {m_bUseJavaUTF = false;}
 
     public VocabRecordStoreManager()
     {
@@ -140,7 +141,6 @@ public class VocabRecordStoreManager
 
         String sFilenameFromRecord;
         String sTestContents;
-//boolean bStdUTF = false;
         try
         {
             ByteArrayInputStream bais = new ByteArrayInputStream(recData);
@@ -157,7 +157,6 @@ public class VocabRecordStoreManager
             sTestContents = readStandardUTF(isr,false);
             isr.close();
             bais2.close();
-//bStdUTF = true;
         }
 
         if (sFilenameFromRecord.equals( entry.getFilename() )==false)
@@ -178,6 +177,37 @@ public class VocabRecordStoreManager
          */
 
         return sTestContents;
+    }
+
+    public byte[] getRecordContentsMinusFilename(int iRecID)
+    throws Exception
+    {
+        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        byte[] recData = rs.getRecord(iRecID);
+        rs.closeRecordStore();
+
+        ByteArrayInputStream bais = new ByteArrayInputStream(recData);
+        DataInputStream dis = new DataInputStream(bais);
+        String sFilenameFromRecord = dis.readUTF();
+        
+        byte[] followingData = new byte[recData.length];
+        int b;
+        int iBytesRead = 0;
+        do
+        {
+        	b = dis.read();
+        	if (b!=-1)
+        	{
+        		followingData[iBytesRead] = (byte)b;
+        		iBytesRead++;
+        	}
+        } while (b!=-1);
+        bais.close();
+        	
+    	// Copy the data into an array of the correct size.
+    	byte[] finalData = new byte[iBytesRead];
+    	System.arraycopy(followingData, 0, finalData, 0, iBytesRead);
+        return finalData;
     }
 
     public void setTestContents(ListOfTestsEntry entry,String sTestContents)
@@ -287,7 +317,9 @@ public class VocabRecordStoreManager
     throws Exception
     {
         RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
-System.out.println("Opened recordstore ok");
+        System.out.println("Opened recordstore ok");
+        System.out.println("m_bUseJavaUTF = " + m_bUseJavaUTF);
+        
         Integer rsid = findRecordByFilename(rs,sFilenameToFind);
         rs.closeRecordStore();
         return rsid;
@@ -300,14 +332,15 @@ System.out.println("Opened recordstore ok");
     {
         boolean keepUpdated = false;
         RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
-System.out.println("Got recEnum ok");
+        System.out.println("Got recEnum ok");
 
         while (recEnum.hasNextElement())
         {
             int recID = recEnum.nextRecordId();
             byte[] recData = rs.getRecord(recID);
             String sFilename = getFilenameFromRecordData(recData);
-System.out.println("Comparing " + sFilename + " to " + sFindMe);
+            // System.out.println("Comparing " + sFilename + " to " + sFindMe);
+            
             if (sFilename.equals(sFindMe))
             {
                 return new Integer(recID);

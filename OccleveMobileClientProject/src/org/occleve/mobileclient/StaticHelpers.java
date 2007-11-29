@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.5
 */
 
 package org.occleve.mobileclient;
@@ -273,5 +273,35 @@ public class StaticHelpers
             System.err.println("Call to setCurrentItem() failed");
         }
     }
+        
+    // 0.9.5: Output char as EUC-CN
+    public static String unicodeCharToEucCnHexString(char unicodeChar)
+    throws IOException
+    {    
+	    System.out.println("Unicode char = " + unicodeChar);
+	    
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(baos,"EUC-CN");
+	    
+	    String sUnicode = new Character(unicodeChar).toString();
+	    osw.write(sUnicode);
+	    osw.flush();
+	    
+	    String sHexString = "";	    
+	    byte[] eucCnByteArray = baos.toByteArray();
+	    for (int i=0; i<eucCnByteArray.length; i++)
+	    {
+	  	  byte eucCnByte = eucCnByteArray[i];
+	  	  
+	  	  // Integer.toHexString will produce an eight char string
+	  	  // with the eucCn value in the last two chars.
+	  	  String sEuCnByteHex = Integer.toHexString(eucCnByte).substring(6);	  	  
+	  	  sHexString += sEuCnByteHex;
+	    }
+	    
+	    System.out.println("Unicode char in EUC-CN encoding as hex = "+ sHexString);
+	    return sHexString;
+    }
+
 }
 
