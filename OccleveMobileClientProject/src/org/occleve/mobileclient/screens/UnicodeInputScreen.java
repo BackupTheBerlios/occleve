@@ -157,7 +157,8 @@ implements CommandListener,Runnable
 
     	Image animation = loadImage(sFilename,sURL);
     	String sTitle = "" + m_UnicodeCharToInput;
-    	Alert alert = new Alert(sTitle,"",animation,AlertType.INFO);
+    	String sCredit = "Courtesy of lost-theory.org";
+    	Alert alert = new Alert(sTitle,sCredit,animation,AlertType.INFO);
 
     	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
         try
