@@ -276,7 +276,7 @@ public class StaticHelpers
         
     // 0.9.5: Output char as EUC-CN
     public static String unicodeCharToEucCnHexString(char unicodeChar)
-    throws IOException
+    throws Exception
     {    
 	    System.out.println("Unicode char = " + unicodeChar);
 
@@ -289,7 +289,7 @@ public class StaticHelpers
 	    //osw.flush();
 	    //byte[] eucCnByteArray = baos.toByteArray();
 	    
-	    byte[] eucCnByteArray = new EucCnToUnicodeMap().unicodeCharToEucCnBytePair(unicodeChar);
+	    byte[] eucCnByteArray = new GB2312ToUnicodeMap().unicodeCharToEucCnBytePair(unicodeChar);
 	    
 	    String sHexString = "";	    
 	    for (int i=0; i<eucCnByteArray.length; i++)

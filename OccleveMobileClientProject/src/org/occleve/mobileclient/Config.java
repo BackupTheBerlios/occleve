@@ -61,6 +61,8 @@ public class Config
     /**The stub URL for the Ocrat GIFs of animated chinese characters.*/
     public static final String OCRAT_ANIMATIONS_MIRROR_URL_STUB =
     	"http://lost-theory.org/ocrat/chargif/sod/";
+
+    public static String GB2312_TO_UNICODE_ARRAY_FILE = "GB2312ToUnicodeMap.data";
     
     //////////////////////////////////////////////////////////////////////
     // Wikiversity Quiz support

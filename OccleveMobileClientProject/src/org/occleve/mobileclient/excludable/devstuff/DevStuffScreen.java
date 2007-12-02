@@ -458,7 +458,7 @@ implements CommandListener,Excludable,Runnable
             }
             else if (m_sThreadAction.equals(BUILD_EUCCN_UNICODE_MAP))
             {
-            	BuildEucCnToUnicodeArray.buildArray();
+            	BuildGB2312ToUnicodeArray.buildArray();
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}

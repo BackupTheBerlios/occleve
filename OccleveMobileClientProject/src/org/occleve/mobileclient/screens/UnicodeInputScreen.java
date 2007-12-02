@@ -176,7 +176,7 @@ implements CommandListener,Runnable
     throws Exception
     {
         // Display a progress bar during the whole process
-        Alert progressAlert = new Alert(null, "Loading audio clip...",
+        Alert progressAlert = new Alert(null, "Loading image...",
                                     null, null);
         progressAlert.setTimeout(Alert.FOREVER);
         StaticHelpers.safeAddGaugeToAlert(progressAlert);

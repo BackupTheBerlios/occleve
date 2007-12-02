@@ -29,7 +29,7 @@ import javax.microedition.io.file.FileConnection;
 
 import org.occleve.mobileclient.*;
 
-public class BuildEucCnToUnicodeArray
+public class BuildGB2312ToUnicodeArray
 {
 	public static void buildArray() throws Exception
 	{
@@ -89,7 +89,7 @@ public class BuildEucCnToUnicodeArray
 		sb.append( "}" );
 		System.out.println(sb.toString());
 
-        String sFilenameOnFS = "file:///root1/EucCnToUnicodeArray.data";
+        String sFilenameOnFS = "file:///root1/" + Config.GB2312_TO_UNICODE_ARRAY_FILE;
         FileConnection filecon =
             (FileConnection)Connector.open(sFilenameOnFS);
         filecon.create();
