@@ -23,6 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.excludable.devstuff;
 
 import java.io.*;
+
+import javax.microedition.io.Connector;
+import javax.microedition.io.file.FileConnection;
+
 import org.occleve.mobileclient.*;
 
 public class BuildEucCnToUnicodeArray
@@ -30,13 +34,16 @@ public class BuildEucCnToUnicodeArray
 	public static void buildArray() throws Exception
 	{
 		System.out.println("Entering BuildEucCnToUnicodeArray.buildArray()...");
-		
-		StringBuffer sb = new StringBuffer();
-		sb.append("byte[][] eucCnToUnicodeMap = {" + Constants.NEWLINE);
 
 		// According to Wikipedia, "The rows 10-15 and 88-94 are unassigned"
 		final int MAX_ROW =87;
 		final int MAX_COL = 94;
+
+		ByteArrayOutputStream baosLongArray = new ByteArrayOutputStream();
+		DataOutputStream dosLongArray = new DataOutputStream(baosLongArray);
+		
+		StringBuffer sb = new StringBuffer();
+		sb.append("byte[][] eucCnToUnicodeMap = {" + Constants.NEWLINE);
 		
 		for (int iGB2312Row = 1; iGB2312Row<=MAX_ROW; iGB2312Row++)
 		{
@@ -56,11 +63,7 @@ public class BuildEucCnToUnicodeArray
 					// EUC-CN given at http://en.wikipedia.org/wiki/GB2312#EUC-CN
 					
 					int iHighByte = iGB2312Row + 160;
-					//String sHighByteHex = Integer.toHexString(iHighByte);
-					int iLowByte = iGB2312Col + 160;
-					//String sLowByteHex = Integer.toHexString(iLowByte);
-					//String sFullEucCnHex = sHighByteHex + sLowByteHex;
-	
+					int iLowByte = iGB2312Col + 160;	
 					byte[] convertMe = {(byte)iHighByte,(byte)iLowByte};
 					
 					ByteArrayInputStream bais = new ByteArrayInputStream(convertMe);
@@ -70,6 +73,8 @@ public class BuildEucCnToUnicodeArray
 				    lCharUnicodeValue = (long)cCharUnicodeValue;
 				}
 
+				dosLongArray.writeLong(lCharUnicodeValue);
+				
 				sbRow.append(lCharUnicodeValue);
 				if (iGB2312Col<MAX_COL) sbRow.append(",");
 			}
@@ -83,8 +88,21 @@ public class BuildEucCnToUnicodeArray
 
 		sb.append( "}" );
 		System.out.println(sb.toString());
+
+        String sFilenameOnFS = "file:///root1/EucCnToUnicodeArray.data";
+        FileConnection filecon =
+            (FileConnection)Connector.open(sFilenameOnFS);
+        filecon.create();
+        OutputStream os = filecon.openOutputStream();
+        DataOutputStream dos = new DataOutputStream(os);
+        dos.write( baosLongArray.toByteArray() );
+		dos.flush();
+        dos.close();
+        os.close();
+        filecon.close();
+        
+        dosLongArray.close();
+        baosLongArray.close();
 	}
-	
-	
 }
 

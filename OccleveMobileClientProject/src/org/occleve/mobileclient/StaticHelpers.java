@@ -279,16 +279,19 @@ public class StaticHelpers
     throws IOException
     {    
 	    System.out.println("Unicode char = " + unicodeChar);
+
+	    // Works fine on the emulator - but EUC_CN is not a supported encoding on
+	    // most actual phones.
+	    //ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    //java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(baos,"EUC_CN");
+	    //String sUnicode = new Character(unicodeChar).toString();
+	    //osw.write(sUnicode);
+	    //osw.flush();
+	    //byte[] eucCnByteArray = baos.toByteArray();
 	    
-	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(baos,"EUC_CN");
-	    
-	    String sUnicode = new Character(unicodeChar).toString();
-	    osw.write(sUnicode);
-	    osw.flush();
+	    byte[] eucCnByteArray = new EucCnToUnicodeMap().unicodeCharToEucCnBytePair(unicodeChar);
 	    
 	    String sHexString = "";	    
-	    byte[] eucCnByteArray = baos.toByteArray();
 	    for (int i=0; i<eucCnByteArray.length; i++)
 	    {
 	  	  byte eucCnByte = eucCnByteArray[i];
