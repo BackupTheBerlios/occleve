@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.languageentity;
@@ -130,7 +130,10 @@ public class CountableNoun extends Noun
     /**Override of LanguageEntity function.*/
     public String getRomanForm(boolean bIncludeMeasureWord)
     {
-        StringBuffer sb = new StringBuffer();
+    	trace("Entering CountableNoun.getRomanForm with bIncludeMeasureWord=" + bIncludeMeasureWord);
+    	trace("and m_sLanguageCode = " + m_sLanguageCode);
+
+    	StringBuffer sb = new StringBuffer();
 
         if (bIncludeMeasureWord)
         {

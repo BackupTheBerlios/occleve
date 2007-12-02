@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.qa.language;
@@ -54,6 +54,8 @@ public class LanguageQA extends QA
 
         trace("Entering LanguageQA constructor");
         trace("With qaNode.name = " + qaNode.name);
+        trace("Firstese language code = " + sFirsteseCode);
+        trace("Secondese language code = " + sSecondeseCode);
 
         Node firsteseNode = qaNode.findFirst(sFirsteseCode);
         trace("Firstese node = " + firsteseNode);
@@ -446,7 +448,7 @@ public class LanguageQA extends QA
     /**For ease of switching trace output on and off.*/
     private void trace(String s)
     {
-        //System.out.println(s);
+        ////////System.out.println(s);
     }
 
 }

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.languageentity;
@@ -63,11 +63,13 @@ public class LanguageEntity
         String sName = entityNode.name;
         if (XML.isOpeningTag(sName,XML.CNOUN))
         {
-            return new CountableNoun(entityNode,languageNode.getCharacters());
+        	// 0.9.5: fixed longstanding bug where language code was not being
+        	// correctly got, as languageNode.getCharacters() was being mistakenly called.
+            return new CountableNoun(entityNode,languageNode.name); ////.getCharacters());
         }
         else
         {
-            return new LanguageEntity(entityNode,languageNode.getCharacters());
+            return new LanguageEntity(entityNode,languageNode.name); ////.getCharacters());
         }
     }
 
@@ -179,7 +181,7 @@ public class LanguageEntity
         }
     }
 
-    private void trace(String s)
+    protected void trace(String s)
     {
         //System.out.println(s);
     }

@@ -61,8 +61,8 @@ implements CommandListener,Runnable
         super("Input character:","",1,TextField.ANY);
 
 		// 0.9.5: Output char as EUC-CN
-		System.out.println("Unicode char = " + unicodeCharToInput);
-		StaticHelpers.unicodeCharToEucCnHexString(unicodeCharToInput);
+		////System.out.println("Unicode char = " + unicodeCharToInput);
+		////StaticHelpers.unicodeCharToEucCnHexString(unicodeCharToInput);
                       
         m_UnicodeCharToInput = unicodeCharToInput;
         m_TestControllerThatInvokedThis = testControllerThatInvokedThis;
