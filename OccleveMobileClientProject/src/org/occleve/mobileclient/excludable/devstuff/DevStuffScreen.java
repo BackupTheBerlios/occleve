@@ -59,7 +59,6 @@ implements CommandListener,Excludable,Runnable
     protected final String DELETE_TEST = "Delete test";
     protected final String VIEW_SOURCE = "View source";
     protected final String COPY_TO_RECORDSTORE = "Copy to recordstore";
-    ////protected final String CONVERT_TO_XML = "Convert to XML";
     protected final String PRINT_TO_FILE = "Print to file";
 
     protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests in RecordStore to filesystem";
@@ -79,7 +78,7 @@ implements CommandListener,Excludable,Runnable
     protected final String IS_FILECONNECTION_API_AVAILABLE = "FileConnection API available?";
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
-    ////protected final String TRANSMIT_ALL_RS_TESTS = "Transmit all tests in RecordStore";
+    protected final String BUILD_EUCCN_UNICODE_MAP = "Build EUC-CN to Unicode map";
 
     protected Command m_BackCommand;
 
@@ -87,10 +86,6 @@ implements CommandListener,Excludable,Runnable
     public DevStuffScreen() throws Exception
     {
         super("Dev stuff",javax.microedition.lcdui.List.IMPLICIT);
-
-//Test EUC-CN support
-java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(System.out,"EUC-CN");
-osw.write("in EUC-CN encoding");
         
         append("For selected file:",null);
         append(VIEW_SOURCE,null);
@@ -98,7 +93,6 @@ osw.write("in EUC-CN encoding");
         append(CREATE_BACKUP,null);
         append(DELETE_TEST,null);
         append(COPY_TO_RECORDSTORE,null);
-        /////append(CONVERT_TO_XML,null);
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
@@ -119,7 +113,7 @@ osw.write("in EUC-CN encoding");
         append(IS_FILECONNECTION_API_AVAILABLE,null);
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
-        //////append(TRANSMIT_ALL_RS_TESTS,null);
+        append(BUILD_EUCCN_UNICODE_MAP,null);
 
         m_BackCommand = new Command("Back",Command.ITEM,0);
         addCommand(m_BackCommand);
@@ -185,10 +179,6 @@ osw.write("in EUC-CN encoding");
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
             mgr.copyFileToRecordStore(m_SelectedListOfTestsEntry.getFilename());
         }
-        ////else if (sSelectedPrompt.equals(CONVERT_TO_XML))
-        ///{
-        ///    convertSelectedFileToXML();
-        ////}
         else if (sSelectedPrompt.equals(PRINT_TO_FILE))
         {
             m_sThreadAction = PRINT_TO_FILE;
@@ -198,19 +188,7 @@ osw.write("in EUC-CN encoding");
 
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
-    {
-    	/*
-        if (sOption.equals(JAVA_UTF_CONVERT_ALL_TO_XML) ||
-            sOption.equals(STD_UTF_CONVERT_ALL_TO_XML))
-        {
-            boolean bJavaUTF = (sOption.equals(JAVA_UTF_CONVERT_ALL_TO_XML));
-            // Runs in a thread so it can display a progress indicator.
-            XMLConverter converter = new XMLConverter(bJavaUTF);
-            Thread convThread = new Thread(converter);
-            convThread.start();
-        }
-        */
-        
+    {        
         if (sOption.equals(DELETE_ALL_XML))
         {
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
@@ -273,11 +251,6 @@ osw.write("in EUC-CN encoding");
             VocabRecordFilenameTextBox tb = new VocabRecordFilenameTextBox();
             OccleveMobileMidlet.getInstance().setCurrentForm(tb);
         }
-        ///else if (sOption.equals(TRANSMIT_ALL_RS_TESTS))
-        ///{
-        ///    IPAddressTextBox tb = new IPAddressTextBox();
-        ///    OccleveMobileMidlet.getInstance().setCurrentForm(tb);
-        ///}
         else if (sOption.equals(TEST_BABELFISH))
         {
             BabelFishTranslationEngine eng = new BabelFishTranslationEngine();
@@ -286,6 +259,11 @@ osw.write("in EUC-CN encoding");
         else if (sOption.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
         {
             m_sThreadAction = SAVE_ALL_TESTS_TO_FILESYSTEM;
+            new Thread(this).start();
+        }
+        else if (sOption.equals(BUILD_EUCCN_UNICODE_MAP))
+        {
+            m_sThreadAction = BUILD_EUCCN_UNICODE_MAP;
             new Thread(this).start();
         }
     }
@@ -477,6 +455,10 @@ osw.write("in EUC-CN encoding");
                 VocabRecordStoreManager mgr =
                         new VocabRecordStoreManager();
                 mgr.saveAllTestsToFilesystem();
+            }
+            else if (m_sThreadAction.equals(BUILD_EUCCN_UNICODE_MAP))
+            {
+            	BuildEucCnToUnicodeArray.buildArray();
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}

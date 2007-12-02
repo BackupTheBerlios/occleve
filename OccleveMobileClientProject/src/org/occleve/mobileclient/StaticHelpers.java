@@ -281,7 +281,7 @@ public class StaticHelpers
 	    System.out.println("Unicode char = " + unicodeChar);
 	    
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-	    java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(baos,"EUC-CN");
+	    java.io.OutputStreamWriter osw = new java.io.OutputStreamWriter(baos,"EUC_CN");
 	    
 	    String sUnicode = new Character(unicodeChar).toString();
 	    osw.write(sUnicode);
