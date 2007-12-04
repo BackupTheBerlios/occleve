@@ -67,7 +67,9 @@ public class CountableNoun extends Noun
         }
     }
 
-    /**Deprecated constructor for the old file format.*/
+    // 0.9.5 - finally removed
+    // Deprecated constructor for the old file format.
+    /*
     public CountableNoun(String sSourceFileLine)
     throws Exception
     {
@@ -91,8 +93,11 @@ public class CountableNoun extends Noun
             throw new Exception(sErr);
         }
     }
+    */
 
-    /**Is called via a bodge from LanguageEntity_OldFormatLoader.*/
+    // 0.9.5 - finally removed
+    // Is called via a bodge from LanguageEntity_OldFormatLoader.
+    /*
     public void oldFormatProcessField(String s) throws Exception
     {
         if (s.startsWith(MWP_FIELD_NAME))
@@ -117,6 +122,7 @@ public class CountableNoun extends Noun
             m_sMeasureWordScript = "\u6761";
         }
     }
+    */
 
     /**Override of LanguageEntity function.*/
     public boolean entityContainsString(String s)

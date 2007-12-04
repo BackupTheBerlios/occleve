@@ -108,13 +108,16 @@ public class LanguageEntity
         // m_sRegister = register.getCharacters();
     }
 
-    /**Deprecated constructor for loading from old style ## format.*/
+    // 0.9.5 - finally removed
+    // Deprecated constructor for loading from old style ## format.
+    /*
     public LanguageEntity(String sSourceFileLine,String sXmlElementName)
     throws Exception
     {
         m_sXmlElementName = sXmlElementName;
         LanguageEntity_OldFormatLoader.oldFormatLoad(this,sSourceFileLine);
     }
+    */
 
     public boolean entityContainsString(String s)
     {

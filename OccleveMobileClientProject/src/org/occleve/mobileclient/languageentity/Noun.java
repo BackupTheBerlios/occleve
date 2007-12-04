@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.languageentity;
@@ -33,9 +33,12 @@ public abstract class Noun extends LanguageEntity
         super(entityNode,sLanguageCode);
     }
 
+    // 0.9.5 - removed
+    /*
     public Noun(String sSourceFileLine,String sXmlElementName)
     throws Exception
     {
         super(sSourceFileLine,sXmlElementName);
     }
+    */
 }
