@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.5
 */
 
 package org.occleve.mobileclient.testing;
@@ -25,7 +25,7 @@ package org.occleve.mobileclient.testing;
 import java.util.*;
 
 import javax.microedition.io.*;
-import javax.microedition.io.file.*;
+////////import javax.microedition.io.file.*;
 import javax.microedition.lcdui.Alert;
 import javax.microedition.media.Manager;
 
@@ -87,7 +87,7 @@ public class ListOfTests
         ListOfTests_LoadFromJar();
         ListOfTests_LoadFromRS();
         
-        ////// DISABLED FOR NOW
+        ////// DISABLED FOR NOW AS CAUSES EXCEPTION IN THE MICROEMULATOR
         ///if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
         ///{
         ///	ListOfTests_LoadFromFilesystem();
@@ -191,6 +191,8 @@ public class ListOfTests
     /**New in 0.9.4: Subfunction for code clarity.
     Now get the list of tests that are in the phone's filesystem.
     From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
+    /*
+    ////// DISABLED FOR NOW AS CAUSES EXCEPTION IN THE MICROEMULATOR
     private void ListOfTests_LoadFromFilesystem() throws Exception
     {
 		Enumeration drives = FileSystemRegistry.listRoots();
@@ -224,6 +226,7 @@ public class ListOfTests
 			fc.close();
 		}
     }
+    */
 
     /**Subfunction for code clarity.
     Sort the list into alpha order.

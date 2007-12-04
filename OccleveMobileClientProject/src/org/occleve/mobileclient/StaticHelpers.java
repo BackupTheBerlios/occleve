@@ -25,7 +25,7 @@ package org.occleve.mobileclient;
 import java.io.*;
 import java.util.*;
 import javax.microedition.io.*;
-import javax.microedition.io.file.*;
+/////////import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
 
 public class StaticHelpers
@@ -36,6 +36,8 @@ public class StaticHelpers
         InputStream is = null;
         InputStreamReader isr = null;
 
+        ////// DISABLED FOR NOW AS CAUSES EXCEPTION IN THE MICROEMULATOR
+        /*
         if (filename.startsWith("file:"))
         {
         	// Read the file from the local filesystem.
@@ -48,6 +50,8 @@ public class StaticHelpers
         }
         else
         {
+        */
+
 	        // Reading the file from the OccleveMobileClient jar,
 	        // therefore call getResourceAsStream() on the midlet class
 	        // in order to ensure that the correct JAR is read from.
@@ -60,7 +64,7 @@ public class StaticHelpers
 	            System.out.println("Last char in filename = " + ((long)lastChar));
 	            throw new Exception("File " + filename + " does not exist");
 	        }
-        }
+//        }
         
         // Specifying UTF8 encoding here makes the Sony-E K300 throw
         // an UnsupportedEncodingException... and it's not necessary anyway.
