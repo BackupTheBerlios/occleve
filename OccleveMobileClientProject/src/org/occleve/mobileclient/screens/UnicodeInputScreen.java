@@ -219,7 +219,7 @@ implements CommandListener,Runnable
 	            Thread.sleep(1000);
 	        } while (player.getState()==Player.STARTED);
 
-            Thread.sleep(2000);
+            Thread.sleep(4000);
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         
