@@ -22,8 +22,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import javax.microedition.lcdui.*;
+import javax.microedition.media.Manager;
+import javax.microedition.media.MediaException;
+import javax.microedition.media.Player;
+import javax.microedition.media.control.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
@@ -41,9 +46,11 @@ implements CommandListener,Runnable
 
     protected static final int MONITOR_TEXTBOX = 0;
     protected static final int VIEW_ANIMATION = 1;
+    protected static final int VIEW_DRAWING = 2;
     protected int m_iThreadAction;
 
     protected Command m_ViewAnimationCommand;
+    protected Command m_ViewDrawingCommand;
     protected Command m_PeekCommand;
     protected Command m_CancelCommand;
     protected Command m_PauseCommand;
@@ -59,21 +66,19 @@ implements CommandListener,Runnable
     throws Exception
     {
         super("Input character:","",1,TextField.ANY);
-
-		// 0.9.5: Output char as EUC-CN
-		////System.out.println("Unicode char = " + unicodeCharToInput);
-		////StaticHelpers.unicodeCharToEucCnHexString(unicodeCharToInput);
                       
         m_UnicodeCharToInput = unicodeCharToInput;
         m_TestControllerThatInvokedThis = testControllerThatInvokedThis;
         m_TestResults = results;
 
         m_ViewAnimationCommand = new Command("View animation",Command.ITEM,0);
+        m_ViewDrawingCommand = new Command("View drawing",Command.ITEM,0);
         m_PeekCommand = new Command("Peek",Command.ITEM,0);
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
         m_PauseCommand = new Command("Pause",Command.ITEM,0);
 
         addCommand(m_ViewAnimationCommand);
+        addCommand(m_ViewDrawingCommand);
         addCommand(m_PeekCommand);
         addCommand(m_CancelCommand);
         addCommand(m_PauseCommand);
@@ -86,36 +91,37 @@ implements CommandListener,Runnable
     /**Implementation of CommandListener.*/
     public void commandAction(Command c, Displayable s)
     {
-        if (c==m_ViewAnimationCommand)
-        {
-        	try
-        	{
-                m_iThreadAction = VIEW_ANIMATION;
-                new Thread(this).start();
-        	}
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-        }
-        else if (c==m_PeekCommand)
-        {
-        	onPeek(true);
-        }
-        else if (c==m_CancelCommand)
-        {
-            try
-            {
-                m_bExitThread = true;
-                m_TestControllerThatInvokedThis.setVisible();
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-        }
-        else if (c==m_PauseCommand)
-        {
-            OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
-        }
-        else
-        {
-            OccleveMobileMidlet.getInstance().onError("Unknown command in UnicodeInputScreen.commandAction");
-        }
+    	try
+    	{
+	        if (c==m_ViewAnimationCommand)
+	        {
+		        m_iThreadAction = VIEW_ANIMATION;
+		        new Thread(this).start();
+	        }
+	        else if (c==m_ViewDrawingCommand)
+	        {
+	            m_iThreadAction = VIEW_DRAWING;
+	            new Thread(this).start();
+	        }
+	        else if (c==m_PeekCommand)
+	        {
+	        	onPeek(true);
+	        }
+	        else if (c==m_CancelCommand)
+	        {
+	            m_bExitThread = true;
+	            m_TestControllerThatInvokedThis.setVisible();
+	        }
+	        else if (c==m_PauseCommand)
+	        {
+	            OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
+	        }
+	        else
+	        {
+	            OccleveMobileMidlet.getInstance().onError("Unknown command in UnicodeInputScreen.commandAction");
+	        }
+    	}
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
     protected void onPeek(boolean bAutoTimeout)
@@ -144,6 +150,27 @@ implements CommandListener,Runnable
         m_TestResults.addResponse(false);    	
     }
 
+    /**0.9.5: Attempts to display a large drawing of a character. For now that means
+    displaying the animated GIF from the Ocrat mirror as a still image.*/
+    public void onViewDrawing() throws Exception
+    {
+    	String sHexString =
+			StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
+
+    	String sFilename = sHexString + ".gif";
+    	String sURL = Config.OCRAT_ANIMATIONS_MIRROR_URL_STUB + sFilename;
+    	byte[] imageData = loadImage(sFilename,sURL);
+        Image image = Image.createImage(imageData, 0, imageData.length);
+
+    	String sTitle = "" + m_UnicodeCharToInput;
+    	String sCredit = "Courtesy of lost-theory.org";
+    	Alert alert = new Alert(sTitle,sCredit,image,AlertType.INFO);
+    	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+
+        // Viewing the drawing counts as a "wrong" keypress.
+        m_TestResults.addResponse(false);
+    }
+
     /**0.9.5: Attempts to display an animation of how to draw the unicode character.
     For now, that means attempting to retrieve an animated character from the mirror
     of the Ocrat animations of Chinese characters.*/
@@ -154,25 +181,61 @@ implements CommandListener,Runnable
 
     	String sFilename = sHexString + ".gif";
     	String sURL = Config.OCRAT_ANIMATIONS_MIRROR_URL_STUB + sFilename;
+    	byte[] animationData = loadImage(sFilename,sURL);
 
-    	Image animation = loadImage(sFilename,sURL);
-    	String sTitle = "" + m_UnicodeCharToInput;
-    	String sCredit = "Courtesy of lost-theory.org";
-    	Alert alert = new Alert(sTitle,sCredit,animation,AlertType.INFO);
 
-    	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        // Get a player for the clip.
+        ByteArrayInputStream bais = new ByteArrayInputStream(animationData);
+        Player player = null;
+
         try
         {
+            player = Manager.createPlayer(bais, "image/gif");
+        }
+        catch (MediaException me)
+        {
+            String sMsg = "Sorry! It looks like your phone can't display animated GIFs";
+            System.out.println(sMsg);
+            OccleveMobileMidlet.getInstance().onError(sMsg);
+            return;
+        }
+
+        player.realize();
+
+        VideoControl video = (VideoControl) player.getControl("VideoControl");
+        Item videoItem = (Item)video.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE, null);
+    	String sTitle = "" + m_UnicodeCharToInput;
+        Form videoForm = new Form(sTitle);
+        videoForm.append(videoItem);
+    	OccleveMobileMidlet.getInstance().setCurrentForm(videoForm);
+
+        player.start();
+
+        // Wait until the animation has finished, plus a couple of seconds afterwards.
+        try
+        {
+	        do
+	        {
+	            Thread.sleep(1000);
+	        } while (player.getState()==Player.STARTED);
+
             Thread.sleep(2000);
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-    	OccleveMobileMidlet.getInstance().setCurrentForm(this);
+        
+        OccleveMobileMidlet.getInstance().setCurrentForm(this);
 
+    	// Release player resources. Failing to do this results in noticeable
+    	// resource drain on a Sony Ericsson Z558c.
+    	player.stop();
+    	player.deallocate();
+    	player.close();
+    	
         // Viewing the animation counts as a "wrong" keypress.
         m_TestResults.addResponse(false);
     }
 
-    private Image loadImage(String sImageFilename,String sImageURL)
+    private byte[] loadImage(String sImageFilename,String sImageURL)
     throws Exception
     {
         // Display a progress bar during the whole process
@@ -205,30 +268,29 @@ implements CommandListener,Runnable
             // Save the image into the recordstore for future use
             mgr.createFileInRecordStore(sImageFilename,imageData,false);
         }
-        
-        Image image = Image.createImage(imageData, 0, imageData.length);
-        return image;
+                
+        return imageData;
     }
 
     
     public void run()
     {
-    	if (m_iThreadAction==MONITOR_TEXTBOX)
+    	try
     	{
-	        try
-	        {
-	            monitorTextBoxContents();
-	        }
-	        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-    	}
-    	else if (m_iThreadAction==VIEW_ANIMATION)
-    	{
-    		try
-    		{
-    			onViewAnimation();
-    		}
-	        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-    	}
+	    	if (m_iThreadAction==MONITOR_TEXTBOX)
+	    	{
+		        monitorTextBoxContents();
+	    	}
+	    	else if (m_iThreadAction==VIEW_ANIMATION)
+	    	{
+				onViewAnimation();
+	    	}
+	    	else if (m_iThreadAction==VIEW_DRAWING)
+	    	{
+				onViewDrawing();
+	    	}
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
     protected void monitorTextBoxContents() throws Exception
