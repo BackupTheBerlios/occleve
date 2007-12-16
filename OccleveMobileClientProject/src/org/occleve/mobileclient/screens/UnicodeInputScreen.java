@@ -165,6 +165,7 @@ implements CommandListener,Runnable
     	String sTitle = "" + m_UnicodeCharToInput;
     	String sCredit = "Courtesy of lost-theory.org";
     	Alert alert = new Alert(sTitle,sCredit,image,AlertType.INFO);
+    	alert.setTimeout(Alert.FOREVER);
     	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
 
         // Viewing the drawing counts as a "wrong" keypress.
@@ -211,15 +212,16 @@ implements CommandListener,Runnable
 
         player.start();
 
-        // Wait until the animation has finished, plus a couple of seconds afterwards.
         try
         {
-	        do
-	        {
-	            Thread.sleep(1000);
-	        } while (player.getState()==Player.STARTED);
+            // Wait until the animation has finished.
+        	// DISABLED - ON SOME PHONES THE ANIMATION LOOPS AND THIS WILL NEVER FINISH
+	        //do
+	        //{
+	        //    Thread.sleep(1000);
+	        //} while (player.getState()==Player.STARTED);
 
-            Thread.sleep(4000);
+            Thread.sleep(10000);
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         
