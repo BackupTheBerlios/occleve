@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing.test;
@@ -53,6 +53,14 @@ public class Test
     protected Vector m_QAs;
     public QA getQA(int iIndex) {return (QA)m_QAs.elementAt(iIndex);}
     public int getQACount() {return m_QAs.size();}
+    public void addQA(QA qa) {m_QAs.addElement(qa);}
+
+    /**Constructs an empty test.*/
+    public Test() throws Exception
+    {
+        m_QuestionAskedFlags = new Vector();
+        m_QAs = new Vector();
+    }
 
     public Test(ListOfTestsEntry entry) throws Exception
     {
@@ -234,6 +242,31 @@ public class Test
 
         XML.appendEndTag(sb, XML.TEST);
         return sb.toString();
+    }
+
+    /**Returns a copy of this Test that only contain QAs in which the question
+    and answer fields specified by the QADirection are non-null and non-blank.*/
+    public Test restrictToQADirectionTypes(QADirection qadir)
+    throws Exception
+    {
+    	// Set the QADirection on all the QAs or this will fail.
+    	for (int i=0; i<getQACount(); i++)
+    	{
+    		getQA(i).initialize(qadir);
+    	}
+    	
+    	Test restricted = new Test();
+    	for (int i = 0; i < m_QAs.size(); i++)
+        {
+            QA qa = (QA) m_QAs.elementAt(i);
+            
+            if (qa.containsQADirectionFields(qadir))
+            {
+            	restricted.addQA(qa);
+            }
+        }
+    	
+    	return restricted;
     }
 }
 

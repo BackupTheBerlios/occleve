@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.qa;
@@ -91,11 +91,13 @@ public abstract class QA
         return sb.toString();
     }
 
+    /*
     public String getQuestionAsString()
     {
         Vector v = getQuestion();
         return vectorToString(v);
     }
+    */
 
     public String getAnswerAsString()
     {
@@ -214,5 +216,9 @@ public abstract class QA
         return true;
     }
 
+    public boolean containsQADirectionFields(QADirection qadir)
+    {
+    	return true;
+    }
 }
 

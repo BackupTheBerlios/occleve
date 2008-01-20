@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.qa.language;
@@ -449,6 +449,42 @@ public class LanguageQA extends QA
     private void trace(String s)
     {
         ////////System.out.println(s);
+    }
+
+    /**Tests whether the question and answer fields specified by the QADirection
+    are non-null and non-blank in this LanguageQA.*/
+    public boolean containsQADirectionFields(QADirection qadir)
+    {
+    	trace("Entering LanguageQA.containsQADirectionFields()");
+    	
+    	Vector vQuestion = getQuestion();
+    	if (vQuestion==null) return false;
+    	trace("vQuestion.size()==" + vQuestion.size());
+    	if (vQuestion.size()==0) return false;
+    	Enumeration eQuestion = vQuestion.elements();
+    	while (eQuestion.hasMoreElements())
+    	{
+    		String sElement = (String)eQuestion.nextElement();
+    		if (sElement==null) return false;
+    		if (sElement.length()==0) return false;
+    	}
+
+    	Vector vAnswer = getAnswer();
+    	if (vAnswer==null) return false;
+    	trace("vAnswer.size()==" + vAnswer.size());
+    	if (vAnswer.size()==0) return false;
+    	Enumeration eAnswer = vAnswer.elements();
+    	while (eAnswer.hasMoreElements())
+    	{
+    		String sElement = (String)eAnswer.nextElement();
+    		if (sElement==null) return false;
+    		if (sElement.length()==0) return false;
+    	}
+    	
+    	trace("");
+    	trace("Including " + this.toXML());
+    	
+    	return true;    	
     }
 
 }

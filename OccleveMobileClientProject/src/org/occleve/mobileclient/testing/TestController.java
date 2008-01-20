@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing;
@@ -54,9 +54,14 @@ public abstract class TestController implements CommandListener
     public TestController(Test theTest,QADirection direction)
     throws Exception
     {
-        m_Test = theTest;
-        m_QADirection = direction;
+    	// 0.9.6: Only include QAs in the test which contain the desired
+    	// question and answer fields. For example, if testing on english-to-hanzi,
+    	// make sure all the QAs actually contain hanzi.
+        theTest = theTest.restrictToQADirectionTypes(direction);
+    	System.out.println("Restricted test to size " + theTest.getQACount());
+    	m_Test = theTest;
 
+        m_QADirection = direction;
         m_TestResults = new TestResults();
 
         ///////////////////// TO FINISH //////////////////////////////
