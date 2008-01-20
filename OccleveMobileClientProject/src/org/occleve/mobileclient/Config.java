@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient;
@@ -27,7 +27,7 @@ file downloaded from the wiki.*/
 public class Config
 {
     // Version number in a form that can be used for comparisons: e.g. 000904
-    public static final long VERSION = 905;
+    public static final long VERSION = 906;
 
     public static final String MIN_RELEASE_DIRECTIVE = "!MIN_RELEASE=";
 
