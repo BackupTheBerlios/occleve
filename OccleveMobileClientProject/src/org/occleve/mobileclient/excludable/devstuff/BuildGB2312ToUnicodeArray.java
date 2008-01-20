@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -29,6 +29,7 @@ import javax.microedition.io.file.FileConnection;
 
 import org.occleve.mobileclient.*;
 
+/**Used to build the array which is used by GB2312ToUnicodeMap.java.*/
 public class BuildGB2312ToUnicodeArray
 {
 	public static void buildArray() throws Exception
