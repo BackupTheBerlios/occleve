@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.screens;
@@ -44,6 +44,9 @@ implements CommandListener,Runnable
     protected MagicTypewriterController m_TestControllerThatInvokedThis;
     protected TestResults m_TestResults;
 
+    // 0.9.6
+    protected static final int PEEK_LENGTH = 3000;
+    
     protected static final int MONITOR_TEXTBOX = 0;
     protected static final int VIEW_ANIMATION = 1;
     protected static final int VIEW_DRAWING = 2;
@@ -128,11 +131,14 @@ implements CommandListener,Runnable
     {
         String sChar = new String();
         sChar += m_UnicodeCharToInput;
-        Alert alert = new Alert(null,sChar,null,null);
+        
+        // 0.9.6 - on some phones the font for the alert title is much nicer
+        // than the body text font - so display it in both.
+        Alert alert = new Alert(sChar,sChar,null,null);
 
         if (bAutoTimeout)
         {
-        	alert.setTimeout(2000);
+        	alert.setTimeout(PEEK_LENGTH);
         	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
         }
         else
@@ -140,7 +146,7 @@ implements CommandListener,Runnable
         	OccleveMobileMidlet.getInstance().displayAlert(alert,this);
             try
             {
-                Thread.sleep(2000);
+                Thread.sleep(PEEK_LENGTH);
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         	OccleveMobileMidlet.getInstance().setCurrentForm(this);
