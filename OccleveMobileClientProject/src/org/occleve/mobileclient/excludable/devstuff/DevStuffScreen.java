@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -61,6 +61,7 @@ implements CommandListener,Excludable,Runnable
     protected final String COPY_TO_RECORDSTORE = "Copy to recordstore";
     protected final String PRINT_TO_FILE = "Print to file";
 
+    protected final String FILE_MANAGER = "File manager";
     protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests in RecordStore to filesystem";
     ///protected final String JAVA_UTF_CONVERT_ALL_TO_XML = "JavaUTF: Convert all to XML";
     ///protected final String STD_UTF_CONVERT_ALL_TO_XML = "StdUTF: Convert all to XML";
@@ -96,6 +97,7 @@ implements CommandListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
+        append(FILE_MANAGER,null);
         append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
         ////append(JAVA_UTF_CONVERT_ALL_TO_XML,null);
         ////append(STD_UTF_CONVERT_ALL_TO_XML,null);
@@ -189,7 +191,12 @@ implements CommandListener,Excludable,Runnable
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {        
-        if (sOption.equals(DELETE_ALL_XML))
+        if (sOption.equals(FILE_MANAGER))
+        {
+        	FileManager fmgr = new FileManager();
+            OccleveMobileMidlet.getInstance().setCurrentForm(fmgr);        	
+        }
+        else if (sOption.equals(DELETE_ALL_XML))
         {
             VocabRecordStoreManager mgr = new VocabRecordStoreManager();
             mgr.deleteAllXmlPrefixedFiles();
