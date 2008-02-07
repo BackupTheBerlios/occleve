@@ -271,15 +271,41 @@ implements CommandListener,Runnable
             // Load from website.
         	System.out.println("Animation not in recordstore... loading from web");
         	WikiConnection wc = new WikiConnection();
-        	imageData = wc.readAllBytes(sImageURL,progressAlert,false);
+
+        	// 0.9.6 - use a retry system similar to that used for loading quizzes.
+        	// in order to get past the China Telecom "welcome" page.
+        	boolean bValidImage;
+        	int iTries = 0;
+        	do
+        	{
+        		imageData = wc.readAllBytes(sImageURL,progressAlert,false);
+        		bValidImage = true;
+        		iTries++;
+        		
+        		try
+        		{
+        			Image image = Image.createImage(imageData, 0, imageData.length);
+        		}
+        		catch (Exception e)
+        		{
+        			System.err.println(e);
+        			bValidImage = false;
+        		}
+        	} while ((bValidImage==false) && (iTries<3));
         	
-            // Save the image into the recordstore for future use
-            mgr.createFileInRecordStore(sImageFilename,imageData,false);
+        	if (bValidImage)
+        	{
+        		// Save the image into the recordstore for future use
+        		mgr.createFileInRecordStore(sImageFilename,imageData,false);
+        	}
+        	else
+        	{
+        		progressAlert.setString("Couldn't load a valid image, even after retrying");
+        	}
         }
                 
         return imageData;
     }
-
     
     public void run()
     {
