@@ -40,8 +40,8 @@ public abstract class TestController implements CommandListener
 
     protected Command m_NewTestCommand;
     protected Command m_ExitCommand;
-    protected Command m_JumpToCommand;
-    protected Command m_SkipForwardCommand;
+    // Now in SequentialTestController --- protected Command m_JumpToCommand;
+    // Now in SequentialTestController --- protected Command m_SkipForwardCommand;
     protected Command m_RestartCommand;
     protected Command m_PauseCommand;
     protected Command m_EditThisQACommand;
@@ -91,7 +91,7 @@ public abstract class TestController implements CommandListener
         m_NewTestCommand = new Command("New test",Command.ITEM,1);
         disp.addCommand(m_NewTestCommand);
 
-        m_ExitCommand = new Command("Exit",Command.ITEM,1);
+        m_ExitCommand = new Command("Exit Occleve",Command.ITEM,1);
         disp.addCommand(m_ExitCommand);
 
         m_RestartCommand = new Command("Restart",Command.ITEM,1);
@@ -144,6 +144,9 @@ public abstract class TestController implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c, Displayable s)
     {
+    	/*
+    	0.9.6 - disabled since this is replicated in SequentialTestController (which
+    	is where it belongs).
         if (c==m_SkipForwardCommand)
         {
             int iMaxIndex = m_Test.getQACount()-1;
@@ -156,7 +159,9 @@ public abstract class TestController implements CommandListener
             JumpToForm jtForm = new JumpToForm( this );
             OccleveMobileMidlet.getInstance().setCurrentForm(jtForm);
         }
-        else if (c==m_ExitCommand)
+        */
+        
+        if (c==m_ExitCommand)
         {
             OccleveMobileMidlet.getInstance().notifyDestroyed();
         }

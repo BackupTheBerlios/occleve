@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.screens.options;
@@ -56,38 +56,41 @@ implements ItemCommandListener
     throws Exception
     {
         super();
-
-        String[] fromChoices =
-            {PINYIN,ENGLISH,CHARS,CHARS_ENGLISH,CHARS_PINYIN,ENGLISH_PINYIN};
-        m_FromChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,fromChoices,null);
-
-        String[] toChoices =
-            {TO+PINYIN,TO+ENGLISH,TO+CHARS,
-            TO+CHARS_ENGLISH,TO+CHARS_PINYIN,TO+ENGLISH_PINYIN};
-        m_ToChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,toChoices,null);
-
-        /*
-        m_MeasureWordsItem = new StringItem(null,MEASURE_WORDS_ON);
-        m_MeasureWordsItem.setItemCommandListener(this);
-        m_MeasureWordsItem.setDefaultCommand(m_ToggleMWCommand);
-        */
-
-        String[] oneChoice = {"Measure words"};
-        m_MeasureWordsRadioButton =
-            new ChoiceGroup(null,ChoiceGroup.MULTIPLE,oneChoice,null);
-        m_MeasureWordsRadioButton.setSelectedIndex(0,true);
-
-        append(m_FromChoiceGroup);
-        append(m_ToChoiceGroup);
-        append(m_MeasureWordsRadioButton);
-
-        // Initial settings are english to pinyin with measure words enabled.
-        m_FromChoiceGroup.setSelectedIndex(1,true);
-        m_ToChoiceGroup.setSelectedIndex(0,true);
     }
 
+    protected void addSubclassControls() throws Exception
+    {
+        String[] fromChoices =
+        {PINYIN,ENGLISH,CHARS,CHARS_ENGLISH,CHARS_PINYIN,ENGLISH_PINYIN};
+	    m_FromChoiceGroup =
+	        new ChoiceGroup(null,ChoiceGroup.POPUP,fromChoices,null);
+	
+	    String[] toChoices =
+	        {TO+PINYIN,TO+ENGLISH,TO+CHARS,
+	        TO+CHARS_ENGLISH,TO+CHARS_PINYIN,TO+ENGLISH_PINYIN};
+	    m_ToChoiceGroup =
+	        new ChoiceGroup(null,ChoiceGroup.POPUP,toChoices,null);
+	
+	    /*
+	    m_MeasureWordsItem = new StringItem(null,MEASURE_WORDS_ON);
+	    m_MeasureWordsItem.setItemCommandListener(this);
+	    m_MeasureWordsItem.setDefaultCommand(m_ToggleMWCommand);
+	    */
+	
+	    String[] oneChoice = {"Measure words"};
+	    m_MeasureWordsRadioButton =
+	        new ChoiceGroup(null,ChoiceGroup.MULTIPLE,oneChoice,null);
+	    m_MeasureWordsRadioButton.setSelectedIndex(0,true);
+	
+	    append(m_FromChoiceGroup);
+	    append(m_ToChoiceGroup);
+	    append(m_MeasureWordsRadioButton);
+	
+	    // Initial settings are english to pinyin with measure words enabled.
+	    m_FromChoiceGroup.setSelectedIndex(1,true);
+	    m_ToChoiceGroup.setSelectedIndex(0,true);    	
+    }
+    
     protected QADirection getQADirection() throws Exception
     {
         int iFrom = getLanguageCode(m_FromChoiceGroup);

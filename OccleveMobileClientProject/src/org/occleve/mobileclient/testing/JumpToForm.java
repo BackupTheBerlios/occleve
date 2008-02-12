@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing;
@@ -39,7 +39,8 @@ public class JumpToForm extends Form implements CommandListener
         StaticHelpers.safeSetFont(si,OccleveMobileFonts.TITLE_FONT);
         append(si);
 
-        m_TextField = new TextField("Question number:","1",10,TextField.ANY);
+        // 0.9.6 - set constraint on textfield to NUMERIC.
+        m_TextField = new TextField("Question number:","1",10,TextField.NUMERIC);
         append(m_TextField);
 
         addCommand(new Command("Cancel",Command.BACK,0));

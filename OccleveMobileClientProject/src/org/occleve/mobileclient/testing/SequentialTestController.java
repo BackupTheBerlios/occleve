@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing;
@@ -33,14 +33,19 @@ public class SequentialTestController extends TestController
     protected Command m_JumpToCommand;
 
     protected Command m_SkipForwardCommand;
-
+    
     public SequentialTestController(Test theTest,
-                              QADirection direction)   //////,boolean bFormView)
+    		QADirection direction,int iQuestionToStartFromIndex)
     throws Exception
     {
         super(theTest,direction);  ///////,bFormView);
 
-        m_iCurrentQAIndex = 0;
+        int iMaxIndex = m_Test.getQACount()-1;
+        if (iQuestionToStartFromIndex <= iMaxIndex)
+            m_iCurrentQAIndex = iQuestionToStartFromIndex;
+        else
+            m_iCurrentQAIndex = 0;
+
         getCurrentQA().initialize(direction);
 
         // Labelling this as Command.BACK (it doesn't make this
@@ -66,8 +71,8 @@ public class SequentialTestController extends TestController
         }
         else if (c==m_JumpToCommand)
         {
-            JumpToForm jtForm = new JumpToForm( this);
-            OccleveMobileMidlet.getInstance().setCurrentForm(jtForm);
+        	JumpToForm jtf = new JumpToForm( this);
+            OccleveMobileMidlet.getInstance().setCurrentForm(jtf);
         }
         else
         {
