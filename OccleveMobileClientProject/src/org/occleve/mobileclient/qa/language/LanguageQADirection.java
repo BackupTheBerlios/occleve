@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.qa.language;
@@ -65,10 +65,14 @@ public class LanguageQADirection extends QADirection
     public boolean isQuestionCharsAndPinyin() {return (m_iQuestionLanguage==SN_SR);}
     public boolean isQuestionEnglish() {return (m_iQuestionLanguage==FIRSTESE_ROMAN);}
     public boolean isQuestionPinyin() {return (m_iQuestionLanguage==SECONDESE_ROMAN);}
+    public boolean isQuestionEnglishAndChars() {return (m_iQuestionLanguage==FR_SN);}
+    public boolean isQuestionEnglishAndPinyin() {return (m_iQuestionLanguage==FR_SR);}
 
     public boolean isAnswerChars() {return (m_iAnswerLanguage==SECONDESE_NATIVE);}
     public boolean isAnswerCharsAndPinyin() {return (m_iAnswerLanguage==SN_SR);}
     public boolean isAnswerEnglish() {return (m_iAnswerLanguage==FIRSTESE_ROMAN);}
     public boolean isAnswerPinyin() {return (m_iAnswerLanguage==SECONDESE_ROMAN);}
+    public boolean isAnswerEnglishAndChars() {return (m_iAnswerLanguage==FR_SN);}
+    public boolean isAnswerEnglishAndPinyin() {return (m_iAnswerLanguage==FR_SR);}
 }
 

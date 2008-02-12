@@ -119,6 +119,10 @@ public class LanguageQA extends QA
             return getAllCharacters(bIncludeMW);
         else if (cqaDir.isQuestionCharsAndPinyin())
             return getAllPinyinAndChars(bIncludeMW);
+        else if (cqaDir.isQuestionEnglishAndPinyin())
+            return getAllEnglishAndPinyin(bIncludeMW);
+        else if (cqaDir.isQuestionEnglishAndChars())
+            return getAllEnglishAndChars(bIncludeMW);
         else
         {
             String sError = "NOT IMPLEMENTED YET!";
@@ -141,6 +145,10 @@ public class LanguageQA extends QA
             return getAllCharacters(bIncludeMW);
         else if (cqaDir.isAnswerCharsAndPinyin())
             return getAllPinyinAndChars(bIncludeMW);
+        else if (cqaDir.isAnswerEnglishAndPinyin())
+            return getAllEnglishAndPinyin(bIncludeMW);
+        else if (cqaDir.isAnswerEnglishAndChars())
+            return getAllEnglishAndChars(bIncludeMW);
         else
         {
             String sError = "NOT IMPLEMENTED YET!";
@@ -268,6 +276,49 @@ public class LanguageQA extends QA
         return v;
     }
 
+    protected Vector getAllEnglishAndChars(boolean bIncludeMW)
+    {
+        Vector v = new Vector();
+        for (int i=0; i<m_vFirsteseEntities.size(); i++)
+        {
+            LanguageEntity cle =
+                (LanguageEntity)m_vFirsteseEntities.elementAt(i);
+            String sLine = cle.getRomanForm(bIncludeMW);
+            if (sLine!=null)v.addElement(sLine);
+        }
+        
+        for (int i=0; i<m_vSecondeseEntities.size(); i++)
+        {
+            LanguageEntity cle =
+                (LanguageEntity)m_vSecondeseEntities.elementAt(i);
+            String sLine = cle.getNativeForm(bIncludeMW);
+            if (sLine!=null)v.addElement(sLine);
+        }
+        return v;
+    }
+    
+    protected Vector getAllEnglishAndPinyin(boolean bIncludeMW)
+    {
+        Vector v = new Vector();
+        for (int i=0; i<m_vFirsteseEntities.size(); i++)
+        {
+            LanguageEntity cle =
+                (LanguageEntity)m_vFirsteseEntities.elementAt(i);
+            String sLine = cle.getRomanForm(bIncludeMW);
+            if (sLine!=null)v.addElement(sLine);
+        }
+        
+        for (int i=0; i<m_vSecondeseEntities.size(); i++)
+        {
+            LanguageEntity cle =
+                (LanguageEntity)m_vSecondeseEntities.elementAt(i);
+            String sLine = cle.getRomanForm(bIncludeMW);
+            if (sLine!=null)v.addElement(sLine);
+        }
+        return v;
+    }
+
+    
     protected Vector getAllPinyinCharsAndLiteralTranslations(boolean bIncludeMW)
     {
         Vector v = new Vector();
