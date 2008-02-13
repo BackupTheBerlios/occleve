@@ -93,8 +93,11 @@ public class MagicTypewriterController
                               (keyCode == Canvas.KEY_POUND);
         boolean bUnicode =
             m_TestController.getCurrentQA().nextPossibleCharsAreUnicode();
+        ////System.out.println("nextPossibleCharsAreUnicode() = " + bUnicode);
+        
         int iCount =
             m_TestController.getCurrentQA().getNextPossibleCharsCount();
+        ////System.out.println("getNextPossibleCharsCount = " + iCount);
 
         if (bUnicode && (iCount==1) && (bIsCheatKey == false))
         {

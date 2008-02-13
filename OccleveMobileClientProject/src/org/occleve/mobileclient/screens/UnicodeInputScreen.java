@@ -72,7 +72,9 @@ implements CommandListener,Runnable
     throws Exception
     {
         super("Input character:","",1,TextField.ANY);
-                      
+
+        ///System.out.println("Entering UnicodeInputScreen constructor with char=" + unicodeCharToInput);
+        
         m_UnicodeCharToInput = unicodeCharToInput;
         m_sAnswerFragmentEndingInUnicodeChar = sAnswerFragmentEndingInUnicodeChar;
         

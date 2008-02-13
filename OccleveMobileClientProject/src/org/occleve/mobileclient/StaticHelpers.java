@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient;
@@ -25,7 +25,6 @@ package org.occleve.mobileclient;
 import java.io.*;
 import java.util.*;
 import javax.microedition.io.*;
-/////////import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
 
 public class StaticHelpers
@@ -180,8 +179,14 @@ public class StaticHelpers
         boolean bIsLowercaseLetter = (c>='a') && (c<='z');
         boolean bIsUppercaseLetter = (c>='A') && (c<='Z');
 
+        // 0.9.6 - add this test. The problem with this is that unicode punctuation
+        // will not be recognized as such. TODO - make this test more sophisticated
+        // to remedy this.
+        boolean bIsUnicode = (c > 255);
+
         return (   (bIsLowercaseLetter==false)
                    && (bIsUppercaseLetter==false)
+                   && (bIsUnicode==false)
                    && (Character.isDigit(c)==false)   );
     }
 
