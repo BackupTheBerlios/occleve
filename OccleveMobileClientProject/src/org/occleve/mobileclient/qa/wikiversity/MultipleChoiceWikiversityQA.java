@@ -17,12 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.qa.wikiversity;
 
 import java.util.*;
+
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 
@@ -132,9 +133,8 @@ public class MultipleChoiceWikiversityQA extends WikiversityQA
         return null;
     }
 
-    /**Compares the answer and the answer fragment vectors to see what
-    are the next possible chars.*/
-    public Vector getNextPossibleChars()
+    /////public Vector getNextPossibleChars()
+    public Vector getMatchingLastLinesUpToNextTestableChars()
     {
         return null;
     }

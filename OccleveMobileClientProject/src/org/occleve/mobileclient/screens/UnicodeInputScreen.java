@@ -41,6 +41,8 @@ public class UnicodeInputScreen extends TextBox
 implements CommandListener,Runnable
 {
     protected char m_UnicodeCharToInput;
+    protected String m_sAnswerFragmentEndingInUnicodeChar;
+    
     protected MagicTypewriterController m_TestControllerThatInvokedThis;
     protected TestResults m_TestResults;
 
@@ -63,6 +65,7 @@ implements CommandListener,Runnable
     public UnicodeInputScreen
     (
         char unicodeCharToInput,
+        String sAnswerFragmentEndingInUnicodeChar,
         MagicTypewriterController testControllerThatInvokedThis,
         TestResults results
     )
@@ -71,6 +74,8 @@ implements CommandListener,Runnable
         super("Input character:","",1,TextField.ANY);
                       
         m_UnicodeCharToInput = unicodeCharToInput;
+        m_sAnswerFragmentEndingInUnicodeChar = sAnswerFragmentEndingInUnicodeChar;
+        
         m_TestControllerThatInvokedThis = testControllerThatInvokedThis;
         m_TestResults = results;
 
@@ -351,10 +356,11 @@ implements CommandListener,Runnable
 	
 	                if (bCorrect)
 	                {
-	                    m_bExitThread = true;
-	                    m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
+	                	m_bExitThread = true;
+	                    ///m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
+	                    m_TestControllerThatInvokedThis.setAnswerFragmentLastLine(m_sAnswerFragmentEndingInUnicodeChar);
 	                    m_TestControllerThatInvokedThis.setVisible();
-	                    m_TestControllerThatInvokedThis.skipPunctuation();
+	                    ///////m_TestControllerThatInvokedThis.skipPunctuation();
 	                }
 	                else
 	                {

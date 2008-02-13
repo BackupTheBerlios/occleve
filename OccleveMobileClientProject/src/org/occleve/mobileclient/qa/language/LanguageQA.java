@@ -159,10 +159,12 @@ public class LanguageQA extends QA
     }
 
     /**Compares the answer and the answer fragment vectors to see what
-    are the next possible chars.*/
-    public Vector getNextPossibleChars()
+    are the next possible values for the last line, including skipping any punctuation,
+    and the next testable char at the end of each line.
+    (Before 0.9.6 was called getNextPossibleChars() and returned a vector of Characters).*/
+    public Vector getMatchingLastLinesUpToNextTestableChars()
     {
-        Vector vChars = new Vector();
+        Vector vLastLines = new Vector();
 
         String sLastLine = (String)m_vAnswerFragment.lastElement();
         Enumeration e = m_vUnansweredLines.elements();
@@ -171,26 +173,25 @@ public class LanguageQA extends QA
             String sUnansweredLine = (String)e.nextElement();
             if (sUnansweredLine.startsWith(sLastLine))
             {
-                char possChar = sUnansweredLine.charAt( sLastLine.length() );
-                Character cPossChar = new Character(possChar);
+                ////char possChar = sUnansweredLine.charAt( sLastLine.length() );
+                ////Character cPossChar = new Character(possChar);
 
-                // TEMPORARILY DISABLED UNTIL BIGGER CHANGES MADE
-                // Character cPossChar =
-                //    getNextPossibleNonPunctuationChar(sLastLine,sUnansweredLine);
-
-                if (cPossChar!=null) vChars.addElement(cPossChar);
+            	String sAddMe =
+            		getUnansweredLineUpToNextTestableChar(sLastLine,sUnansweredLine);
+            	
+                if (sAddMe!=null) vLastLines.addElement(sAddMe);
             }
         }
 
         //System.out.println("Returning possible chars vector of size " + vChars.size());
-        return vChars;
+        return vLastLines;
     }
 
     /**Skips any punctuation (non-testable) in a matching
     unanswered line in order to find the next testable character
-    in that line.*/
-    /*
-    private Character getNextPossibleNonPunctuationChar
+    in that line, and then returns the line up to and including that char.
+    If the rest of the line is punctuation, returns null.*/
+    private String getUnansweredLineUpToNextTestableChar
             (String sAnswerFragmentLastLine,String sMatchingUnansweredLine)
     {
         int iIndex = sAnswerFragmentLastLine.length();
@@ -203,11 +204,10 @@ public class LanguageQA extends QA
                  && (iIndex<sMatchingUnansweredLine.length())   );
 
         if (StaticHelpers.isPunctuation(possChar)==false)
-            return new Character(possChar);
+            return (sMatchingUnansweredLine.substring(0,iIndex));
         else
             return null;
     }
-    */
 
     public boolean containsString(String s)
     {

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
+
 import org.occleve.mobileclient.*;
 import javax.microedition.lcdui.*;
 
@@ -94,7 +95,8 @@ public class PlainQA extends QA
         return v;
     }
 
-    public Vector getNextPossibleChars()
+    //////public Vector getNextPossibleChars()
+    public Vector getMatchingLastLinesUpToNextTestableChars()
     {
         Vector vPRA = getAnswer();
         String sPossiblyReversedAnswer = (String)vPRA.firstElement();
@@ -103,16 +105,17 @@ public class PlainQA extends QA
 
         if (sAnswerFragment.length() == sPossiblyReversedAnswer.length())
         {
-            // Whole question has been answered, so no next possible chars.
+            // Whole question has been answered, so no lines.
             return new Vector();
         }
         else
         {
             int index = sAnswerFragment.length();
-            char c = sPossiblyReversedAnswer.charAt(index);
+            ////char c = sPossiblyReversedAnswer.charAt(index);
+            String sFragment = sPossiblyReversedAnswer.substring(0,index+1);
 
             Vector v = new Vector();
-            v.addElement(new Character(c));
+            v.addElement(sFragment);
             return v;
         }
     }

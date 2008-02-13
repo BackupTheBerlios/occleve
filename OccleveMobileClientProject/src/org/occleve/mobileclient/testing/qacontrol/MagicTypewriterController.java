@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing.qacontrol;
@@ -42,9 +42,11 @@ public class MagicTypewriterController
     /////protected int m_iCurrentQAIndex;
     /////protected QuestionView m_TestController.getQuestionView();
 
-    public void appendToAnswerFragment(char c) throws Exception
+    public void setAnswerFragmentLastLine(String sSetToThis) throws Exception
+    /////public void appendToAnswerFragment(char c) throws Exception
     {
-        m_TestController.getCurrentQA().appendToAnswerFragment(c);
+        ///m_TestController.getCurrentQA().appendToAnswerFragment(c);
+        m_TestController.getCurrentQA().setAnswerFragmentLastLine(sSetToThis);
     }
 
     public MagicTypewriterController(TestController tc,Test theTest,
@@ -115,14 +117,17 @@ public class MagicTypewriterController
         	OccleveMobileMidlet.getInstance().getCurrentDisplayable();
         if (current instanceof UnicodeInputScreen) return;
             	
-        Vector v = m_TestController.getCurrentQA().getNextPossibleChars();
-        Character c = (Character)v.elementAt(0);
-        char desiredChar = c.charValue();
+        /////Vector v = m_TestController.getCurrentQA().getNextPossibleChars();        
+        /////Character c = (Character)v.elementAt(0);
+        /////char desiredChar = c.charValue();
+        Vector v = m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
+        String sFragment = (String)v.elementAt(0);
+        char desiredChar = sFragment.charAt(sFragment.length()-1);
 
         ////////////// TO DO - allow UnicodeInputScreen to take
         /////////////          multiple desired chars
         UnicodeInputScreen uis =
-                new UnicodeInputScreen(desiredChar,this,m_TestResults);
+                new UnicodeInputScreen(desiredChar,sFragment,this,m_TestResults);
         OccleveMobileMidlet.getInstance().setCurrentForm(uis);    	
     }
     
@@ -131,13 +136,15 @@ public class MagicTypewriterController
         // Star is the cheat key for single characters,
         // hash/pound for the rest of the line.
 
-        Character matchingChar = possibleCharThatKeypressEquals(iKeycode);
-
-        if (matchingChar!=null)
+        ////Character matchingChar = possibleCharThatKeypressEquals(iKeycode);
+    	String sMatchingFragment = lastLineFragmentEndingInKeypress(iKeycode);
+    	
+        if (sMatchingFragment!=null)
         {
-            trace("Appending " + matchingChar.charValue());
+            trace("Setting last line of answer to: " + sMatchingFragment);
 
-            m_TestController.getCurrentQA().appendToAnswerFragment(matchingChar.charValue());
+            m_TestController.getCurrentQA().setAnswerFragmentLastLine(sMatchingFragment);
+            //m_TestController.getCurrentQA().appendToAnswerFragment(matchingChar.charValue());
             m_TestResults.addResponse(true);
         }
         else if (iKeycode==Canvas.KEY_STAR) // Star key
@@ -156,7 +163,7 @@ public class MagicTypewriterController
             m_TestResults.addResponse(false);
         }
 
-        skipPunctuation();
+        ///// DEFUNCT SINCE 0.9.6 --  skipPunctuation();
     }
 
     protected void onIncorrectKeypress()
@@ -173,12 +180,20 @@ public class MagicTypewriterController
 
     private void cheatOneCharacter() throws Exception
     {
+    	/*
+    	=============BEFORE 0.9.6:=============
         Vector vPossibleChars =
             m_TestController.getCurrentQA().getNextPossibleChars();
         Character cFirstPoss = (Character) vPossibleChars.elementAt(0);
         char firstPossChar = cFirstPoss.charValue();
-
         m_TestController.getCurrentQA().appendToAnswerFragment(firstPossChar);
+        */
+
+    	//==============Since 0.9.6:===============
+        Vector vPossibleLastLines =
+            m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
+    	String sFirstPoss = (String)vPossibleLastLines.elementAt(0);
+        m_TestController.getCurrentQA().setAnswerFragmentLastLine(sFirstPoss);    	
     }
 
     private void cheatQuestion() throws Exception
@@ -212,18 +227,24 @@ public class MagicTypewriterController
     next in this stage of answering the question, returns the first
     one that matches this keypress. Returns null if there are no
     possible characters matching this keypress.*/
-    protected Character possibleCharThatKeypressEquals(int keyCode)
+    ////protected Character possibleCharThatKeypressEquals(int keyCode)
+    protected String lastLineFragmentEndingInKeypress(int keyCode)
     throws Exception
     {
-        Vector vPossibleChars =
-            m_TestController.getCurrentQA().getNextPossibleChars();
+        //Vector vPossibleChars =
+        //    m_TestController.getCurrentQA().getNextPossibleChars();
 
-        for (int i=0; i<vPossibleChars.size(); i++)
+        Vector vPossibleLastLines =
+            m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
+
+        for (int i=0; i<vPossibleLastLines.size(); i++)
         {
-            Character possibleChar = (Character)vPossibleChars.elementAt(i);
-            if (keypressEqualsChar(keyCode,possibleChar.charValue()))
+        	String sPossLastLineFragment = (String)vPossibleLastLines.elementAt(i);
+        	int iLastIndex = sPossLastLineFragment.length()-1;
+            char possibleChar = sPossLastLineFragment.charAt(iLastIndex);
+            if (keypressEqualsChar(keyCode,possibleChar))
             {
-                return possibleChar;
+                return sPossLastLineFragment;
             }
         }
 
@@ -260,6 +281,11 @@ public class MagicTypewriterController
             return false;
     }
 
+    //====================Since 0.9.6==========================
+    // This is defunct now, since punctuation is skipped over by
+    // LanguageQA.getUnansweredLineUpToNextTestableChar().
+    //==========================================================
+    /*
     public void skipPunctuation() throws Exception
     {
         if (m_TestController.getCurrentQA().isAnswered())
@@ -313,10 +339,8 @@ public class MagicTypewriterController
                 trace("-----------------------------------------");
                 trace("Skipping this char: " + (long)nextChar);
 
-                /*
-                This substitution should really be done by the painting logic
-                if (nextChar=='\t') m_sAnswerFragment += "   ";
-                */
+                /////This substitution should really be done by the painting logic
+                /////if (nextChar=='\t') m_sAnswerFragment += "   ";
 
                 m_TestController.getCurrentQA().appendToAnswerFragment(nextChar);
                 m_TestController.getQuestionView().doRepainting();
@@ -324,6 +348,7 @@ public class MagicTypewriterController
             }
         } while (bSkippedPunctuation);
     }
+    */
 
     public void setVisible()
     {

@@ -63,8 +63,9 @@ public abstract class QA
     }
 
     /**Returns a Vector of Character objects.*/
-    public abstract Vector getNextPossibleChars();
-
+    ///////public abstract Vector getNextPossibleChars();
+    public abstract Vector getMatchingLastLinesUpToNextTestableChars();
+    
     public abstract boolean containsString(String s);
 
     /**Gets this ready for use in testing: clears the answer fragment, and so on.*/
@@ -108,12 +109,16 @@ public abstract class QA
     /**Returns true if *all* the next possible chars are non-ASCII.*/
     public boolean nextPossibleCharsAreUnicode()
     {
-        Vector v = getNextPossibleChars();
+        ////Vector v = getNextPossibleChars();
+        Vector v = getMatchingLastLinesUpToNextTestableChars();
         Enumeration e = v.elements();
         while (e.hasMoreElements())
         {
-            Character cObj = (Character)e.nextElement();
-            char c = cObj.charValue();
+            ////Character cObj = (Character)e.nextElement();
+            ////char c = cObj.charValue();
+        	String sFragment = (String)e.nextElement();
+        	char c = sFragment.charAt(sFragment.length()-1);
+        	
             boolean isNotUnicode = (c <= 255);
             if (isNotUnicode) return false;
         }
@@ -122,23 +127,26 @@ public abstract class QA
 
     public int getNextPossibleCharsCount()
     {
-        return getNextPossibleChars().size();
+    	return getMatchingLastLinesUpToNextTestableChars().size();
+        /////return getNextPossibleChars().size();
     }
 
     /**Adds the specified character to the answer fragment.
     If this means the current line has been fully answered, remove it from
     the list of untyped answer lines.*/
-    public void appendToAnswerFragment(char cAppendMe)
+    ////public void appendToAnswerFragment(char cAppendMe)
+    public void setAnswerFragmentLastLine(String sSetToThis)
     throws Exception
     {
         //System.out.println("Entering appendToAnswerFragment with char='" + cAppendMe + "'");
 
         // Sanity check: first make sure that the character being appended
         // is one of the allowed ones.
+    	// 0.9.6 - DISABLE THIS SANITY CHECKING FOR NOW........
 
+    	/*
         Vector v = getNextPossibleChars();
         Enumeration e = v.elements();
-
         boolean bFoundMatch = false;
         while (e.hasMoreElements())
         {
@@ -148,7 +156,6 @@ public abstract class QA
                 bFoundMatch = true;
             }
         }
-
         if (bFoundMatch==false)
         {
             String sMsg =
@@ -162,15 +169,14 @@ public abstract class QA
             }
             throw new Exception(sMsg);
         }
-
         // The supplied character is allowable, so append it to the answer fragment.
+        */
 
         Vector vAnswerFragment = getAnswerFragment();
-        String sLastLine = (String)vAnswerFragment.lastElement();
-        sLastLine += cAppendMe;
-
+        ///String sLastLine = (String)vAnswerFragment.lastElement();
+        ////sLastLine += cAppendMe;
         int iLastIndex = vAnswerFragment.size() - 1;
-        vAnswerFragment.setElementAt(sLastLine,iLastIndex);
+        vAnswerFragment.setElementAt(sSetToThis,iLastIndex);
 
         // If the current line has been fully answered:
         // i)  remove it from the list of untyped answer lines,
@@ -180,7 +186,7 @@ public abstract class QA
         for (int i=0; i<m_vUnansweredLines.size(); i++)
         {
             String sLine = (String)m_vUnansweredLines.elementAt(i);
-            if (sLastLine.equals(sLine))
+            if (sSetToThis.equals(sLine))
             {
                 m_vUnansweredLines.removeElementAt(i);
 
