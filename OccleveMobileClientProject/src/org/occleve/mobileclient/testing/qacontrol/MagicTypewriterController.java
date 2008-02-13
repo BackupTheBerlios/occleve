@@ -164,6 +164,15 @@ public class MagicTypewriterController
         }
 
         ///// DEFUNCT SINCE 0.9.6 --  skipPunctuation();
+
+        // 0.9.6 - if the question's now been answered, move on.
+        // Prior to 0.9.6 this was in the now-defunct skipPunctuation().
+        if (m_TestController.getCurrentQA().isAnswered())
+        {
+            m_TestController.getQuestionView().doRepainting();
+            Thread.sleep(1000);
+            m_TestController.moveToNextQuestion();
+        }
     }
 
     protected void onIncorrectKeypress()
