@@ -168,6 +168,23 @@ public class MagicTypewriterController
 
         ///// DEFUNCT SINCE 0.9.6 --  skipPunctuation();
 
+        // 0.9.6 - if there are no matching unanswered lines with testable characters,
+        // the current line has been completed. Move past any punctuation at the end
+        // of that line by retrieving the whole line.
+        Vector vTestableLastLines =
+            m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
+        if (vTestableLastLines.size()==0)
+        {
+        	Vector vLastLines =
+                m_TestController.getCurrentQA().getMatchingUnansweredLines();
+        	if (vLastLines.size()!=0)
+        	{
+        		String s = (String)vLastLines.firstElement();
+                m_TestController.getCurrentQA().setAnswerFragmentLastLine(s);        		
+                m_TestController.getQuestionView().doRepainting();
+        	}
+        }
+        
         // 0.9.6 - if the question's now been answered, move on.
         // Prior to 0.9.6 this was in the now-defunct skipPunctuation().
         if (m_TestController.getCurrentQA().isAnswered())

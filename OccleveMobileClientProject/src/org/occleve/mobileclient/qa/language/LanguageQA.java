@@ -194,6 +194,12 @@ public class LanguageQA extends QA
     private String getUnansweredLineUpToNextTestableChar
             (String sAnswerFragmentLastLine,String sMatchingUnansweredLine)
     {
+    	// 0.9.6 - there isn't a testable char if they're of matching length.
+        if (sAnswerFragmentLastLine.length()==sMatchingUnansweredLine.length())
+        {
+        	return null;
+        }
+
         int iIndex = sAnswerFragmentLastLine.length();
         char possChar;
         do

@@ -23,6 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
+
 import org.occleve.mobileclient.*;
 
 /**
@@ -226,5 +227,26 @@ public abstract class QA
     {
     	return true;
     }
+
+    /**New in 0.9.6 - returns all the unanswered lines which begin with the current
+    last line of the answer fragment.*/
+    public Vector getMatchingUnansweredLines()
+    {
+        Vector vMatchingUAL = new Vector();
+
+        String sLastLine = (String)m_vAnswerFragment.lastElement();
+        Enumeration e = m_vUnansweredLines.elements();
+        while (e.hasMoreElements())
+        {
+            String sUnansweredLine = (String)e.nextElement();
+            if (sUnansweredLine.startsWith(sLastLine))
+            {
+                vMatchingUAL.addElement(sUnansweredLine);
+            }
+        }
+
+        return vMatchingUAL;
+    }
+
 }
 
