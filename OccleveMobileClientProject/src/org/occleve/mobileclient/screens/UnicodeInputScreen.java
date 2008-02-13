@@ -351,6 +351,12 @@ implements CommandListener,Runnable
                 	onPeek(false);
                     setString("");
                 }
+                else if ((inputtedChar=='!') && (m_UnicodeCharToInput!='!'))
+                {
+                	// 0.9.6 Allow "!" to invoke the View Animation function.
+                	onViewAnimation();
+                    setString("");
+                }
                 else
                 {
 	                boolean bCorrect = (inputtedChar==m_UnicodeCharToInput);
