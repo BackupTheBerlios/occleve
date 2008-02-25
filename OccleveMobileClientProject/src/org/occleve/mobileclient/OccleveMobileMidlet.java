@@ -46,6 +46,7 @@ implements CommandListener,Runnable
     protected Displayable m_CurrentForm;
     protected FileChooserForm m_FileChooserForm;
 
+    protected Alert m_ProgressAlertCache;
     protected ListOfTestsEntry m_EntryCache;
     //protected String m_sFilenameCache;
     //protected Integer m_iRecordStoreIDCache;
@@ -199,6 +200,7 @@ implements CommandListener,Runnable
             Display.getDisplay(this).setCurrent(alt);
 
             m_EntryCache = entry;
+            m_ProgressAlertCache = alt;
             //m_sFilenameCache = sFilename;
             //m_iRecordStoreIDCache = iRecordStoreID;
             //m_sLocalFilesystemURLCache = sLocalFilesystemURL;
@@ -209,15 +211,15 @@ implements CommandListener,Runnable
         {
             try
             {
-                displayTest_Thread(m_EntryCache);
+                displayTest_Thread(m_EntryCache,m_ProgressAlertCache);
             }
             catch (Exception e) {onError(e);}
         }
 
-        private void displayTest_Thread(ListOfTestsEntry entry)
+        private void displayTest_Thread(ListOfTestsEntry entry,Alert progressAlert)
         throws Exception
         {
-            Test theTest = new Test(entry);
+            Test theTest = new Test(entry,progressAlert);
 
             // Strip .txt from screen heading.
             String sHeading = entry.getFilename();

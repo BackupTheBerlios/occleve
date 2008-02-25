@@ -24,6 +24,7 @@ package org.occleve.mobileclient.testing.test;
 
 import com.exploringxml.xml.*;
 import java.util.*;
+import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
@@ -64,16 +65,22 @@ public class Test
 
     public Test(ListOfTestsEntry entry) throws Exception
     {
-        load(entry);
+        load(entry,null);
     }
 
-    public void load(ListOfTestsEntry entry) throws Exception
+    public Test(ListOfTestsEntry entry,Alert progressAlert) throws Exception
     {
-        load_Inner(entry);
+        load(entry,progressAlert);
+    }
+
+    public void load(ListOfTestsEntry entry,Alert progressAlert) throws Exception
+    {
+        load_Inner(entry,progressAlert);
         System.out.println("Loaded " + m_QAs.size() + " QAs");
     }
 
-    private void load_Inner(ListOfTestsEntry entry) throws Exception
+    private void load_Inner(ListOfTestsEntry entry,Alert progressAlert)
+    throws Exception
     {
     	m_ListOfTestsEntry = entry;
 
@@ -87,7 +94,7 @@ public class Test
 
         if (sTestSource.indexOf(XML.TEST) != -1)
         {
-            xmlLoadQuestions(entry.getFilename(),sTestSource);
+            xmlLoadQuestions(entry.getFilename(),sTestSource,progressAlert);
         }
         else if (sTestSource.indexOf(Config.WIKIVERSITY_QUIZ_TAG_STUB) != -1)
         {
@@ -100,9 +107,15 @@ public class Test
     }
 
     /**Load an XML test.*/
-    public void xmlLoadQuestions(String sTestFilename,String sTestSource)
+    public void xmlLoadQuestions(String sTestFilename,String sTestSource,Alert progressAlert)
     throws Exception
     {
+    	String sOriginalProgressPrompt = null;
+    	if (progressAlert!=null)
+    	{
+    		sOriginalProgressPrompt = progressAlert.getString();
+    	}
+    	
         int iFirstHyphenIndex = sTestFilename.indexOf('-');
         int iSecondHyphenIndex = sTestFilename.indexOf('-',iFirstHyphenIndex+1);
 
@@ -142,6 +155,13 @@ public class Test
                 LanguageQA lqa = new LanguageQA(qaNode,m_sFirsteseISOCode,
                                                 m_sSecondeseISOCode);
                 m_QAs.addElement(lqa);
+                
+                if (((m_QAs.size()%10) == 0) && (progressAlert!=null))
+                {
+                	String sMsg = sOriginalProgressPrompt +
+                					" - loaded " + m_QAs.size() + " questions";
+                	progressAlert.setString(sMsg);
+                }
             }
         } while (qaNode!=null);
 
