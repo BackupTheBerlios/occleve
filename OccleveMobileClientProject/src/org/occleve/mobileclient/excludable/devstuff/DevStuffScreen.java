@@ -73,6 +73,7 @@ implements CommandListener,Excludable,Runnable
     protected final String COUNT_QUESTIONS = "Count questions";
     protected final String DISPLAY_PHONE_MODEL = "Display phone model";
     protected final String DISPLAY_MEMORY_STATS = "Memory stats";
+    protected final String DISPLAY_THREAD_STATS = "Thread stats";
     protected final String RUN_GARBAGE_COLLECTOR = "Run gc";
     protected final String SHOW_FILESYSTEM_ROOTS = "Show filesystem roots";
     protected final String SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS = "Show all files and dirs in filesystem roots";
@@ -109,6 +110,7 @@ implements CommandListener,Excludable,Runnable
         append(COUNT_QUESTIONS,null);
         append(DISPLAY_PHONE_MODEL,null);
         append(DISPLAY_MEMORY_STATS,null);
+        append(DISPLAY_THREAD_STATS,null);
         append(RUN_GARBAGE_COLLECTOR,null);
         append(SHOW_FILESYSTEM_ROOTS,null);
         append(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS,null);
@@ -230,6 +232,10 @@ implements CommandListener,Excludable,Runnable
         else if (sOption.equals(DISPLAY_MEMORY_STATS))
         {
             displayMemoryStats();
+        }
+        else if (sOption.equals(DISPLAY_THREAD_STATS))
+        {
+            displayThreadStats();
         }
         else if (sOption.equals(RUN_GARBAGE_COLLECTOR))
         {
@@ -378,6 +384,14 @@ implements CommandListener,Excludable,Runnable
         String sMsg =
             "Free memory = " + rt.freeMemory() + Constants.NEWLINE +
             "Total memory used = " + rt.totalMemory();
+        Alert alert = new Alert(null, sMsg, null, null);
+        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+    }
+
+    protected void displayThreadStats() throws Exception
+    {
+        String sMsg =
+            "Active thread count = " + Thread.activeCount();
         Alert alert = new Alert(null, sMsg, null, null);
         OccleveMobileMidlet.getInstance().displayAlert(alert,this);
     }
