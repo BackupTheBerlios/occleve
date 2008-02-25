@@ -17,22 +17,27 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing;
 
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.testing.test.*;
 
 public class TestResultsForm extends Form implements CommandListener
 {
-    public TestResultsForm
+	private Test m_Test;
+	private Command m_RestartCommand;
+	
+	public TestResultsForm
     (
-        TestResults testResults
+        Test theTest,TestResults testResults
     )
     {
         super("Results");
+        m_Test = theTest;
 
         String text;
         StringItem si;
@@ -57,8 +62,10 @@ public class TestResultsForm extends Form implements CommandListener
         StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
         append(si);
 
+        m_RestartCommand = new Command("Restart", Command.ITEM, 0);
+        addCommand(m_RestartCommand);
+
         addCommand(new Command("New test", Command.BACK, 0));
-        addCommand(new Command("Exit", Command.EXIT, 0));
         setCommandListener(this);
     }
 
@@ -66,20 +73,33 @@ public class TestResultsForm extends Form implements CommandListener
     Handler for BACK and EXIT commands.*/
     public void commandAction(Command c, Displayable s)
     {
+    	/*
         if (c.getCommandType() == Command.EXIT)
         {
             OccleveMobileMidlet.getInstance().notifyDestroyed();
         }
-        else if (c.getCommandType() == Command.BACK)
-        {
-            OccleveMobileMidlet.getInstance().displayFileChooser();
-        }
-        else
-        {
-            System.err.println("Unknown command type!");
-            System.exit( -1);
-        }
+        */
+    	
+    	try
+    	{
+	    	if (c==m_RestartCommand)
+	    	{
+	    		OccleveMobileMidlet.getInstance().displayTestOptions(m_Test);
+	    	}
+	        else if (c.getCommandType() == Command.BACK)
+	        {
+	            OccleveMobileMidlet.getInstance().displayFileChooser();
+	        }
+	        else
+	        {
+	            System.err.println("Unknown command type!");
+	            System.exit( -1);
+	        }
+    	}
+    	catch (Exception e)
+    	{
+    		OccleveMobileMidlet.getInstance().onError(e);
+    	}
     }
-
 }
 

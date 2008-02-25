@@ -101,7 +101,7 @@ public class SequentialTestController extends TestController
         else
         {
             TestResultsForm resultsForm =
-                new TestResultsForm(m_TestResults);
+                new TestResultsForm(m_Test,m_TestResults);
             OccleveMobileMidlet.getInstance().setCurrentForm(resultsForm);
         }
     }

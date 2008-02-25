@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.screens;
@@ -267,7 +267,14 @@ implements CommandListener
     throws Exception
     {
        Test theTest = new Test(entry);
+       displayTestOptions(theTest);
+    }
 
+   /**Public so it can be invoked when the user restarts a test from the test
+   results screen.*/
+   public void displayTestOptions(Test theTest)
+   throws Exception
+   {
        // Until this software supports all wikiversity question types,
        // this is a definite possibility.
        if (theTest.getQACount()==0)

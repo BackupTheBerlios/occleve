@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.6
 OccleveMobileMidlet.java
 */
 
@@ -164,6 +164,11 @@ implements CommandListener,Runnable
             m_FileChooserForm.populateWithFilenames();
         }
 
+        public void displayTestOptions(Test theTest) throws Exception
+        {
+        	m_FileChooserForm.displayTestOptions(theTest);
+        }
+        
         public void onError(Exception e)
         {
             onError(e.toString());
