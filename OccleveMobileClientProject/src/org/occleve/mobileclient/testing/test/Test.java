@@ -155,11 +155,19 @@ public class Test
                 LanguageQA lqa = new LanguageQA(qaNode,m_sFirsteseISOCode,
                                                 m_sSecondeseISOCode);
                 m_QAs.addElement(lqa);
+
+                if ((m_QAs.size()%50) == 0)
+        		{
+                	System.out.println("Forcing garbage collection...");
+                	Runtime.getRuntime().gc();
+        		}
                 
                 if (((m_QAs.size()%10) == 0) && (progressAlert!=null))
                 {
                 	String sMsg = sOriginalProgressPrompt +
-                					" - loaded " + m_QAs.size() + " questions";
+                					" - loaded " + m_QAs.size() + " questions. " +
+                					"Free memory = " +
+                					Runtime.getRuntime().freeMemory();
                 	progressAlert.setString(sMsg);
                 }
             }
