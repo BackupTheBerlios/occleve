@@ -35,9 +35,12 @@ import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class FileChooserForm extends List
-implements CommandListener
+implements CommandListener,Runnable
 {
     protected ListOfTests m_ListOfTests;
+
+    protected Alert m_ProgressAlertCache;
+    protected ListOfTestsEntry m_EntryCache;
 
     protected static final String NO_TESTS_IN_PHONE_MSG =
             "Please download some tests either " +
@@ -221,7 +224,17 @@ implements CommandListener
 
         if (c==m_TestCommand)
         {
-            displayTestOptions(entry);
+        	// 0.9.6 - display progress while loading the test.
+            Alert alt = new Alert(null, "Loading " + entry.getFilename(), null, null);
+            alt.setTimeout(Alert.FOREVER);
+            StaticHelpers.safeAddGaugeToAlert(alt);
+            OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+
+            m_EntryCache = entry;
+            m_ProgressAlertCache = alt;
+            new Thread(this).start();
+
+        	///////displayTestOptions(entry);
         }
         else if (c==m_ViewCommand)
         {
@@ -263,10 +276,21 @@ implements CommandListener
         }
     }
 
-    protected void displayTestOptions(ListOfTestsEntry entry)
+    /**0.9.6 - background thread so that a progress alert can be displayed while
+    the test is being loaded.*/
+    public void run()
+    {
+        try
+        {
+            displayTestOptions(m_EntryCache,m_ProgressAlertCache);
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+    }
+
+    protected void displayTestOptions(ListOfTestsEntry entry,Alert progressAlert)
     throws Exception
     {
-       Test theTest = new Test(entry);
+       Test theTest = new Test(entry,progressAlert);
        displayTestOptions(theTest);
     }
 
