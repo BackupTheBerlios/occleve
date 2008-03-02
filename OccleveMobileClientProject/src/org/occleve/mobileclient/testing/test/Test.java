@@ -147,43 +147,29 @@ public class Test
         {
         	throw new Exception("Couldn't find any LQA nodes in the test");        	
         }
-        
-        //Node qaNode = null;
-        //do
-        //{
-        
+                
         for (int i=0; i<allQANodes.length; i++)
         {
-
-        	// Because Node.find uses indices starting from one.
-            //int[] next = {m_QAs.size()+1};
-            //qaNode = test.find(XML.QA,next);
-
-            //if (qaNode!=null)
-            //{
-
         	LanguageQA lqa = new LanguageQA(allQANodes[i],m_sFirsteseISOCode,
                                                 m_sSecondeseISOCode);
-                m_QAs.addElement(lqa);
+            m_QAs.addElement(lqa);
 
-                if ((m_QAs.size()%50) == 0)
-        		{
-                	System.out.println("Forcing garbage collection...");
-                	Runtime.getRuntime().gc();
-        		}
-                
-                if (((m_QAs.size()%10) == 0) && (progressAlert!=null))
-                {
-                	String sMsg = sOriginalProgressPrompt +
-                					" - loaded " + m_QAs.size() + " questions. " +
-                					"Free memory = " +
-                					Runtime.getRuntime().freeMemory();
-                	progressAlert.setString(sMsg);
-                }
+            if ((m_QAs.size()%10) == 0)
+    		{
+            	System.out.println("Forcing garbage collection...");
+            	Runtime.getRuntime().gc();
+    		}
+            
+            if (((m_QAs.size()%10) == 0) && (progressAlert!=null))
+            {
+            	String sMsg = sOriginalProgressPrompt +
+            					" - loaded " + m_QAs.size() + " questions. " +
+            					"Free memory in bytes = " +
+            					Runtime.getRuntime().freeMemory();
+            	progressAlert.setString(sMsg);
+            }
     	}
     
-        // } while (qaNode!=null);
-
         if (m_QAs.size()==0)
         {
             throw new Exception("Test appears to contain zero questions");
