@@ -166,8 +166,11 @@ public class MagicTypewriterController
             m_TestResults.addResponse(false);
         }
 
-        ///// DEFUNCT SINCE 0.9.6 --  skipPunctuation();
+        checkForLineCompletionAndQuestionCompletion();
+    }
 
+    public void checkForLineCompletionAndQuestionCompletion() throws Exception
+    {
         // 0.9.6 - if there are no matching unanswered lines with testable characters,
         // the current line has been completed. Move past any punctuation at the end
         // of that line by retrieving the whole line.
@@ -192,9 +195,9 @@ public class MagicTypewriterController
             m_TestController.getQuestionView().doRepainting();
             Thread.sleep(1000);
             m_TestController.moveToNextQuestion();
-        }
+        }    	
     }
-
+    
     protected void onIncorrectKeypress()
     {
         Display.getDisplay(OccleveMobileMidlet.getInstance()).flashBacklight(50);

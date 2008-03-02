@@ -367,8 +367,8 @@ implements CommandListener,Runnable
 	                	m_bExitThread = true;
 	                    ///m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
 	                    m_TestControllerThatInvokedThis.setAnswerFragmentLastLine(m_sAnswerFragmentEndingInUnicodeChar);
+	                    m_TestControllerThatInvokedThis.checkForLineCompletionAndQuestionCompletion();	                    
 	                    m_TestControllerThatInvokedThis.setVisible();
-	                    ///////m_TestControllerThatInvokedThis.skipPunctuation();
 	                }
 	                else
 	                {
