@@ -142,17 +142,27 @@ public class Test
         	}
     	}
 
-        Node qaNode = null;
-        do
+        Node[] allQANodes = test.findAllChildElements(test,XML.QA);
+        if (allQANodes.length==0)
         {
-            // Because Node.find uses indices starting from one.
-            int[] next = {m_QAs.size()+1};
+        	throw new Exception("Couldn't find any LQA nodes in the test");        	
+        }
+        
+        //Node qaNode = null;
+        //do
+        //{
+        
+        for (int i=0; i<allQANodes.length; i++)
+        {
 
-            qaNode = test.find(XML.QA,next);
+        	// Because Node.find uses indices starting from one.
+            //int[] next = {m_QAs.size()+1};
+            //qaNode = test.find(XML.QA,next);
 
-            if (qaNode!=null)
-            {
-                LanguageQA lqa = new LanguageQA(qaNode,m_sFirsteseISOCode,
+            //if (qaNode!=null)
+            //{
+
+        	LanguageQA lqa = new LanguageQA(allQANodes[i],m_sFirsteseISOCode,
                                                 m_sSecondeseISOCode);
                 m_QAs.addElement(lqa);
 
@@ -170,8 +180,9 @@ public class Test
                 					Runtime.getRuntime().freeMemory();
                 	progressAlert.setString(sMsg);
                 }
-            }
-        } while (qaNode!=null);
+    	}
+    
+        // } while (qaNode!=null);
 
         if (m_QAs.size()==0)
         {

@@ -14,7 +14,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * $Id: Node.java,v 1.2 2007/11/04 09:47:00 joe_gittings Exp $
+ * $Id: Node.java,v 1.3 2008/03/02 10:12:57 joe_gittings Exp $
  */
 
 package com.exploringxml.xml;
@@ -26,8 +26,11 @@ import java.util.Vector;
  * A node of an XML DOM tree;
  *
  * @author    Michael Claßen
- * @version   $Revision: 1.2 $
+ * @version   $Revision: 1.3 $
+ * 
  * Trivially modified by Joe Gittings 29Dec2006.
+ * More substantial modifications by Joe Gittings March 2008:
+ * added the findAllChildElements() method.
  */
 public class Node {
 
@@ -161,12 +164,15 @@ trace("n.contents = " + n.contents);
    *
    * @return    the n'th child Node matching the simple path description
    */
-  Node findChildElement(Node parent, String simplePath, int occur) {
-
-trace("Entering findChildElement");
+  Node findChildElement(Node parent, String simplePath, int occur)
+  {
+	trace("#####################################################################");  
+    trace("Entering findChildElement");
+    trace("Looking for " + occur + "th occurrence of " + simplePath);
 
     JSArray a = parent.contents;
-trace("Got JSArrary a OK: it = " + a);
+    trace("Got JSArrary a OK: it = " + a);
+    
     Node n;
     int  found = 0;
     int i = 0;
@@ -178,21 +184,64 @@ trace("Got JSArrary a OK: it = " + a);
       int colonPos = tag.indexOf(':');
       tag = (colonPos == -1) ? tag : tag.substring(colonPos + 1);
 
-      // Modified by Joe Gittings 29Dec2006: do the comparison in lower case
       trace("=======================");
+      trace("occurrences found = " + found);
       trace("simplePath = " + simplePath);
       trace("tag = " + tag);
 
+      // Modified by Joe Gittings 29Dec2006: do the comparison in lower case
       if (simplePath.toLowerCase().equals(tag.toLowerCase())) ++found;
 
     } while (i < a.length() && found < occur);
     return (found == occur) ? n : null;
   }
 
+  /**Joe Gittings 2nd March 2008.
+  Returns all nodes matching simplePath which are children of parentNode.
+  Repeatedly using findChildElement instead is very inefficient because the code runs
+  through all preceding matching nodes each time.*/
+  public Node[] findAllChildElements(Node parentNode, String simplePath)
+  {
+    	trace("Entering findAllChildElements()");
+	    Vector vResults = new Vector();
+	  
+	    JSArray a = parentNode.contents;
+	    trace("Got JSArrary a OK: it = " + a);
+	    
+	    Node n;
+	    int  found = 0;
+	    int i = 0;
+	    String tag;
+	    do {
+	      n = (Node)a.elementAt(i);
+	      ++i;
+	      tag = (n.name != null) ? n.name : "";
+	      int colonPos = tag.indexOf(':');
+	      tag = (colonPos == -1) ? tag : tag.substring(colonPos + 1);
+
+	      // Modified by Joe Gittings 29Dec2006: do the comparison in lower case
+	      if (simplePath.toLowerCase().equals(tag.toLowerCase()))
+    	  {
+	    	  ++found;
+	    	  vResults.addElement(n);
+
+	    	  trace("=======================");
+		      trace("occurrences found = " + found);
+		      trace("simplePath = " + simplePath);
+		      trace("tag = " + tag);
+    	  }
+
+	    } while (i < a.length());
+	    
+	    Node[] nodes = new Node[vResults.size()];
+	    vResults.copyInto(nodes);
+	    return nodes;
+  }
+  
   // Joe Gittings 30Dec2006
   protected void trace(String s)
   {
-      // System.out.println(s);
+      ////System.out.println(s);
   }
 
   // Joe Gittings 30Dec2006
