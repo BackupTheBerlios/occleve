@@ -367,8 +367,13 @@ implements CommandListener,Runnable
 	                	m_bExitThread = true;
 	                    ///m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
 	                    m_TestControllerThatInvokedThis.setAnswerFragmentLastLine(m_sAnswerFragmentEndingInUnicodeChar);
-	                    m_TestControllerThatInvokedThis.checkForLineCompletionAndQuestionCompletion();	                    
+
+	                    // Call setVisible() on the test controller first, since
+	                    // if the test has been completed,
+	                    // checkForLineCompletionAndQuestionCompletion() will display
+	                    // the results form.
 	                    m_TestControllerThatInvokedThis.setVisible();
+	                    m_TestControllerThatInvokedThis.checkForLineCompletionAndQuestionCompletion();	                    
 	                }
 	                else
 	                {
