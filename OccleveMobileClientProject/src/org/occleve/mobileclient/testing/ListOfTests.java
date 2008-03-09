@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing;
@@ -37,6 +37,8 @@ be in the JAR's resource file, or in the application's RecordStore.*/
 public class ListOfTests
 {
     private static final String FILENAME = "/list_of_tests.txt";
+
+    private String m_sOriginalProgressAlertPrompt;
 
     protected Vector m_vEntries = new Vector();
     public int getSize() {return m_vEntries.size();}
@@ -84,8 +86,18 @@ public class ListOfTests
 
     public ListOfTests() throws Exception
     {
+    	this(null);
+    }
+
+    public ListOfTests(Alert progressAlert) throws Exception
+    {
+    	if (progressAlert!=null)
+    	{
+    		m_sOriginalProgressAlertPrompt = progressAlert.getString();
+    	}
+    	
         ListOfTests_LoadFromJar();
-        ListOfTests_LoadFromRS();
+        ListOfTests_LoadFromRS(progressAlert);
         
         ////// DISABLED FOR NOW AS CAUSES EXCEPTION IN THE MICROEMULATOR
         ///if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
@@ -148,7 +160,7 @@ public class ListOfTests
 
     /**Subfunction for code clarity.
     Now get the list of tests that are in the recordstore.*/
-    private void ListOfTests_LoadFromRS() throws Exception
+    private void ListOfTests_LoadFromRS(Alert progressAlert) throws Exception
     {
         VocabRecordStoreManager mgr = new VocabRecordStoreManager();
         Hashtable rsIndex = mgr.getRecordIndicesKeyedByFilenames();
@@ -157,6 +169,13 @@ public class ListOfTests
         Enumeration enumKeys = rsIndex.keys();
         while (enumKeys.hasMoreElements())
         {
+        	if ((m_vEntries.size()%5 == 0) && (progressAlert!=null))
+        	{
+        		String sNewPrompt = m_sOriginalProgressAlertPrompt + " - " +
+        							m_vEntries.size() + " quizzes";
+        		progressAlert.setString(sNewPrompt);
+        	}
+        	
             String rsFilename = (String) enumKeys.nextElement();
             System.out.println("rsFilename = " + rsFilename);
 

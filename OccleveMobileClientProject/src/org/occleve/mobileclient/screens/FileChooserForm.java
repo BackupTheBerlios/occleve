@@ -127,14 +127,19 @@ implements CommandListener,Runnable
 
     public void populateWithFilenames() throws Exception
     {
-        // Clear out the existing items in this form, if any.
+        Alert alt = new Alert(null, "Loading list of quizzes...", null, null);
+        alt.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(alt);
+        OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+    	
+    	// Clear out the existing items in this form, if any.
         deleteAll();
 
         // See whether keypresses are supported
         ///FileChooserCustomItem fcciTest = new FileChooserCustomItem(this);
         ///boolean bKeypressesSupported = fcciTest.areKeypressesSupported();
 
-        m_ListOfTests = new ListOfTests();
+        m_ListOfTests = new ListOfTests(alt);
 
         if (m_ListOfTests.getSize()==0)
         {
