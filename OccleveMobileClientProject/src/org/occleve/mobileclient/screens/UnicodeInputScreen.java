@@ -346,14 +346,24 @@ implements CommandListener,Runnable
                 
                 // 0.9.4: Allow "?" to invoke the Peek function (useful when using a pen
                 // phone as it allows user to peek by writing "?" with the pen).
-                if ((inputtedChar=='?') && (m_UnicodeCharToInput!='?'))
+                // 0.9.6: Also allow the subtly different Unicode "？" to invoke it,
+                // as you often get this if you try and write a question mark on a Chinese
+                // pen phone.               
+                boolean bPeek = ((inputtedChar=='?') && (m_UnicodeCharToInput!='?')) ||
+                				((inputtedChar=='？') && (m_UnicodeCharToInput!='？'));
+                if (bPeek)
                 {
                 	onPeek(false);
                     setString("");
                 }
-                else if ((inputtedChar=='!') && (m_UnicodeCharToInput!='!'))
+                else if 
+                (
+	        		((inputtedChar=='!') && (m_UnicodeCharToInput!='!')) ||
+	        		((inputtedChar=='！') && (m_UnicodeCharToInput!='！'))
+                )
                 {
                 	// 0.9.6 Allow "!" to invoke the View Animation function.
+                	// Also allow the unicode equivalent "！" to invoke it.
                 	onViewAnimation();
                     setString("");
                 }
