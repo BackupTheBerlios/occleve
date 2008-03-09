@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-2008  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -188,8 +188,13 @@ implements CommandListener,Runnable
 
         int iTries = 0;
         boolean bRetry;
-        m_bListOfTestsIsValid = false;
     	String sListOfTestsData = "NOT LOADED";
+
+    	// This will only be set to true if a valid directive is found in
+    	// processDirective(), which will indicate not only has ListOfTests been
+    	// retrieved without throwing any exceptions, but it contains the content
+    	// we're expecting.
+        m_bListOfTestsIsValid = false;
 
         do
         {
@@ -197,18 +202,20 @@ implements CommandListener,Runnable
         	{
                 iTries++;
 
-                wc.setConnectionAction("About to call readAllBytes to read list of tests from server");
+                wc.setConnectionAction("Using readAllBytes to read ListOfTests from server");
 	        	byte[] listOfTestsBytes =
 	        		wc.readAllBytes(m_sListOfTestsURL,m_ProgressAlert,true);        	
-	        	wc.setConnectionAction("About to instantiate String from bytes");
 	
+	        	wc.setConnectionAction("Instantiating ListOfTests string from bytes");
 	        	sListOfTestsData = new String(listOfTestsBytes,Config.ENCODING);
-	        	wc.setConnectionAction("Instantiated String from bytes ok");
-        		m_bListOfTestsIsValid = true;
 
+	        	wc.setConnectionAction("Converting ListOfTests string to a Vector");
             	Vector vListOfTestsLines = StaticHelpers.stringToVector(sListOfTestsData);
+
+            	wc.setConnectionAction("Processing lines in ListOfTests Vector");
             	for (int i=0; i<vListOfTestsLines.size(); i++)
             	{
+                	wc.setConnectionAction("Processing line " + i + " in ListOfTests Vector");
             		String sLine = (String)vListOfTestsLines.elementAt(i);
                     processLineInListOfTests(sLine);
             	}
@@ -267,7 +274,8 @@ implements CommandListener,Runnable
         {
         	// No exception occurred, but the list of tests loaded is not valid
         	// (maybe the network keeps delivering the same 'welcome' page).
-        	String sMsg = "Failed to load list of tests from wiki" + Constants.NEWLINE +
+        	String sMsg = "Failed to load valid ListOfTests from wiki." +
+        				  Constants.NEWLINE +
         				  "Last data loaded = " + Constants.NEWLINE +
         				  sListOfTestsData;
             throw new Exception();
