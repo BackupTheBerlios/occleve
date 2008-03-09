@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -153,19 +153,29 @@ implements CommandListener,Runnable
         catch (Exception e)
         {
         	System.err.println(e);
-        	
+
+        	// Silently tolerate an exception on wc.close because we're really
+        	// interested in e (the exception which got us here).
             try
             {
                 wc.close();
             }
             catch (Exception e2) {System.err.println(e2);}
 
-            String sMsg = e.toString() + "... " + wc.getConnectionAction();
+			// Add some contextual information
+			// about the action that was being attempted when the exception occurred.
+			// Hopefully this will help troubleshoot connection problems on
+			// untested models of phone and/or networks.
+            String sMsg = e.toString() + Constants.NEWLINE + 
+            				"Action being attempted was: " + wc.getConnectionAction();
             OccleveMobileMidlet.getInstance().onError(sMsg);
         }
     }
 
-    /**Returns the number of tries it took to load the list of tests.*/
+    /**Returns the number of tries it took to load the list of tests.
+    0.9.6 - switched to using loadAllBytes() to load it.
+    And extended the retry mechanism to cope with exceptions being thrown
+    up until the retry limit.*/
     protected int fetchListOfTests(WikiConnection wc) throws Exception
     {
         m_ProgressAlert = new Alert(null, "Reading list of tests from wiki...",
@@ -179,30 +189,71 @@ implements CommandListener,Runnable
         int iTries = 0;
         boolean bRetry;
         m_bListOfTestsIsValid = false;
+    	String sListOfTestsData = "NOT LOADED";
 
         do
         {
-        	wc.setConnectionAction("Calling WikiConnection.openISR");
-            reader = wc.openISR(m_sListOfTestsURL,m_ProgressAlert,true);
+        	try
+        	{
+                iTries++;
 
-            int iLineCount = 0;
-            do
-            {
-            	wc.setConnectionAction("Calling StaticHelpers.readFromISR");
-                String sLine = StaticHelpers.readFromISR(reader, true);
-                
-                System.out.println(sLine);
-                processLineInListOfTests(sLine);
+                wc.setConnectionAction("About to call readAllBytes to read list of tests from server");
+	        	byte[] listOfTestsBytes =
+	        		wc.readAllBytes(m_sListOfTestsURL,m_ProgressAlert,true);        	
+	        	wc.setConnectionAction("About to instantiate String from bytes");
+	
+	        	sListOfTestsData = new String(listOfTestsBytes,Config.ENCODING);
+	        	wc.setConnectionAction("Instantiated String from bytes ok");
+        		m_bListOfTestsIsValid = true;
 
-                iLineCount++;
-                m_ProgressAlert.setString("Read " + iLineCount + " lines");
-            } while (reader.ready());
+            	Vector vListOfTestsLines = StaticHelpers.stringToVector(sListOfTestsData);
+            	for (int i=0; i<vListOfTestsLines.size(); i++)
+            	{
+            		String sLine = (String)vListOfTestsLines.elementAt(i);
+                    processLineInListOfTests(sLine);
+            	}
+        	}
+        	catch (Exception e)
+        	{
+        		System.err.println("Exception while loading ListOfTests from server.");
+        		System.err.println("Tries = " + iTries);
+        		System.err.println(e);
+        		
+            	// 0.9.6: Extended the retry mechanism to cope with IO exceptions
+        		// up until the retry limit is reached.
+        		m_bListOfTestsIsValid = false;
+        		
+        		if (iTries==Config.CONNECTION_TRIES_LIMIT)
+        		{
+        			// If an exception KEEPS occurring, throw it upwards.
+        			String sMsg =
+        				"Exception while trying to load ListOfTests after " +
+        				iTries + " attempts. Exception was:" + Constants.NEWLINE +
+        				e.getMessage();
+        			throw new Exception(sMsg);
+        		}
+        	}
+        	
+        	/////////////////////////////////////////////////////////////////////////
+        	// PRE 0.9.6 CODE FOR LOADING LIST OF QUIZZES
+        	//wc.setConnectionAction("Calling WikiConnection.openISR");
+            //reader = wc.openISR(m_sListOfTestsURL,m_ProgressAlert,true);
+            //int iLineCount = 0;
+            //do
+            //{
+            //	wc.setConnectionAction("Calling StaticHelpers.readFromISR");
+            //    String sLine = StaticHelpers.readFromISR(reader, true);
+            //    System.out.println(sLine);
+            //    processLineInListOfTests(sLine);
+            //    iLineCount++;
+            //    m_ProgressAlert.setString("Read " + iLineCount + " lines");
+            //} while (reader.ready());
+        	/////////////////////////////////////////////////////////////////////////
 
             // 0.9.3: Retry up to a limit specified in Config class.
             // This is primarily to deal with China Mobile's
             // recently-introduced "welcome" page (but should help
             // for other mobile operators with a similar policy).
-            iTries++;
             bRetry = ((m_bListOfTestsIsValid==false) &&
                       (iTries<Config.CONNECTION_TRIES_LIMIT));
         } while (bRetry);
@@ -214,7 +265,12 @@ implements CommandListener,Runnable
 
         if (m_bListOfTestsIsValid==false)
         {
-            throw new Exception("Failed to load list of tests from wiki");
+        	// No exception occurred, but the list of tests loaded is not valid
+        	// (maybe the network keeps delivering the same 'welcome' page).
+        	String sMsg = "Failed to load list of tests from wiki" + Constants.NEWLINE +
+        				  "Last data loaded = " + Constants.NEWLINE +
+        				  sListOfTestsData;
+            throw new Exception();
         }
 
         return iTries;
