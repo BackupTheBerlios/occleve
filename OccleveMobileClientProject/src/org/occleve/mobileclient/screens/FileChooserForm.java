@@ -155,7 +155,10 @@ implements CommandListener,Runnable
             String sDisplayText = StaticHelpers.stripEnding(sFilename,".txt");
             sDisplayText = StaticHelpers.stripEnding(sDisplayText,".xml");
 
-            if (recordStoreID!=null) sDisplayText = "* " + sDisplayText;
+            // 0.9.6 - reverse this so that now the asterisk indicates a quiz that's
+            // NOT stored in the recordstore (since the released software no longer
+            // bundles any quizzes in the JAR, as of 0.9.6).
+            if (recordStoreID==null) sDisplayText = "* " + sDisplayText;
 
             // THIS WON'T WORK BECAUSE KEYPRESSES ONLY CAUGHT WHEN THE CustomITEM
             // HAS FOCUS...
