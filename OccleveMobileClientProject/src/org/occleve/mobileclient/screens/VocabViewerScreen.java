@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.screens;
@@ -43,7 +43,9 @@ implements CommandListener,ItemCommandListener
     protected Command m_ScrollToStartCommand;
     protected Command m_ScrollToMiddleCommand;
     protected Command m_ScrollToEndCommand;
-    protected Command m_EditCommand;
+
+    // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
+    //protected Command m_EditCommand;
 
     protected TextBox m_QuestionNoTextBox;
 
@@ -85,8 +87,9 @@ implements CommandListener,ItemCommandListener
         m_ScrollToEndCommand = new Command("Scroll to end", Command.ITEM, 0);
         addCommand(m_ScrollToEndCommand);
 
-        m_EditCommand = new Command("Edit", Command.ITEM, 0);
-        addCommand(m_EditCommand);
+        // Disabled in 0.9.6 - see earlier comment
+        //m_EditCommand = new Command("Edit", Command.ITEM, 0);
+        //addCommand(m_EditCommand);
 
         setCommandListener(this);
     }
@@ -179,17 +182,18 @@ implements CommandListener,ItemCommandListener
             Item qaItem = get(iLastItemIndex);
             StaticHelpers.safeSetCurrentItem(qaItem);
         }
+        // Disabled in 0.9.6 - see earlier comment
+        /*
         else if (c==m_EditCommand)
         {
             m_QuestionNoTextBox =
                     new TextBox("Question number","",10,TextField.NUMERIC);
-
             Command okCmd = new Command("Edit it",Command.OK,0);
             m_QuestionNoTextBox.addCommand(okCmd);
-
             OccleveMobileMidlet.getInstance().setCurrentForm(m_QuestionNoTextBox);
             m_QuestionNoTextBox.setCommandListener(this);
         }
+        */
         else
         {
             OccleveMobileMidlet.getInstance().onError("Unknown command in VocabViewerScreen.commandAction");

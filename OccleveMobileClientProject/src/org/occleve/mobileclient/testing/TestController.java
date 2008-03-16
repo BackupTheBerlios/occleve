@@ -44,7 +44,9 @@ public abstract class TestController implements CommandListener
     // Now in SequentialTestController --- protected Command m_SkipForwardCommand;
     protected Command m_RestartCommand;
     protected Command m_PauseCommand;
-    protected Command m_EditThisQACommand;
+
+    // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
+    //protected Command m_EditThisQACommand;
 
     protected TestResults m_TestResults;
 
@@ -100,8 +102,9 @@ public abstract class TestController implements CommandListener
         m_PauseCommand = new Command("Pause",Command.ITEM,1);
         disp.addCommand(m_PauseCommand);
 
-        m_EditThisQACommand = new Command("Edit this QA",Command.ITEM,1);
-        disp.addCommand(m_EditThisQACommand);
+        // Disabled in 0.9.6 - see earlier comment
+        //m_EditThisQACommand = new Command("Edit this QA",Command.ITEM,1);
+        //disp.addCommand(m_EditThisQACommand);
 
         disp.setCommandListener(this);
     }
@@ -177,14 +180,15 @@ public abstract class TestController implements CommandListener
         {
             OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
         }
+        // Disabled in 0.9.6 - see earlier comment
+        /*
         else if (c==m_EditThisQACommand)
         {
             Displayable returnTo =
                     OccleveMobileMidlet.getInstance().getCurrentDisplayable();
-            ExcludableHooks.editQA(m_Test.getEntry(),
-                                   new Integer(m_iCurrentQAIndex),
-                                   returnTo);
+            ExcludableHooks.editQA(m_Test.getEntry(),new Integer(m_iCurrentQAIndex),returnTo);
         }
+        */
         else
         {
             OccleveMobileMidlet.getInstance().onError("Unknown command in TestForm.commandAction");

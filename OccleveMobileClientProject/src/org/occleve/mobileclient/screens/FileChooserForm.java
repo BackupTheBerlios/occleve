@@ -76,8 +76,10 @@ implements CommandListener,Runnable
     protected Command m_ShowLicenseCommand;
     protected CommonCommands m_CommonCommands;
 
-    protected Command m_EditCommand;
-    protected Command m_RapidAddCommand;
+    // 0.9.6 - remove the Edit and Rapid Add commands - those functions aren't
+    // working anyway, and they're confusing users.
+    //protected Command m_EditCommand;
+    //protected Command m_RapidAddCommand;
 
     public FileChooserForm(boolean bAddCommands)
     throws Exception
@@ -97,8 +99,11 @@ implements CommandListener,Runnable
             //m_PauseCommand = new Command("Pause", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
             m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
-            m_EditCommand = new Command("Edit", Command.ITEM, 2);
-            m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
+            
+            // Disabled in 0.9.6 - see earlier comment
+            //m_EditCommand = new Command("Edit", Command.ITEM, 2);
+            //m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
+
             m_CommonCommands = new CommonCommands();
 
             addCommand(m_BrowseWikiversityCommand);
@@ -111,8 +116,11 @@ implements CommandListener,Runnable
             ///addCommand(m_PauseCommand);
             addCommand(m_DevStuffScreenCommand);
             addCommand(m_ShowLicenseCommand);
-            addCommand(m_EditCommand);
-            addCommand(m_RapidAddCommand);
+
+            // Disabled in 0.9.6 - see earlier comment
+            //addCommand(m_EditCommand);
+            //addCommand(m_RapidAddCommand);
+            
             m_CommonCommands.addToDisplayable(this);
         }
 
@@ -261,6 +269,8 @@ implements CommandListener,Runnable
             SearchAllFilesForm saff = new SearchAllFilesForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(saff);
         }
+        /*
+        // Disabled in 0.9.6 - see earlier comment
         else if (c==m_EditCommand)
         {
             Screen returnTo = this;
@@ -270,6 +280,7 @@ implements CommandListener,Runnable
         {
             ExcludableHooks.displayRapidAdd(entry);
         }
+        */
         else if (c==m_ShowLicenseCommand)
         {
             Displayable gplForm = new ShowGPLForm();
