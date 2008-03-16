@@ -478,18 +478,28 @@ implements CommandListener,Runnable
         progressAlert.setString("Loading clip locator");
 
         int iTries = 0;
-        InputStreamReader reader;
+        /////InputStreamReader reader;
         String sTrueURL;
         do
         {
-            System.out.println("Trying to obtain InputStreamReader");
-            reader = wc.openISR(sDescriptorURL, null,false);
-            System.out.println("Obtained InputStreamReader ok");
+        	byte[] locatorData = wc.readAllBytes(sDescriptorURL,progressAlert,true);        	
+        	System.out.println("About to instantiate String from bytes");
+
+        	String sLocatorPage = new String(locatorData,Config.ENCODING);
+        	System.out.println("Instantiated String from bytes ok");
+
+        	// DEFUNCT CODE
+        	//System.out.println("Trying to obtain InputStreamReader");
+            //reader = wc.openISR(sDescriptorURL, null,false);
+            //System.out.println("Obtained InputStreamReader ok");
 
             sTrueURL = null;
+            Vector clipLocatorLines = StaticHelpers.stringToVector(sLocatorPage);
+            VectorReader vr = new VectorReader(clipLocatorLines);
             do
             {
-                String sLine = StaticHelpers.readFromISR(reader, true);
+                //String sLine = StaticHelpers.readFromISR(reader, true);
+            	String sLine = vr.readLine();
                 System.out.println("Parsing " + sLine);
 
                 int iIndex = sLine.indexOf("URL=");
@@ -499,12 +509,12 @@ implements CommandListener,Runnable
                     System.out.println("sTrueURL = " + sTrueURL);
                 }
 
-            } while ((reader.ready()) && (sTrueURL == null));
+            } while ((vr.hasMoreLines()) && (sTrueURL == null));
 
             iTries++;
         } while ((sTrueURL == null) && (iTries<Config.CONNECTION_TRIES_LIMIT));
 
-        reader.close();
+        /////reader.close();
 
         if (sTrueURL==null)
         {

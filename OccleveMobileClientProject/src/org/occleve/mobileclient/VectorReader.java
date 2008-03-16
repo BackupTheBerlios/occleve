@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.6
 */
 
 package org.occleve.mobileclient;
@@ -53,6 +53,11 @@ public class VectorReader
             m_iNextIndex--;
         else
             throw new Exception("Can't go back - already at start of Vector");
+    }
+    
+    public boolean hasMoreLines()
+    {
+        return (m_iNextIndex < m_TheVector.size());
     }
 }
 
