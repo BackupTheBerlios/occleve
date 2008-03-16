@@ -475,13 +475,16 @@ implements CommandListener,Runnable
                                 Config.AUDIO_CLIP_URL_SUFFIX;
         System.out.println("Audio clip descriptor URL = " + sDescriptorURL);
 
-        progressAlert.setString("Loading clip locator");
 
         int iTries = 0;
         /////InputStreamReader reader;
         String sTrueURL;
         do
         {
+        	String sMsg = "Loading clip locator";
+        	if (iTries > 0) sMsg += " (try " + iTries + ")";
+            progressAlert.setString(sMsg);
+
         	byte[] locatorData = wc.readAllBytes(sDescriptorURL,progressAlert,true);        	
         	System.out.println("About to instantiate String from bytes");
 
