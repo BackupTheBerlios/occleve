@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -64,9 +64,15 @@ implements CommandListener,Runnable
     invoking tests.*/
     protected ChineseTestOptionsScreen m_ChineseTestOptionsScreen;
 
-    protected Command m_BrowseWikiversityCommand;
-    protected Command m_BrowseFrenchWikiversityCommand;
-    protected Command m_BrowseOccleveCommand;
+    /**0.9.6 - introduce an intermediate screen on which the user chooses
+    which source to download quizzes from.*/
+    protected Command m_DownloadQuizzesCommand;
+    
+    // 0.9.6 - disabled
+    //protected Command m_BrowseWikiversityCommand;
+    //protected Command m_BrowseFrenchWikiversityCommand;
+    //protected Command m_BrowseOccleveCommand;
+
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
     protected Command m_RedownloadCommand;
@@ -86,11 +92,17 @@ implements CommandListener,Runnable
     {
         super(Constants.PRODUCT_NAME,List.IMPLICIT);
 
+        // 0.9.6 - try to make the phone wrap long test names
+        setFitPolicy(Choice.TEXT_WRAP_ON);
+        
         if (bAddCommands)
         {
-            m_BrowseWikiversityCommand = new Command("Download Wikiversity quizzes", Command.ITEM, 2);
-            m_BrowseFrenchWikiversityCommand = new Command("Download French Wikiversity quizzes", Command.ITEM, 2);
-            m_BrowseOccleveCommand = new Command("Download Occleve tests", Command.ITEM, 2);
+        	m_DownloadQuizzesCommand = new Command("Download quizzes",Command.ITEM,1);
+        	
+            // 0.9.6 - disabled
+            //m_BrowseWikiversityCommand = new Command("Download Wikiversity quizzes", Command.ITEM, 2);
+            //m_BrowseFrenchWikiversityCommand = new Command("Download French Wikiversity quizzes", Command.ITEM, 2);
+            //m_BrowseOccleveCommand = new Command("Download Occleve tests", Command.ITEM, 2);
 
             m_TestCommand = new Command("Test", Command.ITEM, 1);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
@@ -106,9 +118,14 @@ implements CommandListener,Runnable
 
             m_CommonCommands = new CommonCommands();
 
-            addCommand(m_BrowseWikiversityCommand);
-            addCommand(m_BrowseFrenchWikiversityCommand);
-            addCommand(m_BrowseOccleveCommand);
+            // 0.9.6
+            addCommand(m_DownloadQuizzesCommand);
+
+            // 0.9.6 - disable
+            //addCommand(m_BrowseWikiversityCommand);
+            //addCommand(m_BrowseFrenchWikiversityCommand);
+            //addCommand(m_BrowseOccleveCommand);
+
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
             addCommand(m_RedownloadCommand);
@@ -122,6 +139,9 @@ implements CommandListener,Runnable
             //addCommand(m_RapidAddCommand);
             
             m_CommonCommands.addToDisplayable(this);
+
+            // 0.9.6 - "Test" is the default select command.
+            setSelectCommand(m_TestCommand);
         }
 
         populateWithFilenames();
@@ -203,7 +223,15 @@ implements CommandListener,Runnable
     /*Subfunction for code clarity.*/
     public void commandAction_Inner(Command c,Displayable d) throws Exception
     {
-        if (c==m_BrowseWikiversityCommand)
+        if (c==m_DownloadQuizzesCommand)
+        {
+        	// 0.9.6
+        	ChooseQuizServerScreen chooser = new ChooseQuizServerScreen();
+            OccleveMobileMidlet.getInstance().setCurrentForm(chooser);
+        }
+        // 0.9.6 - disabled
+        /*
+        else if (c==m_BrowseWikiversityCommand)
         {
             ServerBrowser browser =
                new ServerBrowser(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
@@ -227,6 +255,7 @@ implements CommandListener,Runnable
                                       Config.OCCLEVE_QUIZ_URL_SUFFIX);
             browser.populateAndDisplay();
         }
+        */
 
         // The rest of the commands aren't appropriate if there
         // aren't any tests in the phone.
