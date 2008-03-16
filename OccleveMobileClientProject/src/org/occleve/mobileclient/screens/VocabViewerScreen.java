@@ -234,12 +234,21 @@ implements CommandListener,ItemCommandListener
         OutputStream os = filecon.openOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(os,"UTF-8");
 
+        // 0.9.6 - switch to using a StringBuffer to avoid reccurring security
+        // prompts.
+        StringBuffer sbOutput = new StringBuffer();
+
+        System.out.println("Writing to StringBuffer...");
         for (int i=0; i<size(); i++)
         {
             StringItem item = (StringItem)get(i);
             String sLine = item.getText();
-            writer.write(sLine + Constants.CRLF);
+            sbOutput.append(sLine + Constants.CRLF);
         }
+
+        System.out.println("About to write StringBuffer to file");
+        writer.write(sbOutput.toString());
+        System.out.println("Wrote StringBuffer to file");
 
         writer.flush();
         writer.close();
