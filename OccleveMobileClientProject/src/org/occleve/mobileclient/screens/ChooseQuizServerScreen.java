@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2008  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,16 +26,6 @@ import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.serverbrowser.*;
 
-/*
-import org.occleve.mobileclient.qa.*;
-import org.occleve.mobileclient.qa.language.*;
-import org.occleve.mobileclient.qa.wikiversity.*;
-import org.occleve.mobileclient.recordstore.*;
-import org.occleve.mobileclient.screens.options.*;
-import org.occleve.mobileclient.testing.*;
-import org.occleve.mobileclient.testing.test.*;
-*/
-
 public class ChooseQuizServerScreen extends List
 implements CommandListener
 {
@@ -44,10 +34,11 @@ implements CommandListener
     protected CommonCommands m_CommonCommands;
 
     private static final String PREAMBLE =
-    	"CHOOSE A QUIZ SERVER TO CONNECT TO:" + Constants.NEWLINE;
+    	"WHERE DO YOU WANT TO DOWNLOAD QUIZZES FROM?" + Constants.NEWLINE;
 
     private static final String OCCLEVE_WIKI =
-    	"Occleve's server. Mostly contains Chinese-English quizzes." + Constants.NEWLINE;
+    	"The PocketChinese server (aka Occleve). " +
+    	"Mostly contains Chinese-English quizzes." + Constants.NEWLINE;
 
     private static final String ENGLISH_WIKIVERSITY =
     	"The English wikiversity. Contains quizzes on a range of topics."
@@ -76,6 +67,9 @@ implements CommandListener
         append(OCCLEVE_WIKI,null);
         append(ENGLISH_WIKIVERSITY,null);
         append(FRENCH_WIKIVERSITY,null);
+        
+        // By default, OCCLEVE_WIKI is selected.
+        setSelectedIndex(1,true);
 
         // "Connect" is the default select command.
         setSelectCommand(m_ConnectCommand);
