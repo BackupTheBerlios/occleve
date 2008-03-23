@@ -64,6 +64,9 @@ implements CommandListener,Runnable
         super("Tests you can download",
               javax.microedition.lcdui.List.IMPLICIT);
 
+        // 0.9.6 - try to make the phone wrap long test names
+        setFitPolicy(Choice.TEXT_WRAP_ON);
+
         m_sListOfTestsURL = sListOfTestsURL;
         m_sQuizURLStub = sQuizURLStub;
         m_sQuizURLSuffix = sQuizURLSuffix;
@@ -75,6 +78,9 @@ implements CommandListener,Runnable
         addCommand(m_DownloadTestCommand);
         addCommand(m_MyTestsCommand);
         setCommandListener(this);
+        
+        // 0.9.6 - "Download" is the default select command.
+        setSelectCommand(m_DownloadTestCommand);
     }
 
     public void populateAndDisplay()
