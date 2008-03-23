@@ -123,8 +123,13 @@ public class Test
         m_sSecondeseISOCode = sTestFilename.substring(iFirstHyphenIndex+1,
                                                            iSecondHyphenIndex);
 
+		System.out.println("Free memory before parsing = " + Runtime.getRuntime().freeMemory());
+        
         Xparse parser = new Xparse();
         Node root = parser.parse(sTestSource);
+
+		System.out.println("Free memory after parsing = " + Runtime.getRuntime().freeMemory());
+        
         int[] first = {1};
         Node test = root.find(XML.TEST,first);
         if (test==null)
@@ -147,7 +152,16 @@ public class Test
         {
         	throw new Exception("Couldn't find any LQA nodes in the test");        	
         }
-                
+
+		System.out.println("Free memory after populating allQANodes[] = " + Runtime.getRuntime().freeMemory());
+
+		// 0.9.6 - don't need root anymore - free it and run GC to save memory.
+		// Xparse really eats memory and this has been significantly slowing
+		// down test loading on real mobile phones.
+		root = null;
+    	Runtime.getRuntime().gc();
+		System.out.println("Free memory after nulling root = " + Runtime.getRuntime().freeMemory());
+				
         for (int i=0; i<allQANodes.length; i++)
         {
         	LanguageQA lqa = new LanguageQA(allQANodes[i],m_sFirsteseISOCode,
