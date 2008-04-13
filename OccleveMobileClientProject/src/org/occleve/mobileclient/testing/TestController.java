@@ -35,7 +35,7 @@ import org.occleve.mobileclient.testing.test.*;
 
 public abstract class TestController implements CommandListener
 {
-    protected Test m_Test;
+    protected Test m_Test;    
     protected QADirection m_QADirection;
 
     protected Command m_NewTestCommand;

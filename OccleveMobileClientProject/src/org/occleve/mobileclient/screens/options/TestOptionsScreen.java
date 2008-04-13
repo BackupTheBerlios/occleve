@@ -179,7 +179,9 @@ setItemStateListener(this);
     {
     	// If the user is running a NEW test, reset the first and last
     	// question text fields to 1 and the max value respectively.
-    	if (test!=m_Test)
+    	boolean bSameFilename =
+    		test.getFilename().equals(m_Test.getFilename());
+    	if (!bSameFilename)
     	{
     		System.out.println("Resetting first and last question fields");
     		System.out.println("Because test = " + test);
