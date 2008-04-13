@@ -90,21 +90,6 @@ implements CommandListener,ItemCommandListener,ItemStateListener
         append(m_LastQuestionTextField);
 
         setItemStateListener(this);
-        
-/*
-ChoiceGroup dummyItem =
-     new ChoiceGroup(null,Choice.MULTIPLE);
-dummyItem.append("Hello",null);
-dummyItem.setDefaultCommand(m_OKCommand);
-dummyItem.setItemCommandListener(this);
-append(dummyItem);
-setItemStateListener(this);
-*/
-
-        //String[] viewChoices = {CANVAS,FORM};
-        //m_ViewChoiceGroup =
-        //    new ChoiceGroup(null,ChoiceGroup.POPUP,viewChoices,null);
-        //append(m_ViewChoiceGroup);
     }
 
     /**Implementation of CommandListener.*/
@@ -184,8 +169,6 @@ setItemStateListener(this);
     	if (!bSameFilename)
     	{
     		System.out.println("Resetting first and last question fields");
-    		System.out.println("Because test = " + test);
-    		System.out.println("and m_Test = " + m_Test);
     		m_Test = test;
     		m_FirstQuestionTextField.setString("1");    		
     		String sValue = new Integer(m_Test.getQACount()).toString();
