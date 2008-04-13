@@ -33,11 +33,11 @@ public class RandomTestController extends TestController
     protected Random m_Random = new Random(System.currentTimeMillis());
     protected Hashtable m_htQuestionsAsked = new Hashtable();
 
-    public RandomTestController(Test theTest,
-                          QADirection direction) /////,boolean bFormView)
+    public RandomTestController(Test theTest,QADirection direction,
+                          int iFirstQuestionIndex,int iLastQuestionIndex)
     throws Exception
     {
-        super(theTest,direction); /////////,bFormView);
+        super(theTest,direction,iFirstQuestionIndex,iLastQuestionIndex);
 
         Integer ciIndex = findRandomUnansweredQuestionIndex();
         if (ciIndex==null)

@@ -42,7 +42,8 @@ implements CommandListener,ItemCommandListener,ItemStateListener
     protected ChoiceGroup m_SequentialOrRandomChoiceGroup;
 
     // 0.9.6 - add a Start From Question No field for sequential mode
-    protected TextField m_QuestionToStartFromTextField;
+    protected TextField m_FirstQuestionTextField;
+    protected TextField m_LastQuestionTextField;
     
     //// Took this out in 0.9.3 as it was just confusing users.
     //protected String CANVAS = "Canvas view";
@@ -80,9 +81,14 @@ implements CommandListener,ItemCommandListener,ItemStateListener
         // Give the derived class a chance to add other controls.
         addSubclassControls();
         
-        m_QuestionToStartFromTextField =
+        m_FirstQuestionTextField =
         	new TextField("Question to start from:","1",10,TextField.NUMERIC);
-        append(m_QuestionToStartFromTextField);
+        append(m_FirstQuestionTextField);
+
+        m_LastQuestionTextField =
+        	new TextField("Question to end at:","1",10,TextField.NUMERIC);
+        append(m_LastQuestionTextField);
+
         setItemStateListener(this);
         
 /*
@@ -130,23 +136,40 @@ setItemStateListener(this);
 
         QADirection direction = getQADirection();
 
+    	String sFirstQuestion = m_FirstQuestionTextField.getString();
+    	int iFirstQuestion;
+    	try
+    	{
+    		iFirstQuestion = Integer.parseInt(sFirstQuestion);
+    	}
+    	catch (Exception e)
+    	{
+    		System.err.println("Invalid value in textfield, setting to 1");
+    		iFirstQuestion = 1;
+    	}
+
+    	String sLastQuestion = m_LastQuestionTextField.getString();
+    	int iLastQuestion;
+    	try
+    	{
+    		iLastQuestion = Integer.parseInt(sLastQuestion);
+    	}
+    	catch (Exception e)
+    	{
+    		System.err.println("Invalid value in textfield, setting to max value");
+    		iLastQuestion = m_Test.getQACount();
+    	}
+
         TestController tc;
         if (bRandom)
-            tc = new RandomTestController(m_Test,direction);
-        else
         {
-        	String sQuestionToStartFrom = m_QuestionToStartFromTextField.getString();
-        	int iQuestionToStartFrom;
-        	try
-        	{
-        		iQuestionToStartFrom = Integer.parseInt(sQuestionToStartFrom);
-        	}
-        	catch (Exception e)
-        	{
-        		System.err.println("Invalid value in textfield, setting to 1");
-        		iQuestionToStartFrom = 1;
-        	}
-            tc = new SequentialTestController(m_Test,direction,iQuestionToStartFrom-1);
+            tc = new RandomTestController(m_Test,direction,
+            		iFirstQuestion-1,iLastQuestion-1);
+        }
+        else
+        {        	        	
+        	tc = new SequentialTestController(m_Test,direction,
+        			iFirstQuestion-1,iLastQuestion-1);
         }
 
         tc.setVisible();
@@ -154,7 +177,19 @@ setItemStateListener(this);
 
     public void makeVisible(Test test)
     {
-        m_Test = test;
+    	// If the user is running a NEW test, reset the first and last
+    	// question text fields to 1 and the max value respectively.
+    	if (test!=m_Test)
+    	{
+    		System.out.println("Resetting first and last question fields");
+    		System.out.println("Because test = " + test);
+    		System.out.println("and m_Test = " + m_Test);
+    		m_Test = test;
+    		m_FirstQuestionTextField.setString("1");    		
+    		String sValue = new Integer(m_Test.getQACount()).toString();
+    		m_LastQuestionTextField.setString(sValue);    		
+    	}
+    	
         OccleveMobileMidlet.getInstance().setCurrentForm(this);
     }
 
@@ -180,16 +215,16 @@ setItemStateListener(this);
         	int i = m_SequentialOrRandomChoiceGroup.getSelectedIndex();
             String sChoice = m_SequentialOrRandomChoiceGroup.getString(i);
             boolean bSequential = (sChoice.equals(SEQUENTIAL));
-            setQuestionToStartFromTextFieldVisibility(bSequential);
+            setFirstQuestionTextFieldVisibility(bSequential);
     	}
     }
 
-   protected void setQuestionToStartFromTextFieldVisibility(boolean bVisible)
+   protected void setFirstQuestionTextFieldVisibility(boolean bVisible)
    {
 	   for (int i=0; i<size(); i++)
 	   {
 			Item matchingItem = get(i);
-			if (matchingItem==m_QuestionToStartFromTextField)
+			if (matchingItem==m_FirstQuestionTextField)
 			{
 				if (bVisible==false) delete(i);
 				return;
@@ -199,7 +234,7 @@ setItemStateListener(this);
 	   // Couldn't find it, so the textfield isn't already in the Form.
 	   if (bVisible)
 	   {
-	       append(m_QuestionToStartFromTextField);
+	       append(m_FirstQuestionTextField);
 	   }
    }
     

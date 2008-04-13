@@ -40,10 +40,11 @@ public abstract class TestController implements CommandListener
 
     protected Command m_NewTestCommand;
     protected Command m_ExitCommand;
-    // Now in SequentialTestController --- protected Command m_JumpToCommand;
-    // Now in SequentialTestController --- protected Command m_SkipForwardCommand;
     protected Command m_RestartCommand;
     protected Command m_PauseCommand;
+
+    // 0.9.6
+    protected Command m_TestOptionsCommand;
 
     // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
     //protected Command m_EditThisQACommand;
@@ -53,7 +54,12 @@ public abstract class TestController implements CommandListener
     protected int m_iCurrentQAIndex;
     protected QuestionView m_View;
 
-    public TestController(Test theTest,QADirection direction)
+    // 0.9.6
+    protected int m_iFirstQuestionIndex;
+    protected int m_iLastQuestionIndex;
+    
+    public TestController(Test theTest,QADirection direction,
+    		int iFirstQuestionIndex,int iLastQuestionIndex)
     throws Exception
     {
     	// 0.9.6: Only include QAs in the test which contain the desired
@@ -66,6 +72,11 @@ public abstract class TestController implements CommandListener
         m_QADirection = direction;
         m_TestResults = new TestResults();
 
+        //////////////////// 0.9.6 ///////////////////////////////
+        m_iFirstQuestionIndex = iFirstQuestionIndex;
+        m_iLastQuestionIndex = iLastQuestionIndex;
+        //////////////////////////////////////////////////////////
+                
         ///////////////////// TO FINISH //////////////////////////////
         QA firstQA = m_Test.getQA(0);
         if (firstQA instanceof MultipleChoiceWikiversityQA)
@@ -105,6 +116,9 @@ public abstract class TestController implements CommandListener
         // Disabled in 0.9.6 - see earlier comment
         //m_EditThisQACommand = new Command("Edit this QA",Command.ITEM,1);
         //disp.addCommand(m_EditThisQACommand);
+
+        m_TestOptionsCommand = new Command("TestOptions",Command.ITEM,1);
+        disp.addCommand(m_TestOptionsCommand);
 
         disp.setCommandListener(this);
     }
@@ -207,7 +221,10 @@ public abstract class TestController implements CommandListener
         try
         {
             m_TestResults = new TestResults();
-            jumpToQuestion(0);
+            
+            // 0.9.6
+            jumpToQuestion(m_iFirstQuestionIndex);
+            //jumpToQuestion(0);
         }
         catch (Exception e)
         {
