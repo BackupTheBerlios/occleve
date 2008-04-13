@@ -85,9 +85,11 @@ public class MagicTypewriterController
         
         // 0.9.6 - if score drops below a user-specified threshold,
         // automatically restart the test
+        /*
         System.out.println("=====================================");
         System.out.println("Score = " + m_TestResults.getAccuracyPercentage());
         System.out.println("Min score = " + m_TestController.getMinScore());
+        */
     	if (m_TestResults.getAccuracyPercentage() <
     			m_TestController.getMinScore())
     	{

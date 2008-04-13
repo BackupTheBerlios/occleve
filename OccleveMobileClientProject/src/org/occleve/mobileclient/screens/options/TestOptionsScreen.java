@@ -44,6 +44,7 @@ implements CommandListener,ItemCommandListener,ItemStateListener
     // 0.9.6 - add a Start From Question No field for sequential mode
     protected TextField m_FirstQuestionTextField;
     protected TextField m_LastQuestionTextField;
+    protected TextField m_RestartOnPercentageBelowTextField;
     
     //// Took this out in 0.9.3 as it was just confusing users.
     //protected String CANVAS = "Canvas view";
@@ -89,6 +90,10 @@ implements CommandListener,ItemCommandListener,ItemStateListener
         	new TextField("Question to end at:","1",10,TextField.NUMERIC);
         append(m_LastQuestionTextField);
 
+        m_RestartOnPercentageBelowTextField =
+        	new TextField("Restart if percentage drops under:","0",10,TextField.NUMERIC);
+        append(m_RestartOnPercentageBelowTextField);
+        
         setItemStateListener(this);
     }
 
@@ -145,16 +150,28 @@ implements CommandListener,ItemCommandListener,ItemStateListener
     		iLastQuestion = m_Test.getQACount();
     	}
 
+    	String sMinScore = m_RestartOnPercentageBelowTextField.getString();
+    	int iMinScore;
+    	try
+    	{
+    		iMinScore = Integer.parseInt(sMinScore);
+    	}
+    	catch (Exception e)
+    	{
+    		System.err.println("Invalid value in textfield, setting to zero");
+    		iMinScore = 0;
+    	}
+
         TestController tc;
         if (bRandom)
         {
             tc = new RandomTestController(m_Test,direction,
-            		iFirstQuestion-1,iLastQuestion-1);
+            		iFirstQuestion-1,iLastQuestion-1,iMinScore);
         }
         else
         {        	        	
         	tc = new SequentialTestController(m_Test,direction,
-        			iFirstQuestion-1,iLastQuestion-1);
+        			iFirstQuestion-1,iLastQuestion-1,iMinScore);
         }
 
         tc.setVisible();
@@ -164,9 +181,13 @@ implements CommandListener,ItemCommandListener,ItemStateListener
     {
     	// If the user is running a NEW test, reset the first and last
     	// question text fields to 1 and the max value respectively.
-    	boolean bSameFilename =
-    		test.getFilename().equals(m_Test.getFilename());
-    	if (!bSameFilename)
+    	boolean bResetFields = true;
+    	if (test!=null && m_Test!=null)
+    	{
+        	bResetFields = ! (test.getFilename().equals(m_Test.getFilename()));
+    	}
+    	
+    	if (bResetFields)
     	{
     		System.out.println("Resetting first and last question fields");
     		m_Test = test;

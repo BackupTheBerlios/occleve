@@ -28,7 +28,6 @@ import java.util.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
-//import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
 import org.occleve.mobileclient.testing.qaview.*;
 import org.occleve.mobileclient.testing.test.*;
@@ -54,12 +53,16 @@ public abstract class TestController implements CommandListener
     protected int m_iCurrentQAIndex;
     protected QuestionView m_View;
 
+    /////////////////////////////////////////////
     // 0.9.6
     protected int m_iFirstQuestionIndex;
     protected int m_iLastQuestionIndex;
+    protected int m_iMinScore;
+    public int getMinScore() {return m_iMinScore;}
+    /////////////////////////////////////////////
     
     public TestController(Test theTest,QADirection direction,
-    		int iFirstQuestionIndex,int iLastQuestionIndex)
+    		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore)
     throws Exception
     {
     	// 0.9.6: Only include QAs in the test which contain the desired
@@ -75,6 +78,7 @@ public abstract class TestController implements CommandListener
         //////////////////// 0.9.6 ///////////////////////////////
         m_iFirstQuestionIndex = iFirstQuestionIndex;
         m_iLastQuestionIndex = iLastQuestionIndex;
+        m_iMinScore = iMinScore;
         //////////////////////////////////////////////////////////
                 
         ///////////////////// TO FINISH //////////////////////////////
@@ -117,7 +121,7 @@ public abstract class TestController implements CommandListener
         //m_EditThisQACommand = new Command("Edit this QA",Command.ITEM,1);
         //disp.addCommand(m_EditThisQACommand);
 
-        m_TestOptionsCommand = new Command("TestOptions",Command.ITEM,1);
+        m_TestOptionsCommand = new Command("Test options",Command.ITEM,1);
         disp.addCommand(m_TestOptionsCommand);
 
         disp.setCommandListener(this);
@@ -160,25 +164,21 @@ public abstract class TestController implements CommandListener
 
     /**Implementation of CommandListener.*/
     public void commandAction(Command c, Displayable s)
-    {
-    	/*
-    	0.9.6 - disabled since this is replicated in SequentialTestController (which
-    	is where it belongs).
-        if (c==m_SkipForwardCommand)
-        {
-            int iMaxIndex = m_Test.getQACount()-1;
-            int iNewIndex = m_iCurrentQAIndex + 5;
-            if (iNewIndex > iMaxIndex) iNewIndex = iMaxIndex;
-            jumpToQuestion(iNewIndex);
-        }
-        else if (c==m_JumpToCommand)
-        {
-            JumpToForm jtForm = new JumpToForm( this );
-            OccleveMobileMidlet.getInstance().setCurrentForm(jtForm);
-        }
-        */
-        
-        if (c==m_ExitCommand)
+    {      
+    	try
+    	{
+    		commandAction_Inner(c,s);
+    	}
+    	catch (Exception e)
+    	{
+    		OccleveMobileMidlet.getInstance().onError(e);
+    	}
+    }
+
+	private void commandAction_Inner(Command c, Displayable s)
+	throws Exception
+	{        
+    	if (c==m_ExitCommand)
         {
             OccleveMobileMidlet.getInstance().notifyDestroyed();
         }
@@ -193,6 +193,10 @@ public abstract class TestController implements CommandListener
         else if (c==m_PauseCommand)
         {
             OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
+        }
+        else if (c==m_TestOptionsCommand)
+        {
+    		OccleveMobileMidlet.getInstance().displayTestOptions(m_Test);
         }
         // Disabled in 0.9.6 - see earlier comment
         /*

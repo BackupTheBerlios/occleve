@@ -34,10 +34,12 @@ public class RandomTestController extends TestController
     protected Hashtable m_htQuestionsAsked = new Hashtable();
 
     public RandomTestController(Test theTest,QADirection direction,
-                          int iFirstQuestionIndex,int iLastQuestionIndex)
+                          int iFirstQuestionIndex,int iLastQuestionIndex,
+                          int iMinScore)
     throws Exception
     {
-        super(theTest,direction,iFirstQuestionIndex,iLastQuestionIndex);
+        super(theTest,direction,iFirstQuestionIndex,iLastQuestionIndex,
+        		iMinScore);
 
         Integer ciIndex = findRandomUnansweredQuestionIndex();
         if (ciIndex==null)

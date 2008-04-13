@@ -35,10 +35,11 @@ public class SequentialTestController extends TestController
     protected Command m_SkipForwardCommand;
     
     public SequentialTestController(Test theTest,QADirection direction,
-    		int iFirstQuestionIndex,int iLastQuestionIndex)
+    		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore)
     throws Exception
     {
-        super(theTest,direction,iFirstQuestionIndex,iLastQuestionIndex);
+        super(theTest,direction,iFirstQuestionIndex,
+        		iLastQuestionIndex,iMinScore);
 
         int iMaxIndex = m_Test.getQACount()-1;
         if (iFirstQuestionIndex <= iMaxIndex)
@@ -83,7 +84,7 @@ public class SequentialTestController extends TestController
 
     /*Implementation of TestForm.nextQuestion().*/
     public void moveToNextQuestion() throws Exception
-    {
+    {    	
         //////if (m_iCurrentQAIndex < (m_Test.getQACount()-1))
 
         if (m_iCurrentQAIndex < m_iLastQuestionIndex)
