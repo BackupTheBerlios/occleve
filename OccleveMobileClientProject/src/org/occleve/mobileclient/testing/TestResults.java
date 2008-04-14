@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.testing;
@@ -61,6 +61,10 @@ public class TestResults
     floating point number.*/
     public int getAccuracyPercentage()
     {
+    	// 0.9.6 - if no responses at all so far, the accuracy is deemed
+    	// to be 100%, not 0% (which the calculation below would give).
+    	if (m_iTotalResponseCount==0) return 100;
+    	
         // fpii stands for "float packed into integer".
 
         int fpiiCorrect
