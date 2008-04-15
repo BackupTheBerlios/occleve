@@ -78,5 +78,13 @@ public class TestResults
 
         return MicroFloat.intValue(fpiiRounded);
     }
+    
+    // 0.9.6
+    public void reset()
+    {
+        m_iTestableResponseCount = 0;
+        m_iWrongResponseCount = 0;
+        m_iTotalResponseCount = 0;
+    }
 }
 

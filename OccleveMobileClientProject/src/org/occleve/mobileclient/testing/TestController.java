@@ -224,7 +224,11 @@ public abstract class TestController implements CommandListener
     {
         try
         {
-            m_TestResults = new TestResults();
+        	// 0.9.6 Creating a new TestResults here creates the situation
+        	// where the TestController and MagicTypewriterController
+        	// have different TestResults objects.
+        	m_TestResults.reset();
+            ////m_TestResults = new TestResults();
             
             // 0.9.6
             jumpToQuestion(m_iFirstQuestionIndex);

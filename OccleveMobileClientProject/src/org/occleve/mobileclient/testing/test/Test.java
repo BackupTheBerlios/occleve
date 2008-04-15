@@ -56,16 +56,26 @@ public class Test
     public int getQACount() {return m_QAs.size();}
     public void addQA(QA qa) {m_QAs.addElement(qa);}
 
-    /**Constructs an empty test.*/
-    public Test() throws Exception
-    {
-        m_QuestionAskedFlags = new Vector();
-        m_QAs = new Vector();
-    }
-
     public Test(ListOfTestsEntry entry) throws Exception
     {
-        load(entry,null);
+    	// Defaults to loading the test.
+    	this(entry,true);
+    }
+
+    public Test(ListOfTestsEntry entry, boolean bLoad) throws Exception
+    {
+    	m_ListOfTestsEntry = entry;
+
+    	if (bLoad)
+    	{
+    		load(entry,null);
+    	}
+    	else
+    	{
+    		// Just construct an empty test.
+            m_QuestionAskedFlags = new Vector();
+            m_QAs = new Vector();	
+    	}
     }
 
     public Test(ListOfTestsEntry entry,Alert progressAlert) throws Exception
@@ -294,7 +304,7 @@ public class Test
     		getQA(i).initialize(qadir);
     	}
     	
-    	Test restricted = new Test();
+    	Test restricted = new Test(m_ListOfTestsEntry,false);
     	for (int i = 0; i < m_QAs.size(); i++)
         {
             QA qa = (QA) m_QAs.elementAt(i);
