@@ -17,12 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.languageentity;
-
-////import org.occleve.mobileclient.*;
 
 import com.exploringxml.xml.Node;
 
@@ -32,12 +30,16 @@ public class Verb extends LanguageEntity
     throws Exception
     {
         super(entityNode,sLanguageCode);
+        
+        System.out.println("Making Verb with language code " + sLanguageCode + " and content " + entityNode.value);
     }
 
     /**Override of LanguageEntity function.
     For English verbs, prefix the verbal "to".*/
     public String getRomanForm(boolean bIncludeMeasureWord)
     {
+    	System.out.println("Entering Verb.getRomanForm....");
+    	    	
         StringBuffer sb = new StringBuffer();
 
         if (m_sLanguageCode.toLowerCase().equals("en"))
