@@ -52,6 +52,8 @@ public abstract class TestController implements CommandListener
 
     protected int m_iCurrentQAIndex;
     protected QuestionView m_View;
+    
+    //////////////protected int m_iNoOfQuestionsAnswered; // 0.9.6
 
     /////////////////////////////////////////////
     // 0.9.6
@@ -159,9 +161,10 @@ public abstract class TestController implements CommandListener
             "(" + m_TestResults.getCorrectResponseCount() +
             "/" + m_TestResults.getTotalResponseCount() + ")";
 
-        // 0.9.6 - also display the current question index versus the last question index.
+        // 0.9.6 - also display the number of questions answered vs the total number to answer.
+        int iTotalQuestionsToAnswer = m_iLastQuestionIndex - m_iFirstQuestionIndex + 1;
         String sCurrentQuestionVersusLast =
-        	"(Q" + (m_iCurrentQAIndex+1) + "/" + (m_iLastQuestionIndex+1) + ")";
+        	"(Q" + getNumberOfQuestionsAsked() + "/" + iTotalQuestionsToAnswer + ")";
 
         String sAccuracyDisplay =
                 percentage + "% " +
@@ -260,6 +263,9 @@ public abstract class TestController implements CommandListener
     /**Derived classes should provide appropriate behaviour in order to
     move to the next question.*/
     public abstract void moveToNextQuestion() throws Exception;
+
+    /**Derived classes should provide appropriate behaviour.*/
+    public abstract int getNumberOfQuestionsAsked();
 
     /**So that trace output from this class can be easily switched on/off.*/
     protected void trace(Object o)

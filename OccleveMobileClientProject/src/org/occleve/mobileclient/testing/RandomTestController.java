@@ -144,5 +144,11 @@ public class RandomTestController extends TestController
         int iRandomIndex = (int)lRandomIndex;
         return iRandomIndex;
     }
+    
+    /**Implementation of TestController.getNumberOfQuestionsAsked()*/
+    public int getNumberOfQuestionsAsked()
+    {
+    	return m_htQuestionsAsked.size();
+    }       
 }
 

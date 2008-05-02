@@ -108,5 +108,11 @@ public class SequentialTestController extends TestController
             OccleveMobileMidlet.getInstance().setCurrentForm(resultsForm);
         }
     }
+    
+    /**Implementation of TestController.getNumberOfQuestionsAsked()*/
+    public int getNumberOfQuestionsAsked()
+    {
+    	return m_iCurrentQAIndex - m_iFirstQuestionIndex + 1;
+    }    
 }
 
