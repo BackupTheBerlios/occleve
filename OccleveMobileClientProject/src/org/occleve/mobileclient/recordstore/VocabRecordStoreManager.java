@@ -188,13 +188,6 @@ public class VocabRecordStoreManager
             throw new Exception(sErr);
         }
 
-        /*
-         String sDebug = "Filename retrieved from record = " + sFilenameFromRecord +
-         "##### Beginning of file data = " + sTestContents.substring(0,10) +
-                        "##### Used standard UTF = " + bStdUTF;
-         throw new Exception(sDebug);
-         */
-
         return sTestContents;
     }
 
@@ -314,6 +307,9 @@ public class VocabRecordStoreManager
             int recordID = rs.addRecord(byteArray,0,byteArray.length);
             rs.closeRecordStore();
 
+            // 0.9.6 - need to update the hashtable mapping filenames to rsids.
+            m_RecordIndicesKeyedByFilenames.put(sFilename,new Integer(recordID));
+            
             if (bDoUserInterfaceStuff)
             {
                 // Display confirmation
@@ -349,10 +345,15 @@ public class VocabRecordStoreManager
     public Integer findRecordByFilename(RecordStore rs,String sFindMe)
     throws Exception
     {
+    	// 0.9.6 - now that a Hashtable mapping filenames to record indices
+    	// is maintained for the lifecycle of the midlet, can just do this.
+    	return (Integer)m_RecordIndicesKeyedByFilenames.get(sFindMe);
+    	
+    	/*
+    	=======================DISABLED 0.9.6================
         boolean keepUpdated = false;
         RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
         System.out.println("Got recEnum ok");
-
         while (recEnum.hasNextElement())
         {
             int recID = recEnum.nextRecordId();
@@ -365,8 +366,8 @@ public class VocabRecordStoreManager
                 return new Integer(recID);
             }
         }
-
         return null;
+        */
     }
 
     /*
@@ -393,6 +394,9 @@ public class VocabRecordStoreManager
         RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
         int recordID = rs.addRecord(byteArray,0,byteArray.length);
         rs.closeRecordStore();
+
+        // 0.9.6 - need to update the hashtable mapping filenames to rsids.
+        m_RecordIndicesKeyedByFilenames.put(sFilename,new Integer(recordID));
 
         // Display confirmation
         String sMsg = "New test " + sFilename + " created in recordstore with " +
@@ -421,6 +425,9 @@ public class VocabRecordStoreManager
 
         rs.deleteRecord(iRecordID);
         rs.closeRecordStore();
+        
+        // 0.9.6 - need to update the hashtable mapping filenames to rsids.
+        m_RecordIndicesKeyedByFilenames.remove(sFilename);
     }
 
     /**Appends the specified string to a test.*/
@@ -451,6 +458,9 @@ public class VocabRecordStoreManager
             {
                 System.out.println("Deleting " + sFilename);
                 rs.deleteRecord(recID);
+                
+                // 0.9.6 - need to update the hashtable mapping filenames to rsids.
+                m_RecordIndicesKeyedByFilenames.remove(sFilename);
             }
 
         }
