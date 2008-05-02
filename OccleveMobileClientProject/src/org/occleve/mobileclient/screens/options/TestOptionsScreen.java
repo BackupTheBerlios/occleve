@@ -30,7 +30,7 @@ import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class TestOptionsScreen extends Form
-implements CommandListener,ItemCommandListener,ItemStateListener
+implements CommandListener,ItemCommandListener ////,ItemStateListener
 {
     protected Test m_Test;
 
@@ -94,7 +94,7 @@ implements CommandListener,ItemCommandListener,ItemStateListener
         	new TextField("Restart if percentage drops under:","0",10,TextField.NUMERIC);
         append(m_RestartOnPercentageBelowTextField);
         
-        setItemStateListener(this);
+        //////setItemStateListener(this);
     }
 
     /**Implementation of CommandListener.*/
@@ -213,6 +213,9 @@ implements CommandListener,ItemCommandListener,ItemStateListener
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
+    /*
+    //// DISABLED MAY 1ST.... “FIRST QUESTION TEXT FIELD SHOULD BE AVAILABLE
+    //// IN RANDOM TEST MODE TOO.
     public void itemStateChanged(Item item)
     {
         ////System.out.println("Entering itemStateChanged....");
@@ -224,6 +227,7 @@ implements CommandListener,ItemCommandListener,ItemStateListener
             setFirstQuestionTextFieldVisibility(bSequential);
     	}
     }
+    */
 
    protected void setFirstQuestionTextFieldVisibility(boolean bVisible)
    {
