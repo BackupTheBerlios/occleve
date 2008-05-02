@@ -251,7 +251,7 @@ public class VocabRecordStoreManager
         rs.closeRecordStore();
     }
 
-    public void copyFileToRecordStore(String sFilename)
+    public void copyFileFromJarToRecordStore(String sFilename)
     throws Exception
     {
         // Read the file from the JAR's resources.

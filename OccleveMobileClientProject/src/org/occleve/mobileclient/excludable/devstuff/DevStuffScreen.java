@@ -184,7 +184,7 @@ implements CommandListener,Excludable,Runnable
             //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
         	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
 
-            mgr.copyFileToRecordStore(m_SelectedListOfTestsEntry.getFilename());
+            mgr.copyFileFromJarToRecordStore(m_SelectedListOfTestsEntry.getFilename());
         }
         else if (sSelectedPrompt.equals(PRINT_TO_FILE))
         {
