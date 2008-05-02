@@ -81,6 +81,7 @@ implements CommandListener,Excludable,Runnable
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
     protected final String BUILD_EUCCN_UNICODE_MAP = "Build EUC-CN to Unicode map";
+    protected final String COUNT_RS_RECORDS = "Count records in recordstore";
 
     protected Command m_BackCommand;
 
@@ -118,6 +119,7 @@ implements CommandListener,Excludable,Runnable
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
         append(BUILD_EUCCN_UNICODE_MAP,null);
+        append(COUNT_RS_RECORDS,null);
 
         m_BackCommand = new Command("Back",Command.ITEM,0);
         addCommand(m_BackCommand);
@@ -284,6 +286,15 @@ implements CommandListener,Excludable,Runnable
         {
             m_sThreadAction = BUILD_EUCCN_UNICODE_MAP;
             new Thread(this).start();
+        }
+        else if (sOption.equals(COUNT_RS_RECORDS))
+        {
+        	VocabRecordStoreManager rsMgr =
+        		OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        	int iRecordCount = rsMgr.getRecordCount();
+        	String sMsg = "Recordstore contains " + iRecordCount + " records";
+            Alert alert = new Alert(null,sMsg, null, null);
+            OccleveMobileMidlet.getInstance().displayAlert(alert,this);
         }
     }
 

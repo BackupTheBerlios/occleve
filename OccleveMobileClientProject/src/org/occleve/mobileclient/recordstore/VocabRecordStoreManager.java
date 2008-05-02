@@ -550,5 +550,14 @@ public class VocabRecordStoreManager
 
         rs.closeRecordStore();
     }
+    
+    /**0.9.6*/
+    public int getRecordCount() throws Exception
+    {
+        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        int iCount = rs.getNumRecords();
+        rs.closeRecordStore();
+        return iCount;    	
+    }
 }
 
