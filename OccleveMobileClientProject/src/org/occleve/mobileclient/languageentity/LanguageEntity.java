@@ -17,15 +17,13 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.languageentity;
 
 import com.exploringxml.xml.*;
-//import java.util.*;
 import org.occleve.mobileclient.*;
-/////import org.occleve.mobileclient.languageentity.chinese.*;
 
 /**Abstract base class for eg. Noun, ChineseVerb, ChineseAdjective, etc.*/
 public class LanguageEntity
@@ -60,12 +58,35 @@ public class LanguageEntity
     public static LanguageEntity make(Node entityNode,Node languageNode)
     throws Exception
     {
+    	// 0.9.6 - expanded this to instantiate all current subclasses of LanguageEntity correctly.
+    	// Before it would only instantiate CountableNoun - all other types were instantiated
+    	// as LanguageEntity.
         String sName = entityNode.name;
-        if (XML.isOpeningTag(sName,XML.CNOUN))
+        if (XML.isOpeningTag(sName,XML.ADJECTIVE))
+        {
+            return new Adjective(entityNode,languageNode.name);
+        }
+        else if (XML.isOpeningTag(sName,XML.CNOUN))
         {
         	// 0.9.5: fixed longstanding bug where language code was not being
         	// correctly got, as languageNode.getCharacters() was being mistakenly called.
             return new CountableNoun(entityNode,languageNode.name); ////.getCharacters());
+        }
+        else if (XML.isOpeningTag(sName,XML.PHRASE))
+        {
+            return new Phrase(entityNode,languageNode.name);
+        }
+        else if (XML.isOpeningTag(sName,XML.PNOUN))
+        {
+            return new ProperNoun(entityNode,languageNode.name);
+        }
+        else if (XML.isOpeningTag(sName,XML.UNOUN))
+        {
+            return new UncountableNoun(entityNode,languageNode.name);
+        }
+        else if (XML.isOpeningTag(sName,XML.VERB))
+        {
+            return new Verb(entityNode,languageNode.name);
         }
         else
         {
