@@ -61,7 +61,10 @@ implements CommandListener
         // Clear out the existing items in this form, if any.
         deleteAll();
 
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	// 0.9.6
+        //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        
         m_RecordIndicesKeyedByFilenames = mgr.getRecordIndicesKeyedByFilenames();
         Enumeration filenames = m_RecordIndicesKeyedByFilenames.keys();
                 
@@ -100,7 +103,11 @@ implements CommandListener
         	String sFilename = getString(iSelIndex);
         	Integer iRecordID =
         		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+            
             mgr.deleteTest(iRecordID.intValue(),sFilename);
             
             // Need to update the contents of this screen, now.
@@ -112,10 +119,13 @@ implements CommandListener
         }
         else if (c==m_DetailsCommand)
         {
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         	String sFilename = getString(iSelIndex);
         	Integer iRecordID =
         		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
             byte[] recordData = mgr.getRecordBytes(iRecordID.intValue());
             
             String sFileInfo = "Size = " + recordData.length;

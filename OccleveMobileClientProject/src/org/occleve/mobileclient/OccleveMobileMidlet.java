@@ -27,6 +27,7 @@ import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.*;
 
+import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
@@ -52,9 +53,12 @@ implements CommandListener,Runnable
     //protected Integer m_iRecordStoreIDCache;
     //protected String m_sLocalFilesystemURLCache;
 
+    /**Added 0.9.6*/
+    protected VocabRecordStoreManager m_VocabRecordStoreManager;
+    
 	public OccleveMobileMidlet()
 	{
-            m_SingleInstance = this;
+        m_SingleInstance = this;
 
 		try
 		{
@@ -63,14 +67,14 @@ implements CommandListener,Runnable
 		catch (Exception e)
 		{
 			System.err.println(e);
-                        e.printStackTrace();
-                        Display disp = Display.getDisplay(this);
-                        ErrorForm ef = new ErrorForm(e);
+            e.printStackTrace();
+            Display disp = Display.getDisplay(this);
+            ErrorForm ef = new ErrorForm(e);
 
-                        // NB. Sony-E K300 minimizes app if you try to
-                        // call Display.setCurrent(); here.
-                        m_CurrentForm = ef;
-                }
+            // NB. Sony-E K300 minimizes app if you try to
+            // call Display.setCurrent(); here.
+            m_CurrentForm = ef;
+	    }
 	}
 
 	private void OccleveMobileMidlet_Inner() throws Exception
@@ -96,172 +100,186 @@ implements CommandListener,Runnable
 
 	public void startApp()
 	{
-            Display.getDisplay(this).setCurrent(m_CurrentForm);
+        Display.getDisplay(this).setCurrent(m_CurrentForm);
 	}
 
-        public Displayable getCurrentDisplayable()
-        {
-            return Display.getDisplay(this).getCurrent();
-        }
+    public Displayable getCurrentDisplayable()
+    {
+        return Display.getDisplay(this).getCurrent();
+    }
 
-        public void setCurrentForm(Displayable form)
-        {
-            m_CurrentForm = form;
-            Display.getDisplay(this).setCurrent(form);
-        }
+    public void setCurrentForm(Displayable form)
+    {
+        m_CurrentForm = form;
+        Display.getDisplay(this).setCurrent(form);
+    }
 
-        public void displayAlert(Alert alert,Displayable nextScreen)
-        {
-            Display.getDisplay(this).setCurrent(alert,nextScreen);
-        }
+	public void displayAlert(Alert alert,Displayable nextScreen)
+	{
+	    Display.getDisplay(this).setCurrent(alert,nextScreen);
+	}
 
-        public void displayAlertThenFileChooser(Alert alert)
-        {
-            Display.getDisplay(this).setCurrent(alert,m_FileChooserForm);
-        }
+    public void displayAlertThenFileChooser(Alert alert)
+    {
+        Display.getDisplay(this).setCurrent(alert,m_FileChooserForm);
+    }
 
 	public void pauseApp() {}
 
 	public void destroyApp(boolean unconditional) {}
 
-        /**Implementation of CommandListener.*/
-        public void commandAction(Command c, Displayable s)
+    /**Implementation of CommandListener.*/
+    public void commandAction(Command c, Displayable s)
+    {
+        System.out.println("Entering commandAction(Command,Displayable)");
+
+        if (c.getCommandType() == Command.EXIT)
+            notifyDestroyed();
+        else if (c.getCommandType() == Command.BACK)
         {
-            System.out.println("Entering commandAction(Command,Displayable)");
-
-            if (c.getCommandType() == Command.EXIT)
-                notifyDestroyed();
-            else if (c.getCommandType() == Command.BACK)
-            {
-                displayFileChooser();
-            }
-            else
-            {
-                onError("Unknown command type in OccleveMobileMidlet.commandAction");
-            }
+            displayFileChooser();
         }
-
-        public void displayFileChooser()
+        else
         {
-            displayFileChooser(false);
+            onError("Unknown command type in OccleveMobileMidlet.commandAction");
         }
+    }
 
-        public void displayFileChooser(boolean bRefreshListOfFiles)
-        {
-            if (bRefreshListOfFiles)
-            {
-                try
-                {
-                    m_FileChooserForm.populateWithFilenames();
-                }
-                catch (Exception e) {onError(e);}
-            }
+    public void displayFileChooser()
+    {
+        displayFileChooser(false);
+    }
 
-            setCurrentForm(m_FileChooserForm);
-        }
-
-        public void repopulateFileChooser() throws Exception
-        {
-            m_FileChooserForm.populateWithFilenames();
-        }
-
-        public void displayTestOptions(Test theTest) throws Exception
-        {
-        	m_FileChooserForm.displayTestOptions(theTest);
-        }
-        
-        public void onError(Exception e)
-        {
-            onError(e.toString());
-            e.printStackTrace();
-        }
-
-        /*Helper method for other parts of the software to display an error.*/
-        public void onError(String sError)
-        {
-            ErrorForm ef = new ErrorForm(sError);
-            setCurrentForm(ef);
-        }
-
-        public void onUnknownCommand(Class c)
-        {
-            String sClassname = c.getName();
-            String sMsg = "Unknown Command in " + sClassname + ".commandAction";
-            ErrorForm ef = new ErrorForm(sMsg);
-            setCurrentForm(ef);
-        }
-
-        public void displayTest(ListOfTestsEntry entry)
-        throws Exception
-        {
-            Alert alt = new Alert(null, "Loading " + entry.getFilename(), null, null);
-            alt.setTimeout(Alert.FOREVER);
-            StaticHelpers.safeAddGaugeToAlert(alt);
-            Display.getDisplay(this).setCurrent(alt);
-
-            m_EntryCache = entry;
-            m_ProgressAlertCache = alt;
-            //m_sFilenameCache = sFilename;
-            //m_iRecordStoreIDCache = iRecordStoreID;
-            //m_sLocalFilesystemURLCache = sLocalFilesystemURL;
-            new Thread(this).start();
-        }
-
-        public void run()
+    public void displayFileChooser(boolean bRefreshListOfFiles)
+    {
+        if (bRefreshListOfFiles)
         {
             try
             {
-                displayTest_Thread(m_EntryCache,m_ProgressAlertCache);
+                m_FileChooserForm.populateWithFilenames();
             }
             catch (Exception e) {onError(e);}
         }
 
-        private void displayTest_Thread(ListOfTestsEntry entry,Alert progressAlert)
-        throws Exception
+        setCurrentForm(m_FileChooserForm);
+    }
+
+    public void repopulateFileChooser() throws Exception
+    {
+        m_FileChooserForm.populateWithFilenames();
+    }
+
+    public void displayTestOptions(Test theTest) throws Exception
+    {
+    	m_FileChooserForm.displayTestOptions(theTest);
+    }
+    
+    public void onError(Exception e)
+    {
+        onError(e.toString());
+        e.printStackTrace();
+    }
+
+    /*Helper method for other parts of the software to display an error.*/
+    public void onError(String sError)
+    {
+        ErrorForm ef = new ErrorForm(sError);
+        setCurrentForm(ef);
+    }
+
+    public void onUnknownCommand(Class c)
+    {
+        String sClassname = c.getName();
+        String sMsg = "Unknown Command in " + sClassname + ".commandAction";
+        ErrorForm ef = new ErrorForm(sMsg);
+        setCurrentForm(ef);
+    }
+
+    public void displayTest(ListOfTestsEntry entry)
+    throws Exception
+    {
+        Alert alt = new Alert(null, "Loading " + entry.getFilename(), null, null);
+        alt.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(alt);
+        Display.getDisplay(this).setCurrent(alt);
+
+        m_EntryCache = entry;
+        m_ProgressAlertCache = alt;
+        //m_sFilenameCache = sFilename;
+        //m_iRecordStoreIDCache = iRecordStoreID;
+        //m_sLocalFilesystemURLCache = sLocalFilesystemURL;
+        new Thread(this).start();
+    }
+
+    public void run()
+    {
+        try
         {
-            Test theTest = new Test(entry,progressAlert);
+            displayTest_Thread(m_EntryCache,m_ProgressAlertCache);
+        }
+        catch (Exception e) {onError(e);}
+    }
 
-            // Strip .txt from screen heading.
-            String sHeading = entry.getFilename();
-            if (sHeading.endsWith(".txt"))
-            {
-                sHeading = sHeading.substring(0, sHeading.length() - 4);
-            }
+    private void displayTest_Thread(ListOfTestsEntry entry,Alert progressAlert)
+    throws Exception
+    {
+        Test theTest = new Test(entry,progressAlert);
 
-            Display disp = Display.getDisplay(this);
-            VocabViewerScreen viewerForm = new VocabViewerScreen(sHeading,theTest);
-            setCurrentForm(viewerForm);
+        // Strip .txt from screen heading.
+        String sHeading = entry.getFilename();
+        if (sHeading.endsWith(".txt"))
+        {
+            sHeading = sHeading.substring(0, sHeading.length() - 4);
         }
 
-        public void tryToPlaceinBackground()
+        Display disp = Display.getDisplay(this);
+        VocabViewerScreen viewerForm = new VocabViewerScreen(sHeading,theTest);
+        setCurrentForm(viewerForm);
+    }
+
+    public void tryToPlaceinBackground()
+    {
+        // DOESNT WORK ---- notifyPaused();
+
+        try
         {
-            // DOESNT WORK ---- notifyPaused();
+            Manager.playTone(69, 200, 100);
+        } catch (Exception e) {onError(e);}
 
-            try
-            {
-                Manager.playTone(69, 200, 100);
-            } catch (Exception e) {onError(e);}
+        // Setting current Displayable to null will only have the
+        // desired effect on SOME platforms.
+        Display.getDisplay(this).setCurrent(null);
+    }
 
-            // Setting current Displayable to null will only have the
-            // desired effect on SOME platforms.
-            Display.getDisplay(this).setCurrent(null);
-        }
-
-        public void beep()
+    public void beep()
+    {
+        try
         {
-            try
-            {
-                Manager.playTone(69, 200, 100);
-            }
-            catch (Exception e) {onError(e);}
+            Manager.playTone(69, 200, 100);
         }
-        
-        public boolean isLocalFilesystemAvailable()
-        {
-            String sPropName = "microedition.io.file.FileConnection.version";
-            String sResult = System.getProperty(sPropName);
-            return (sResult!=null);
-        }
+        catch (Exception e) {onError(e);}
+    }
+    
+    public boolean isLocalFilesystemAvailable()
+    {
+        String sPropName = "microedition.io.file.FileConnection.version";
+        String sResult = System.getProperty(sPropName);
+        return (sResult!=null);
+    }
 
+    // 0.9.6 - for speed, one global copy of this is kept here.
+    public VocabRecordStoreManager getVocabRecordStoreManager()
+    {
+    	if (m_VocabRecordStoreManager==null)
+    	{
+    		try
+    		{
+    			m_VocabRecordStoreManager = new VocabRecordStoreManager();
+    		}
+    		catch (Exception e) {onError(e);}
+    	}
+    	
+    	return m_VocabRecordStoreManager;
+    }
 }
 

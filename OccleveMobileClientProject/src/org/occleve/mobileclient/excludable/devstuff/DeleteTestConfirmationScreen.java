@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -75,7 +75,10 @@ implements CommandListener
     {
         try
         {
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        	
             mgr.deleteTest(m_iRecordIDToDelete,m_sFilenameToDelete);
             OccleveMobileMidlet.getInstance().repopulateFileChooser();
 

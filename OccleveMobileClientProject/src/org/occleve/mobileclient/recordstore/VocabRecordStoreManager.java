@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.5
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.recordstore;
@@ -46,22 +46,33 @@ public class VocabRecordStoreManager
 
     private boolean m_bUseJavaUTF = true;
 
+    // 0.9.6 - introduced this member so that it only needs to be built once for a given
+    // recordstore. Should speed up test, image, and MP3 loading a lot.
+    private Hashtable m_RecordIndicesKeyedByFilenames;
+    
     // 0.9.5: Commented out these - they could only cause trouble!
     //////public void useJavaUTF() {m_bUseJavaUTF = true;}
     //////public void useStandardUTF() {m_bUseJavaUTF = false;}
 
-    public VocabRecordStoreManager()
+    public VocabRecordStoreManager() throws Exception
     {
+    	m_RecordIndicesKeyedByFilenames = buildRecordIndicesKeyedByFilenames();
     }
 
     /**Returns a Hashtable with the record indices keyed by the filenames.*/
     public Hashtable getRecordIndicesKeyedByFilenames() throws Exception
     {
+    	return m_RecordIndicesKeyedByFilenames;
+    }
+
+    /**Builds a Hashtable with the record indices keyed by the filenames.*/
+    private Hashtable buildRecordIndicesKeyedByFilenames() throws Exception
+    {
         RecordStore rs = null;
         try
         {
             rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
-            Hashtable ht = getRecordIndicesKeyedByFilenames_Inner(rs);
+            Hashtable ht = buildRecordIndicesKeyedByFilenames_Inner(rs);
             rs.closeRecordStore();
             return ht;
         }
@@ -72,7 +83,7 @@ public class VocabRecordStoreManager
         }
     }
 
-    private Hashtable getRecordIndicesKeyedByFilenames_Inner(RecordStore rs)
+    private Hashtable buildRecordIndicesKeyedByFilenames_Inner(RecordStore rs)
     throws Exception
     {
         boolean keepUpdated = false;
@@ -82,7 +93,15 @@ public class VocabRecordStoreManager
         while (recEnum.hasNextElement())
         {
             int recID = recEnum.nextRecordId();
+
+            // 0.9.6 - switched to using RecordEnumeration.nextRecord() to get the
+            // record data. This presumably should be faster.
+            // It's necessary to step back first using previousRecordId().
+            ////////recEnum.previousRecordId();
+            ////////byte[] recData = recEnum.nextRecord();
+            
             byte[] recData = rs.getRecord(recID);
+            
             String sFilename = getFilenameFromRecordData(recData);
             if (htable.get(sFilename) != null)
             {

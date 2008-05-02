@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.screens;
@@ -82,7 +82,9 @@ public class ListenItem extends StringItem implements Runnable
             OccleveMobileMidlet.getInstance().getCurrentDisplayable();
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         Integer rsid = mgr.findRecordByFilename(m_sAudioClipFilename);
         System.out.println("rsid = " + rsid);
 

@@ -391,7 +391,9 @@ implements CommandListener,Runnable
     protected void redownloadQuiz(ListOfTestsEntry entry)
     throws Exception
     {
-        VocabRecordStoreManager rsMgr = new VocabRecordStoreManager();
+		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		VocabRecordStoreManager rsMgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         String sTestSource = rsMgr.getTestContents(entry);
 
         boolean bIsWikiversityQuiz = (sTestSource.indexOf("<quiz") != -1);

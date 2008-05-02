@@ -162,7 +162,10 @@ public class ListOfTests
     Now get the list of tests that are in the recordstore.*/
     private void ListOfTests_LoadFromRS(Alert progressAlert) throws Exception
     {
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	// 0.9.6 - this is the call which will actually instantiate the
+    	// VocabRecordStoreManager.
+		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         Hashtable rsIndex = mgr.getRecordIndicesKeyedByFilenames();
         System.out.println("Size of rsIndex = " + rsIndex.size());
 

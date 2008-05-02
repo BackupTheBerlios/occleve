@@ -180,7 +180,10 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sSelectedPrompt.equals(COPY_TO_RECORDSTORE))
         {
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
             mgr.copyFileToRecordStore(m_SelectedListOfTestsEntry.getFilename());
         }
         else if (sSelectedPrompt.equals(PRINT_TO_FILE))
@@ -200,7 +203,10 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sOption.equals(DELETE_ALL_XML))
         {
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
             mgr.deleteAllXmlPrefixedFiles();
 
             boolean bRefreshList = true;
@@ -287,7 +293,11 @@ implements CommandListener,Excludable,Runnable
         if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
         {
             int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
             sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
         }
         else
@@ -325,7 +335,10 @@ implements CommandListener,Excludable,Runnable
 
     protected void createBackupOfSelectedFile() throws Exception
     {
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	// 0.9.6
+        //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         String sTestContents;
         if (m_SelectedListOfTestsEntry.getRecordStoreID() != null)
         {
@@ -473,8 +486,10 @@ implements CommandListener,Excludable,Runnable
             }
             else if (m_sThreadAction.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
             {
-                VocabRecordStoreManager mgr =
-                        new VocabRecordStoreManager();
+            	// 0.9.6
+                //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+            	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+                
                 mgr.saveAllTestsToFilesystem();
             }
             else if (m_sThreadAction.equals(BUILD_EUCCN_UNICODE_MAP))
@@ -528,8 +543,11 @@ implements CommandListener,Excludable,Runnable
         String sTestContents;
         if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
         {
-            int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	// 0.9.6
+            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
+        	int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
             sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
         }
         else
@@ -561,8 +579,11 @@ implements CommandListener,Excludable,Runnable
         OccleveMobileMidlet.getInstance().setCurrentForm(vwr);
         */
 
+    	// 0.9.6
+        //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
        String sNameOfXmlFile = "XML " + m_SelectedListOfTestsEntry.getFilename();
-       VocabRecordStoreManager mgr = new VocabRecordStoreManager();
        mgr.createFileInRecordStore(sNameOfXmlFile,sXML,true);
     }
 }

@@ -434,7 +434,8 @@ implements CommandListener,Runnable
         else
         {
         	System.out.println("Creating file in RecordStore");
-        	VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
             mgr.createFileInRecordStore(m_sPageNameToDownload, sQuizData,
                                         false);
         	System.out.println("Created file in RecordStore");

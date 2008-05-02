@@ -262,7 +262,9 @@ implements CommandListener,Runnable
             OccleveMobileMidlet.getInstance().getCurrentDisplayable();
         OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         Integer rsid = mgr.findRecordByFilename(sImageFilename);
         System.out.println("rsid = " + rsid);
 

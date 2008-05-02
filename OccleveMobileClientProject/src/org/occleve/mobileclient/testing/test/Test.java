@@ -265,7 +265,8 @@ public class Test
         }
         else
         {
-            VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
             sTestSource = mgr.getTestContents(entry);
         }
 

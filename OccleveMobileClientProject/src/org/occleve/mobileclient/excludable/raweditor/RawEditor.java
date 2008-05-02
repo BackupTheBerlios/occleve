@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.6
 */
 
 package org.occleve.mobileclient.excludable.raweditor;
@@ -94,7 +94,9 @@ implements CommandListener,Excludable,ItemCommandListener
         m_InsertersScreen = new RawEditorInserters(this);
         m_ConvertersScreen = new RawEditorConverters(this);
 
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+        // 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
         String sContents = mgr.getTestContents(m_Entry);
         m_StringChunks = breakContentsIntoChunks(sContents);
 
@@ -292,9 +294,11 @@ implements CommandListener,Excludable,ItemCommandListener
          String sFilename = fi.getFilename();
          int iRecordID = fi.getRecordStoreID().intValue();
 
+		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
          // Append the current chunk to the selected test.
          String sCurrentChunk = getString();
-         VocabRecordStoreManager mgr = new VocabRecordStoreManager();
          ListOfTestsEntry entry = new ListOfTestsEntry(sFilename,new Integer(iRecordID),null);
          mgr.appendToTest(entry,sCurrentChunk);
 
@@ -360,7 +364,8 @@ implements CommandListener,Excludable,ItemCommandListener
             }
         }
 
-        VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
         mgr.setTestContents(m_Entry,sb.toString());
     }
 
