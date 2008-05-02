@@ -154,11 +154,20 @@ public abstract class TestController implements CommandListener
     {
         int percentage = m_TestResults.getAccuracyPercentage();
         String sTime = StaticHelpers.getDisplayableTime();
+        
+        String sCorrectResponsesOutOfTotal =
+            "(" + m_TestResults.getCorrectResponseCount() +
+            "/" + m_TestResults.getTotalResponseCount() + ")";
+
+        // 0.9.6 - also display the current question index versus the last question index.
+        String sCurrentQuestionVersusLast =
+        	"(Q" + (m_iCurrentQAIndex+1) + "/" + (m_iLastQuestionIndex+1) + ")";
 
         String sAccuracyDisplay =
                 percentage + "% " +
-                "(" + m_TestResults.getCorrectResponseCount() +
-                "/" + m_TestResults.getTotalResponseCount() + ") " + sTime;
+                sCorrectResponsesOutOfTotal + " " +
+                sCurrentQuestionVersusLast + " " +
+        		sTime;
         return sAccuracyDisplay;
     }
 
