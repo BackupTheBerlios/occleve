@@ -94,7 +94,8 @@ public class RandomTestController extends TestController
     /**Returns null if all questions have been answered.*/
     protected Integer findRandomUnansweredQuestionIndex()
     {
-        int iRandomQIndex = 0;
+    	// First, repeatedly try to find a random unanswered question.
+    	int iRandomQIndex = 0;
         for (int iTry=0; iTry<10; iTry++)
         {
             iRandomQIndex = randomQuestionIndex();
@@ -106,6 +107,10 @@ public class RandomTestController extends TestController
             }
         }
 
+        // If that fails, find the next question after the random question index
+        // that is unanswered.
+        /*
+        ///// 0.9.6 - disabled this
         int iNoOfQuestions = m_Test.getQACount();
         int i;
         for (i = iRandomQIndex + 1; i < iNoOfQuestions; i++)
@@ -113,8 +118,10 @@ public class RandomTestController extends TestController
             Integer ci = new Integer(i);
             if (m_htQuestionsAsked.containsKey(ci) == false)return ci;
         }
+        */
 
-        for (i = 0; i < iRandomQIndex; i++)
+        // If that fails, find the first unanswered question in the test.
+        for (int i = m_iFirstQuestionIndex; i <= m_iLastQuestionIndex; i++)
         {
             Integer ci = new Integer(i);
             if (m_htQuestionsAsked.containsKey(ci) == false)return ci;
@@ -125,7 +132,11 @@ public class RandomTestController extends TestController
 
     protected int randomQuestionIndex()
     {
-        int iNoOfQuestions = m_Test.getQACount();
+    	// 0.9.6 - changed to support question range entered on the test
+    	// options screen.
+    	
+    	//// 0.9.6.....int iNoOfQuestions = m_Test.getQACount();
+    	int iNoOfQuestions = m_iLastQuestionIndex - m_iFirstQuestionIndex + 1;
 
         int fpiiNoOfQuestions =
             MicroFloat.intToFloat(iNoOfQuestions);
@@ -138,11 +149,12 @@ public class RandomTestController extends TestController
         long absRandomLong = Math.abs( m_Random.nextLong() );
         int fpiiAbsRandomLong = MicroFloat.longToFloat(absRandomLong);
 
-        int fpiiRandomIndex = MicroFloat.mul(fpiiFraction,fpiiAbsRandomLong);
+        int fpiiRandomOffset = MicroFloat.mul(fpiiFraction,fpiiAbsRandomLong);
 
-        long lRandomIndex = MicroFloat.longValue(fpiiRandomIndex);
-        int iRandomIndex = (int)lRandomIndex;
-        return iRandomIndex;
+        long lRandomOffset = MicroFloat.longValue(fpiiRandomOffset);
+        int iRandomOffset = (int)lRandomOffset;
+
+        return m_iFirstQuestionIndex + iRandomOffset;
     }
     
     /**Implementation of TestController.getNumberOfQuestionsAsked()*/
