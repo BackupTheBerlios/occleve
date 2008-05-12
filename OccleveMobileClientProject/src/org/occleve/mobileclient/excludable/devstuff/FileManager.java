@@ -27,6 +27,10 @@ import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
+import org.occleve.mobileclient.testing.*;
+
+import com.exploringxml.xml.Node;
+import com.exploringxml.xml.Xparse;
 
 /**New in 0.9.6 - a utility class which lists ALL files stored in the recordstore
 (quizzes, GIFs, MP3s,....)*/
@@ -119,23 +123,52 @@ implements CommandListener
         }
         else if (c==m_DetailsCommand)
         {
-        	// 0.9.6
-            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
         	String sFilename = getString(iSelIndex);
-        	Integer iRecordID =
-        		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
-            byte[] recordData = mgr.getRecordBytes(iRecordID.intValue());
-            
-            String sFileInfo = "Size = " + recordData.length;
-            Alert infoAlert = new Alert(sFilename,sFileInfo,null,AlertType.INFO);
-            OccleveMobileMidlet.getInstance().displayAlert(infoAlert,this);
+        	showFileDetails(sFilename);
         }
         else
         {
         	OccleveMobileMidlet.getInstance().onError("Unknown Command in FileManager");
         }
+    }
+
+    /**Show useful information about the selected file.*/
+    private void showFileDetails(String sFilename) throws Exception
+    {
+    	System.out.println("Filename = " + sFilename);
+    	// 0.9.6....VocabRecordStoreManager mgr = new VocabRecordStoreManager();
+    	VocabRecordStoreManager mgr =
+    		OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+
+    	Integer iRecordID =
+    		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
+        byte[] recordData = mgr.getRecordBytes(iRecordID.intValue());
+
+        String sFileInfo =
+        	"Size = " + recordData.length + Constants.NEWLINE +
+        	"Recordstore ID = " + iRecordID.intValue();
+
+        if ((sFilename.endsWith(".gif")==false) && (sFilename.endsWith(".mp3")==false))
+        {
+	        ListOfTestsEntry entry = new ListOfTestsEntry(sFilename,iRecordID,null);
+	        String sTestSource = mgr.getTestContents(entry);
+	
+	        long lFreeMemBefore = Runtime.getRuntime().freeMemory();
+			System.out.println("Free memory before parsing = " + lFreeMemBefore);
+	        
+	        Xparse parser = new Xparse();
+	        Node root = parser.parse(sTestSource);
+	
+	        long lFreeMemAfter = Runtime.getRuntime().freeMemory();
+	        System.out.println("Free memory after parsing = " + lFreeMemAfter);
+	        
+	        long lMemUsedByParsing = lFreeMemBefore - lFreeMemAfter;
+	        sFileInfo +=
+	        	Constants.NEWLINE + "Memory used by parsing XML = " + lMemUsedByParsing;
+        }
+                
+        Alert infoAlert = new Alert(sFilename,sFileInfo,null,AlertType.INFO);
+        OccleveMobileMidlet.getInstance().displayAlert(infoAlert,this);    	
     }
 }
 
