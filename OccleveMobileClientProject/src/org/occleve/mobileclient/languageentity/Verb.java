@@ -44,7 +44,10 @@ public class Verb extends LanguageEntity
 
         if (m_sLanguageCode.toLowerCase().equals("en"))
         {
-            sb.append("to ");
+        	if (m_sRomanForm.toLowerCase().startsWith("to ")==false)
+        	{
+                sb.append("to ");        		
+        	}
         }
 
         sb.append(m_sRomanForm);
