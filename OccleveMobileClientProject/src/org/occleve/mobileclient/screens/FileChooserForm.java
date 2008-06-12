@@ -109,9 +109,7 @@ implements CommandListener,Runnable
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
             //m_PauseCommand = new Command("Pause", Command.ITEM, 2);
-
-            // 13th June 2008 - disable Dev Stuff command for release 0.9.6
-            ////m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
+            m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
 
             m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
             
@@ -134,7 +132,10 @@ implements CommandListener,Runnable
             addCommand(m_RedownloadCommand);
             addCommand(m_SearchAllTestsCommand);
             ///addCommand(m_PauseCommand);
-            addCommand(m_DevStuffScreenCommand);
+
+            // 13th June 2008 - disable Dev Stuff command for release 0.9.6
+            /////////addCommand(m_DevStuffScreenCommand);
+
             addCommand(m_ShowLicenseCommand);
 
             // Disabled in 0.9.6 - see earlier comment
