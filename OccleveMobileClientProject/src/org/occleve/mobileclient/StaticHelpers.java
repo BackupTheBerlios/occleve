@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient;
@@ -315,5 +315,29 @@ public class StaticHelpers
 	    return sHexString;
     }
 
+    public static Image loadOccleveLogo() throws Exception
+    {
+        // Reading the file from the OccleveMobileClient jar,
+        // therefore call getResourceAsStream() on the midlet class
+        // in order to ensure that the correct JAR is read from.
+        Class c = OccleveMobileMidlet.getInstance().getClass();
+        InputStream is =
+        	c.getResourceAsStream("/monopocket_thumbnail.jpg");
+        if (is == null)
+        {
+            throw new Exception("Can't find Occleve logo file in JAR");
+        }
+
+        DataInputStream dis = new DataInputStream(is);
+
+        byte[] imageData = new byte[3047];
+        dis.readFully(imageData);
+             
+		dis.close();
+		is.close();
+
+		Image image = Image.createImage(imageData, 0, imageData.length);
+		return image;
+    }    
 }
 

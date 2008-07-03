@@ -160,7 +160,8 @@ implements CommandListener,Runnable
 
     public void populateWithFilenames() throws Exception
     {
-        Alert alt = new Alert(null, "Loading list of quizzes...", null, null);
+    	Image logoImage = StaticHelpers.loadOccleveLogo();
+    	Alert alt = new Alert(null, "Loading list of quizzes...", logoImage, null);
         alt.setTimeout(Alert.FOREVER);
         StaticHelpers.safeAddGaugeToAlert(alt);
         OccleveMobileMidlet.getInstance().setCurrentForm(alt);
