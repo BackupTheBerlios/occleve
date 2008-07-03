@@ -135,7 +135,17 @@ public class VocabRecordStoreManager
         return recData;
     }
 
-    private String getFilenameFromRecordData(byte[] recData)
+    /**0.9.7 - sets the bytes in the specified record, without writing a filename
+    first. Use with caution.*/
+    public void setRawRecordBytes(int iRecordID,byte[] rawBytes)
+    throws Exception
+    {
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
+        rs.setRecord(iRecordID,rawBytes,0,rawBytes.length);
+        rs.closeRecordStore();
+    }
+    
+    public static String getFilenameFromRecordData(byte[] recData)
     throws Exception
     {
         String sFilename;
@@ -497,7 +507,7 @@ public class VocabRecordStoreManager
     /**Reads a string from the ByteArrayInputStream in *standard* UTF format.
     Either stops at the first newline, or at the end of the data, depending
     on the flag supplied.*/
-    private String readStandardUTF(InputStreamReader isr,boolean bStopAtNewline)
+    private static String readStandardUTF(InputStreamReader isr,boolean bStopAtNewline)
     throws Exception
     {
         int FIRST_NEWLINE_CHAR;

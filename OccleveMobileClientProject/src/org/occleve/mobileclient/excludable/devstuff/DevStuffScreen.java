@@ -83,6 +83,8 @@ implements CommandListener,Excludable,Runnable
     protected final String CREATE_NEW_TEST = "Create new test";
     protected final String BUILD_EUCCN_UNICODE_MAP = "Build EUC-CN to Unicode map";
     protected final String COUNT_RS_RECORDS = "Count records in recordstore";
+    //protected final String MOVE_MEDIA_FILES_TO_MEDIA_RS = "Move media files to media RS";
+    //protected final String FIX_FOULED_MEDIA_FILES = "Fix fouled media files";
 
     protected Command m_BackCommand;
 
@@ -122,7 +124,9 @@ implements CommandListener,Excludable,Runnable
         append(CREATE_NEW_TEST,null);
         append(BUILD_EUCCN_UNICODE_MAP,null);
         append(COUNT_RS_RECORDS,null);
-
+        //append(MOVE_MEDIA_FILES_TO_MEDIA_RS,null);
+        //append(FIX_FOULED_MEDIA_FILES,null);
+        
         m_BackCommand = new Command("Back",Command.ITEM,0);
         addCommand(m_BackCommand);
         setCommandListener(this);
@@ -172,7 +176,7 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sSelectedPrompt.equals(COUNT_NEWLINES))
         {
-            countNewlinesInSelectedFile();
+            countNewlinesInSelectedQuiz();
         }
         else if (sSelectedPrompt.equals(CREATE_BACKUP))
         {
@@ -296,23 +300,128 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sOption.equals(COUNT_RS_RECORDS))
         {
-        	VocabRecordStoreManager quizMgr =
-        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
-        	int iQuizRecordCount = quizMgr.getRecordCount();
-
-        	VocabRecordStoreManager mediaMgr =
-        		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
-        	int iMediaRecordCount = mediaMgr.getRecordCount();
-
-        	String sMsg =
-        		"Quiz recordstore contains " + iQuizRecordCount + " records. " +
-        		"Media recordstore contains " + iMediaRecordCount + " records.";
-            Alert alert = new Alert(null,sMsg, null, null);
-            OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        	countRecordsInRecordStores();
         }
+        
+        /*
+        else if (sOption.equals(MOVE_MEDIA_FILES_TO_MEDIA_RS))
+        {
+        	moveMediaFilesFromQuizRsToMediaRs();
+        }
+        else if (sOption.equals(FIX_FOULED_MEDIA_FILES))
+        {
+        	fixFouledMediaFiles();
+        }
+        */
     }
 
-    protected void countNewlinesInSelectedFile() throws Exception
+    /**0.9.7 - migration function written primarily for my own use.
+    Moves any media files that are in the quiz recordstore to the new media recordstore.*/
+	protected void moveMediaFilesFromQuizRsToMediaRs() throws Exception
+	{
+    	VocabRecordStoreManager quizRsMgr =
+    		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
+
+    	VocabRecordStoreManager mediaRsMgr =
+    		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+
+        Hashtable recordIndicesKeyedByFilenames =
+        	quizRsMgr.getRecordIndicesKeyedByFilenames();
+        Enumeration filenames = recordIndicesKeyedByFilenames.keys();
+
+        Alert progress = new Alert(null,"Moving...",null,AlertType.INFO);
+        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+
+        int iFilesMoved = 0;
+
+        while (filenames.hasMoreElements())
+        {
+        	String sFilename = (String)filenames.nextElement();
+        	String sFilenameLower = sFilename.toLowerCase();
+        	
+            if ((sFilenameLower.endsWith(".gif")) || (sFilenameLower.endsWith(".mp3")))
+            {
+            	Integer iOriginalRSID =
+            		(Integer)recordIndicesKeyedByFilenames.get(sFilename);
+            	byte[] recordData = quizRsMgr.getRecordBytes(iOriginalRSID.intValue());
+            	
+            	// Sanity check: is it the correct filename?
+            	String sFilenameInData =
+            		VocabRecordStoreManager.getFilenameFromRecordData(recordData);
+            	
+            	if (sFilenameInData.equals(sFilename)==false)
+            	{
+            		String sErr =
+            			"Filenames don't match: " + sFilename + " vs " + sFilenameInData;
+                    Alert error = new Alert(null,sErr,null,AlertType.ERROR);
+                    OccleveMobileMidlet.getInstance().displayAlert(error,this);
+                    return;
+            	}
+            	
+            	iFilesMoved++;
+            	String sMsg =
+            		"Moving " + sFilename + "... " + iFilesMoved + " files moved. ";
+            	progress.setString(sMsg);
+            	
+            	// Copy the media file to the media recordstore.
+            	byte[] recordDataMinusFilename =
+            		quizRsMgr.getRecordContentsMinusFilename(iOriginalRSID.intValue());
+            	mediaRsMgr.createFileInRecordStore(sFilename,recordDataMinusFilename,false);
+            	
+            	// Now delete the media file from the quiz recordstore.
+            	quizRsMgr.deleteTest(iOriginalRSID.intValue(),sFilename);            	
+            }
+        }	
+        
+        progress.setString("Finished moving media files - moved " + iFilesMoved + " files");
+	}
+
+	/**0.9.7: Fix a foul-up caused by a previous bug in moveMediaFilesFromQuizRsToMediaRs()*/
+	protected void fixFouledMediaFiles() throws Exception
+	{
+    	VocabRecordStoreManager mediaRsMgr =
+    		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+
+        Hashtable recordIndicesKeyedByFilenames =
+        	mediaRsMgr.getRecordIndicesKeyedByFilenames();
+        Enumeration indicesEnum = recordIndicesKeyedByFilenames.elements();
+
+        Alert progress = new Alert(null,"Fixing...",null,AlertType.INFO);
+        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+
+        int iNumberFixed = 0;
+        while (indicesEnum.hasMoreElements())
+        {
+        	Integer rsIndex = (Integer)indicesEnum.nextElement();
+        	byte[] dataMinusFilename =
+        		mediaRsMgr.getRecordContentsMinusFilename(rsIndex.intValue());
+        	mediaRsMgr.setRawRecordBytes(rsIndex.intValue(),dataMinusFilename);
+        	
+        	progress.setString("Fixed file with index " + rsIndex.intValue());
+        	iNumberFixed++;
+        }		
+        
+        progress.setString("Finished fixing... fixed " + iNumberFixed + " files");
+	}
+	
+    protected void countRecordsInRecordStores() throws Exception
+    {
+    	VocabRecordStoreManager quizMgr =
+    		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
+    	int iQuizRecordCount = quizMgr.getRecordCount();
+
+    	VocabRecordStoreManager mediaMgr =
+    		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+    	int iMediaRecordCount = mediaMgr.getRecordCount();
+
+    	String sMsg =
+    		"Quiz recordstore contains " + iQuizRecordCount + " records. " +
+    		"Media recordstore contains " + iMediaRecordCount + " records.";
+        Alert alert = new Alert(null,sMsg, null, null);
+        OccleveMobileMidlet.getInstance().displayAlert(alert,this);    	
+    }
+    
+    protected void countNewlinesInSelectedQuiz() throws Exception
     {
         String sTestContents;
         if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
