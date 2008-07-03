@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.testing;
@@ -157,19 +157,20 @@ public abstract class TestController implements CommandListener
         int percentage = m_TestResults.getAccuracyPercentage();
         String sTime = StaticHelpers.getDisplayableTime();
         
-        String sCorrectResponsesOutOfTotal =
-            "(" + m_TestResults.getCorrectResponseCount() +
-            "/" + m_TestResults.getTotalResponseCount() + ")";
+        // 0.9.7 - disabled since made results line too cluttered.
+        // String sCorrectResponsesOutOfTotal =
+        //    "(" + m_TestResults.getCorrectResponseCount() +
+        //    "/" + m_TestResults.getTotalResponseCount() + ")";
 
         // 0.9.6 - also display the number of questions answered vs the total number to answer.
         int iTotalQuestionsToAnswer = m_iLastQuestionIndex - m_iFirstQuestionIndex + 1;
         String sCurrentQuestionVersusLast =
-        	"(Q" + getNumberOfQuestionsAsked() + "/" + iTotalQuestionsToAnswer + ")";
+        	"Q" + getNumberOfQuestionsAsked() + "/" + iTotalQuestionsToAnswer;
 
         String sAccuracyDisplay =
-                percentage + "% " +
-                sCorrectResponsesOutOfTotal + " " +
-                sCurrentQuestionVersusLast + " " +
+                percentage + "%  " +
+                /// sCorrectResponsesOutOfTotal + " " +
+                sCurrentQuestionVersusLast + "  " +
         		sTime;
         return sAccuracyDisplay;
     }
