@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -26,6 +26,7 @@ import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 
+/**Rather vaguely named class used for creating a new quiz.*/
 public class VocabRecordFilenameTextBox extends TextBox
 implements CommandListener
 {
@@ -51,11 +52,9 @@ implements CommandListener
         if (c==m_OKCommand)
         {
             try
-            {
-            	// 0.9.6
-                //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-            	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
+            {            	
+            	VocabRecordStoreManager mgr =
+            		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
                 mgr.createEmptyTest(getString());
                 OccleveMobileMidlet.getInstance().displayFileChooser(true);
             }

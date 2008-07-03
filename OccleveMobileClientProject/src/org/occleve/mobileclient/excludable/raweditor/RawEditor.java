@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.raweditor;
@@ -29,7 +29,8 @@ import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 
-/**Format of a record is the filename (as a UTF-encoded string), followed
+/**Class for editing the raw source of a quiz.
+Format of a record is the filename (as a UTF-encoded string), followed
 by the UTF-encoded file data.*/
 public class RawEditor extends TextBox
 implements CommandListener,Excludable,ItemCommandListener
@@ -94,8 +95,8 @@ implements CommandListener,Excludable,ItemCommandListener
         m_InsertersScreen = new RawEditorInserters(this);
         m_ConvertersScreen = new RawEditorConverters(this);
 
-        // 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+    	VocabRecordStoreManager mgr =
+    		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
         String sContents = mgr.getTestContents(m_Entry);
         m_StringChunks = breakContentsIntoChunks(sContents);
@@ -294,8 +295,8 @@ implements CommandListener,Excludable,ItemCommandListener
          String sFilename = fi.getFilename();
          int iRecordID = fi.getRecordStoreID().intValue();
 
-		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+		VocabRecordStoreManager mgr =
+			OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
          // Append the current chunk to the selected test.
          String sCurrentChunk = getString();
@@ -364,8 +365,8 @@ implements CommandListener,Excludable,ItemCommandListener
             }
         }
 
-		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+		VocabRecordStoreManager mgr =
+			OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
         mgr.setTestContents(m_Entry,sb.toString());
     }
 

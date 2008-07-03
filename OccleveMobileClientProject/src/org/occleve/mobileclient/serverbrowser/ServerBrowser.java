@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -434,9 +434,9 @@ implements CommandListener,Runnable
         else
         {
         	System.out.println("Creating file in RecordStore");
-    		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-    		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-            mgr.createFileInRecordStore(m_sPageNameToDownload, sQuizData,
+        	VocabRecordStoreManager mgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
+    		mgr.createFileInRecordStore(m_sPageNameToDownload, sQuizData,
                                         false);
         	System.out.println("Created file in RecordStore");
         }

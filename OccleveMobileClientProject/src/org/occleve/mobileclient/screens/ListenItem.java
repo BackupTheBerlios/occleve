@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens;
@@ -71,6 +71,8 @@ public class ListenItem extends StringItem implements Runnable
         }
     }
 
+    /**Loads the audio clip associated with this ListenItem, either from the recordstore,
+    or from the internet.*/
     private void loadAndPlayAudioClip() throws Exception
     {
         // Display a progress bar during the whole process
@@ -82,16 +84,17 @@ public class ListenItem extends StringItem implements Runnable
             OccleveMobileMidlet.getInstance().getCurrentDisplayable();
         OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
 
-		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        // 0.9.7 - put media files in a separate recordstore from the quizzes.
+		VocabRecordStoreManager mediaRsMgr =
+			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
 
-        Integer rsid = mgr.findRecordByFilename(m_sAudioClipFilename);
+        Integer rsid = mediaRsMgr.findRecordByFilename(m_sAudioClipFilename);
         System.out.println("rsid = " + rsid);
 
         if (rsid!=null)
         {
             // Load from recordstore.
-            m_ClipData = mgr.getRecordBytes(rsid.intValue());
+            m_ClipData = mediaRsMgr.getRecordBytes(rsid.intValue());
         }
         else
         {
@@ -105,7 +108,7 @@ public class ListenItem extends StringItem implements Runnable
                browser.loadAudioClipFromWiki(m_sAudioClipFilename,m_ProgressAlert);
 
             // Save the clip data into the recordstore for future use
-            mgr.createFileInRecordStore(m_sAudioClipFilename,m_ClipData,false);
+            mediaRsMgr.createFileInRecordStore(m_sAudioClipFilename,m_ClipData,false);
         }
 
         // Get a player for the clip.

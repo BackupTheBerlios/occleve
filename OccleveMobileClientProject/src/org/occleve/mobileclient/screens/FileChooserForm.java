@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens;
@@ -34,6 +34,8 @@ import org.occleve.mobileclient.screens.options.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
+/**The main screen of the application: lists the quizzes currently stored in the
+phone, and allows the user to select a quiz for testing or viewing.*/
 public class FileChooserForm extends List
 implements CommandListener,Runnable
 {
@@ -133,8 +135,7 @@ implements CommandListener,Runnable
             addCommand(m_SearchAllTestsCommand);
             ///addCommand(m_PauseCommand);
 
-            // 13th June 2008 - disable Dev Stuff command for release 0.9.6
-            /////////addCommand(m_DevStuffScreenCommand);
+            addCommand(m_DevStuffScreenCommand);
 
             addCommand(m_ShowLicenseCommand);
 
@@ -395,8 +396,8 @@ implements CommandListener,Runnable
     protected void redownloadQuiz(ListOfTestsEntry entry)
     throws Exception
     {
-		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-		VocabRecordStoreManager rsMgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+		VocabRecordStoreManager rsMgr =
+			OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
         String sTestSource = rsMgr.getTestContents(entry);
 

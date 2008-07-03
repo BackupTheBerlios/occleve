@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 OccleveMobileMidlet.java
 */
 
@@ -53,9 +53,12 @@ implements CommandListener,Runnable
     //protected Integer m_iRecordStoreIDCache;
     //protected String m_sLocalFilesystemURLCache;
 
-    /**Added 0.9.6*/
-    protected VocabRecordStoreManager m_VocabRecordStoreManager;
-    
+    /**0.9.6: The recordstore which stores quizzes.*/
+    protected VocabRecordStoreManager m_QuizRecordStoreManager;
+
+    /**0.9.7: The recordstore which stores audio clips, images, etc.*/
+    protected VocabRecordStoreManager m_MediaRecordStoreManager;
+
 	public OccleveMobileMidlet()
 	{
         m_SingleInstance = this;
@@ -267,19 +270,37 @@ implements CommandListener,Runnable
         return (sResult!=null);
     }
 
-    // 0.9.6 - for speed, one global copy of this is kept here.
-    public VocabRecordStoreManager getVocabRecordStoreManager()
+    /**0.9.6 - for speed, one global copy of this is kept here.*/
+    public VocabRecordStoreManager getQuizRecordStoreManager()
     {
-    	if (m_VocabRecordStoreManager==null)
+    	if (m_QuizRecordStoreManager==null)
     	{
     		try
     		{
-    			m_VocabRecordStoreManager = new VocabRecordStoreManager();
+    			m_QuizRecordStoreManager =
+    				new VocabRecordStoreManager(VocabRecordStoreManager.QUIZ_RECORDSTORE_NAME);
     		}
     		catch (Exception e) {onError(e);}
     	}
     	
-    	return m_VocabRecordStoreManager;
+    	return m_QuizRecordStoreManager;
     }
+    
+    /**Introduced 0.9.7 - now using separate recordstores for quizzes and media files.*/
+    public VocabRecordStoreManager getMediaRecordStoreManager()
+    {
+    	if (m_MediaRecordStoreManager==null)
+    	{
+    		try
+    		{
+    			m_MediaRecordStoreManager =
+    				new VocabRecordStoreManager(VocabRecordStoreManager.MEDIA_RECORDSTORE_NAME);
+    		}
+    		catch (Exception e) {onError(e);}
+    	}
+    	
+    	return m_MediaRecordStoreManager;
+    }
+
 }
 

@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -37,17 +37,21 @@ import com.exploringxml.xml.Xparse;
 public class FileManager extends List
 implements CommandListener
 {
+	/**0.9.7*/
+	protected VocabRecordStoreManager m_RecordStoreManager;
+	
     protected Command m_BackCommand;
     protected Command m_DeleteCommand;
     protected Command m_DetailsCommand;
 
     protected Hashtable m_RecordIndicesKeyedByFilenames;
 
-    public FileManager()
+    public FileManager(VocabRecordStoreManager rsMgr)
     throws Exception
     {
         super(Constants.PRODUCT_NAME,List.IMPLICIT);
 
+        m_RecordStoreManager = rsMgr;
         m_BackCommand = new Command("Back", Command.ITEM, 0);
         m_DeleteCommand = new Command("Delete", Command.ITEM, 1);
         m_DetailsCommand = new Command("Details", Command.ITEM, 1);
@@ -67,9 +71,10 @@ implements CommandListener
 
     	// 0.9.6
         //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+    	////VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
         
-        m_RecordIndicesKeyedByFilenames = mgr.getRecordIndicesKeyedByFilenames();
+        m_RecordIndicesKeyedByFilenames =
+        	m_RecordStoreManager.getRecordIndicesKeyedByFilenames();
         Enumeration filenames = m_RecordIndicesKeyedByFilenames.keys();
                 
         for (int i=0; i<m_RecordIndicesKeyedByFilenames.size(); i++)
@@ -108,11 +113,10 @@ implements CommandListener
         	Integer iRecordID =
         		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
 
-        	// 0.9.6
             //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        	/////VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
             
-            mgr.deleteTest(iRecordID.intValue(),sFilename);
+            m_RecordStoreManager.deleteTest(iRecordID.intValue(),sFilename);
             
             // Need to update the contents of this screen, now.
             // Simplest way to do this would be to call populate() again...
@@ -136,13 +140,13 @@ implements CommandListener
     private void showFileDetails(String sFilename) throws Exception
     {
     	System.out.println("Filename = " + sFilename);
-    	// 0.9.6....VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-    	VocabRecordStoreManager mgr =
-    		OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+    	
+    	///VocabRecordStoreManager mgr =
+    	///	OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
 
     	Integer iRecordID =
     		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
-        byte[] recordData = mgr.getRecordBytes(iRecordID.intValue());
+        byte[] recordData = m_RecordStoreManager.getRecordBytes(iRecordID.intValue());
 
         String sFileInfo =
         	"Size = " + recordData.length + Constants.NEWLINE +
@@ -151,7 +155,7 @@ implements CommandListener
         if ((sFilename.endsWith(".gif")==false) && (sFilename.endsWith(".mp3")==false))
         {
 	        ListOfTestsEntry entry = new ListOfTestsEntry(sFilename,iRecordID,null);
-	        String sTestSource = mgr.getTestContents(entry);
+	        String sTestSource = m_RecordStoreManager.getTestContents(entry);
 	
 	        long lFreeMemBefore = Runtime.getRuntime().freeMemory();
 			System.out.println("Free memory before parsing = " + lFreeMemBefore);

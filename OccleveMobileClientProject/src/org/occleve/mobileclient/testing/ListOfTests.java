@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.testing;
@@ -163,10 +163,11 @@ public class ListOfTests
     private void ListOfTests_LoadFromRS(Alert progressAlert) throws Exception
     {
     	// 0.9.6 - this is the call which will actually instantiate the
-    	// VocabRecordStoreManager.
-		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+    	// VocabRecordStoreManager for quizzes.
+		VocabRecordStoreManager quizRsMgr =
+			OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
-        Hashtable rsIndex = mgr.getRecordIndicesKeyedByFilenames();
+        Hashtable rsIndex = quizRsMgr.getRecordIndicesKeyedByFilenames();
         System.out.println("Size of rsIndex = " + rsIndex.size());
 
         Enumeration enumKeys = rsIndex.keys();

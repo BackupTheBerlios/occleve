@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -61,7 +61,8 @@ implements CommandListener,Excludable,Runnable
     protected final String COPY_TO_RECORDSTORE = "Copy to recordstore";
     protected final String PRINT_TO_FILE = "Print to file";
 
-    protected final String FILE_MANAGER = "File manager";
+    protected final String QUIZ_FILE_MANAGER = "Quiz file manager";
+    protected final String MEDIA_FILE_MANAGER = "Media file manager";
     protected final String SAVE_ALL_TESTS_TO_FILESYSTEM = "Save all tests in RecordStore to filesystem";
     ///protected final String JAVA_UTF_CONVERT_ALL_TO_XML = "JavaUTF: Convert all to XML";
     ///protected final String STD_UTF_CONVERT_ALL_TO_XML = "StdUTF: Convert all to XML";
@@ -99,7 +100,8 @@ implements CommandListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
-        append(FILE_MANAGER,null);
+        append(QUIZ_FILE_MANAGER,null);
+        append(MEDIA_FILE_MANAGER,null);
         append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
         ////append(JAVA_UTF_CONVERT_ALL_TO_XML,null);
         ////append(STD_UTF_CONVERT_ALL_TO_XML,null);
@@ -166,7 +168,7 @@ implements CommandListener,Excludable,Runnable
     {
         if (sSelectedPrompt.equals(VIEW_SOURCE))
         {
-            viewSourceOfSelectedFile();
+            viewSourceOfSelectedQuiz();
         }
         else if (sSelectedPrompt.equals(COUNT_NEWLINES))
         {
@@ -174,7 +176,7 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sSelectedPrompt.equals(CREATE_BACKUP))
         {
-            createBackupOfSelectedFile();
+            createBackupOfSelectedQuiz();
         }
         else if (sSelectedPrompt.equals(DELETE_TEST))
         {
@@ -182,10 +184,8 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sSelectedPrompt.equals(COPY_TO_RECORDSTORE))
         {
-        	// 0.9.6
-            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
+        	VocabRecordStoreManager mgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
             mgr.copyFileFromJarToRecordStore(m_SelectedListOfTestsEntry.getFilename());
         }
         else if (sSelectedPrompt.equals(PRINT_TO_FILE))
@@ -198,17 +198,24 @@ implements CommandListener,Excludable,Runnable
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {        
-        if (sOption.equals(FILE_MANAGER))
+        if (sOption.equals(QUIZ_FILE_MANAGER))
         {
-        	FileManager fmgr = new FileManager();
+        	VocabRecordStoreManager quizRsMgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
+        	FileManager fmgr = new FileManager(quizRsMgr);
+            OccleveMobileMidlet.getInstance().setCurrentForm(fmgr);        	
+        }
+        else if (sOption.equals(MEDIA_FILE_MANAGER))
+        {
+        	VocabRecordStoreManager mediaRsMgr =
+        		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+        	FileManager fmgr = new FileManager(mediaRsMgr);
             OccleveMobileMidlet.getInstance().setCurrentForm(fmgr);        	
         }
         else if (sOption.equals(DELETE_ALL_XML))
         {
-        	// 0.9.6
-            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
+        	VocabRecordStoreManager mgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
             mgr.deleteAllXmlPrefixedFiles();
 
             boolean bRefreshList = true;
@@ -289,10 +296,17 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sOption.equals(COUNT_RS_RECORDS))
         {
-        	VocabRecordStoreManager rsMgr =
-        		OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-        	int iRecordCount = rsMgr.getRecordCount();
-        	String sMsg = "Recordstore contains " + iRecordCount + " records";
+        	VocabRecordStoreManager quizMgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
+        	int iQuizRecordCount = quizMgr.getRecordCount();
+
+        	VocabRecordStoreManager mediaMgr =
+        		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+        	int iMediaRecordCount = mediaMgr.getRecordCount();
+
+        	String sMsg =
+        		"Quiz recordstore contains " + iQuizRecordCount + " records. " +
+        		"Media recordstore contains " + iMediaRecordCount + " records.";
             Alert alert = new Alert(null,sMsg, null, null);
             OccleveMobileMidlet.getInstance().displayAlert(alert,this);
         }
@@ -304,11 +318,8 @@ implements CommandListener,Excludable,Runnable
         if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
         {
             int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
-
-        	// 0.9.6
-            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
+        	VocabRecordStoreManager mgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
             sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
         }
         else
@@ -344,11 +355,10 @@ implements CommandListener,Excludable,Runnable
         return iCount;
     }
 
-    protected void createBackupOfSelectedFile() throws Exception
+    protected void createBackupOfSelectedQuiz() throws Exception
     {
-    	// 0.9.6
-        //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+    	VocabRecordStoreManager mgr =
+    		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
         String sTestContents;
         if (m_SelectedListOfTestsEntry.getRecordStoreID() != null)
@@ -497,10 +507,8 @@ implements CommandListener,Excludable,Runnable
             }
             else if (m_sThreadAction.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
             {
-            	// 0.9.6
-                //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-            	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-                
+            	VocabRecordStoreManager mgr =
+            		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();                
                 mgr.saveAllTestsToFilesystem();
             }
             else if (m_sThreadAction.equals(BUILD_EUCCN_UNICODE_MAP))
@@ -549,14 +557,13 @@ implements CommandListener,Excludable,Runnable
         }
     }
 
-    protected void viewSourceOfSelectedFile() throws Exception
+    protected void viewSourceOfSelectedQuiz() throws Exception
     {
         String sTestContents;
         if (m_SelectedListOfTestsEntry.getRecordStoreID()!=null)
         {
-        	// 0.9.6
-            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        	VocabRecordStoreManager mgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
         	int id = m_SelectedListOfTestsEntry.getRecordStoreID().intValue();
             sTestContents = mgr.getTestContents(m_SelectedListOfTestsEntry);
@@ -572,7 +579,9 @@ implements CommandListener,Excludable,Runnable
         OccleveMobileMidlet.getInstance().setCurrentForm(viewer);
     }
 
-    protected void convertSelectedFileToXML() throws Exception
+    /*
+    ==========0.9.7 - disabled - defunct function=============
+    protected void convertSelectedQuizToXML() throws Exception
     {
         Test test = new Test(m_SelectedListOfTestsEntry);
         String sXML = test.toXML();
@@ -580,22 +589,14 @@ implements CommandListener,Excludable,Runnable
         // Add a newline since the convention is that all toXML() functions
         // don't add a trailing newline.
         sXML += Constants.NEWLINE;
-
         System.out.println(sXML);
 
-        /*
-        Vector vXML = StaticHelpers.stringToVector(test.toXML());
-        String sTitle = m_SelectedListOfTestsEntry.getFilename() + " to XML";
-        TestSourceViewer vwr = new TestSourceViewer(sTitle,vXML);
-        OccleveMobileMidlet.getInstance().setCurrentForm(vwr);
-        */
-
-    	// 0.9.6
-        //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-    	VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
-       String sNameOfXmlFile = "XML " + m_SelectedListOfTestsEntry.getFilename();
-       mgr.createFileInRecordStore(sNameOfXmlFile,sXML,true);
+		VocabRecordStoreManager mgr =
+			OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
+		
+		String sNameOfXmlFile = "XML " + m_SelectedListOfTestsEntry.getFilename();
+		mgr.createFileInRecordStore(sNameOfXmlFile,sXML,true);
     }
+    */
 }
 

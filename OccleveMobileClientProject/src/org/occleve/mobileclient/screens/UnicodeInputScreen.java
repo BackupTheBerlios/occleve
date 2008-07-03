@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens;
@@ -37,6 +37,8 @@ import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
 import org.occleve.mobileclient.testing.qaview.*;
 
+/**If the next testable character is an 'exotic' Unicode one (such as a Chinese character),
+the application displays this input screen.*/
 public class UnicodeInputScreen extends TextBox
 implements CommandListener,Runnable
 {
@@ -262,10 +264,11 @@ implements CommandListener,Runnable
             OccleveMobileMidlet.getInstance().getCurrentDisplayable();
         OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
-		// 0.9.6----VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-		VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
+        // 0.9.7 - store media files in a separate recordstore.
+		VocabRecordStoreManager mediaRsMgr =
+			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
 
-        Integer rsid = mgr.findRecordByFilename(sImageFilename);
+        Integer rsid = mediaRsMgr.findRecordByFilename(sImageFilename);
         System.out.println("rsid = " + rsid);
 
         byte[] imageData;
@@ -273,7 +276,7 @@ implements CommandListener,Runnable
         {
             // Load from recordstore.
         	System.out.println("Animation already in recordstore... loading");
-            imageData = mgr.getRecordContentsMinusFilename(rsid.intValue());
+            imageData = mediaRsMgr.getRecordContentsMinusFilename(rsid.intValue());
         }
         else
         {
@@ -305,7 +308,7 @@ implements CommandListener,Runnable
         	if (bValidImage)
         	{
         		// Save the image into the recordstore for future use
-        		mgr.createFileInRecordStore(sImageFilename,imageData,false);
+        		mediaRsMgr.createFileInRecordStore(sImageFilename,imageData,false);
         	}
         	else
         	{

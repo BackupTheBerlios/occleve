@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.recordstore;
@@ -42,8 +42,15 @@ Config.WIKIVERSITY_ADDITIONS_FILETYPE for user additions to a Wikiversity quiz.
 Config.AUDIO_FILETYPE for audio clips.*/
 public class VocabRecordStoreManager
 {
-    private final static String RECORDSTORE_NAME = "OccleveMobileClientTests";
+	/**The name of the recordstore which stores quizzes.*/
+    public final static String QUIZ_RECORDSTORE_NAME = "OccleveMobileClientTests";
 
+	/**The name of the recordstore which stores audio clips, animations, etc.*/
+    public final static String MEDIA_RECORDSTORE_NAME = "OccleveMobileClientMedia";
+
+    /**The name of the recordstore which this instance is encapsulating.*/
+    private String m_sRecordStoreName;
+    
     private boolean m_bUseJavaUTF = true;
 
     // 0.9.6 - introduced this member so that it only needs to be built once for a given
@@ -54,8 +61,10 @@ public class VocabRecordStoreManager
     //////public void useJavaUTF() {m_bUseJavaUTF = true;}
     //////public void useStandardUTF() {m_bUseJavaUTF = false;}
 
-    public VocabRecordStoreManager() throws Exception
+    public VocabRecordStoreManager(String sRecordStoreName) throws Exception
     {
+    	m_sRecordStoreName = sRecordStoreName;
+    	
     	m_RecordIndicesKeyedByFilenames = buildRecordIndicesKeyedByFilenames();
     }
 
@@ -71,7 +80,7 @@ public class VocabRecordStoreManager
         RecordStore rs = null;
         try
         {
-            rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+            rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
             Hashtable ht = buildRecordIndicesKeyedByFilenames_Inner(rs);
             rs.closeRecordStore();
             return ht;
@@ -120,7 +129,7 @@ public class VocabRecordStoreManager
     public byte[] getRecordBytes(int iRecordID)
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         byte[] recData = rs.getRecord(iRecordID);
         rs.closeRecordStore();
         return recData;
@@ -154,7 +163,7 @@ public class VocabRecordStoreManager
     public String getTestContents(ListOfTestsEntry entry)
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         byte[] recData = rs.getRecord(entry.getRecordStoreID().intValue());
         rs.closeRecordStore();
 
@@ -194,7 +203,7 @@ public class VocabRecordStoreManager
     public byte[] getRecordContentsMinusFilename(int iRecID)
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         byte[] recData = rs.getRecord(iRecID);
         rs.closeRecordStore();
 
@@ -225,7 +234,7 @@ public class VocabRecordStoreManager
     public void setTestContents(ListOfTestsEntry entry,String sTestContents)
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
 
         // Sanity check: look at the existing record to make sure the filename
         // is the same.
@@ -293,7 +302,7 @@ public class VocabRecordStoreManager
         byte[] byteArray = baosData.toByteArray();
 
         // Check whether the filename already exists.
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         Integer iExistingRSID = findRecordByFilename(rs,sFilename);
         if (iExistingRSID!=null)
         {
@@ -331,7 +340,7 @@ public class VocabRecordStoreManager
     public Integer findRecordByFilename(String sFilenameToFind)
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         System.out.println("Opened recordstore ok");
         System.out.println("m_bUseJavaUTF = " + m_bUseJavaUTF);
         
@@ -391,7 +400,7 @@ public class VocabRecordStoreManager
         byte[] byteArray = baos.toByteArray();
 
         // Add it to the record store
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         int recordID = rs.addRecord(byteArray,0,byteArray.length);
         rs.closeRecordStore();
 
@@ -408,7 +417,7 @@ public class VocabRecordStoreManager
     public void deleteTest(int iRecordID,String sFilename)
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
 
         // Sanity check: check that the filename in the record matches
         // the one supplied to this function.
@@ -444,7 +453,7 @@ public class VocabRecordStoreManager
     public void deleteAllXmlPrefixedFiles()
     throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
 
         boolean keepUpdated = false;
         RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
@@ -514,7 +523,7 @@ public class VocabRecordStoreManager
     public void saveAllTestsToFilesystem() throws Exception
     {
         System.out.println("Entering saveAllTestsToFilesystem");
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
 
         boolean keepUpdated = false;
         RecordEnumeration recEnum = rs.enumerateRecords(null,null,keepUpdated);
@@ -554,7 +563,7 @@ public class VocabRecordStoreManager
     /**0.9.6*/
     public int getRecordCount() throws Exception
     {
-        RecordStore rs = RecordStore.openRecordStore(RECORDSTORE_NAME, true);
+        RecordStore rs = RecordStore.openRecordStore(m_sRecordStoreName, true);
         int iCount = rs.getNumRecords();
         rs.closeRecordStore();
         return iCount;    	
