@@ -25,7 +25,7 @@ package bm.core.log;
  * implementation.
  *
  * @author <a href="mailto:narciso@elondra.com">Narciso Cerezo</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class LogFactory
 {
@@ -49,7 +49,10 @@ public class LogFactory
         }
         catch( Exception e )
         {
-            return null;
+        	// JRG 4th July 08.... this method was silently failing
+        	System.err.println("Exception in Log.getLog: " + e);
+        	
+        	return null;
         }
     }
 }
