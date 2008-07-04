@@ -66,9 +66,6 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         m_SequentialOrRandomChoiceGroup =
             new ChoiceGroup(null,ChoiceGroup.POPUP,orderChoices,null);
         append(m_SequentialOrRandomChoiceGroup);
-
-        // Give the derived class a chance to add other controls.
-        addSubclassControls();
         
         m_FirstQuestionTextField =
         	new TextField("Question to start from:","1",10,TextField.NUMERIC);
@@ -92,7 +89,6 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         {
             try
             {
-                runTest();
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
@@ -102,89 +98,8 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         }
         else
         {
-            OccleveMobileMidlet.getInstance().onError("Unknown command in TestOptionsScreen.commandAction");
+            OccleveMobileMidlet.getInstance().onError("Unknown command in DictionaryBrowser.commandAction");
         }
-    }
-
-    protected void runTest() throws Exception
-    {
-        int i = m_SequentialOrRandomChoiceGroup.getSelectedIndex();
-        String sChoice = m_SequentialOrRandomChoiceGroup.getString(i);
-        boolean bRandom = (sChoice.equals(RANDOM));
-
-        QADirection direction = getQADirection();
-
-    	String sFirstQuestion = m_FirstQuestionTextField.getString();
-    	int iFirstQuestion;
-    	try
-    	{
-    		iFirstQuestion = Integer.parseInt(sFirstQuestion);
-    	}
-    	catch (Exception e)
-    	{
-    		System.err.println("Invalid value in textfield, setting to 1");
-    		iFirstQuestion = 1;
-    	}
-
-    	String sLastQuestion = m_LastQuestionTextField.getString();
-    	int iLastQuestion;
-    	try
-    	{
-    		iLastQuestion = Integer.parseInt(sLastQuestion);
-    	}
-    	catch (Exception e)
-    	{
-    		System.err.println("Invalid value in textfield, setting to max value");
-    		iLastQuestion = m_Test.getQACount();
-    	}
-
-    	String sMinScore = m_RestartOnPercentageBelowTextField.getString();
-    	int iMinScore;
-    	try
-    	{
-    		iMinScore = Integer.parseInt(sMinScore);
-    	}
-    	catch (Exception e)
-    	{
-    		System.err.println("Invalid value in textfield, setting to zero");
-    		iMinScore = 0;
-    	}
-
-        TestController tc;
-        if (bRandom)
-        {
-            tc = new RandomTestController(m_Test,direction,
-            		iFirstQuestion-1,iLastQuestion-1,iMinScore);
-        }
-        else
-        {        	        	
-        	tc = new SequentialTestController(m_Test,direction,
-        			iFirstQuestion-1,iLastQuestion-1,iMinScore);
-        }
-
-        tc.setVisible();
-    }
-
-    public void makeVisible(Test test)
-    {
-    	// If the user is running a NEW test, reset the first and last
-    	// question text fields to 1 and the max value respectively.
-    	boolean bResetFields = true;
-    	if (test!=null && m_Test!=null)
-    	{
-        	bResetFields = ! (test.getFilename().equals(m_Test.getFilename()));
-    	}
-    	
-    	if (bResetFields)
-    	{
-    		System.out.println("Resetting first and last question fields");
-    		m_Test = test;
-    		m_FirstQuestionTextField.setString("1");    		
-    		String sValue = new Integer(m_Test.getQACount()).toString();
-    		m_LastQuestionTextField.setString(sValue);    		
-    	}
-    	
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);
     }
 
     /*Implementation of ItemCommandListener.*/
@@ -195,52 +110,11 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
             if (item==m_StartTestItem)
             {
                 OccleveMobileMidlet.getInstance().beep();
-                runTest();
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
-    /*
-    //// DISABLED MAY 1ST.... “FIRST QUESTION TEXT FIELD SHOULD BE AVAILABLE
-    //// IN RANDOM TEST MODE TOO.
-    public void itemStateChanged(Item item)
-    {
-        ////System.out.println("Entering itemStateChanged....");
-    	if (item==m_SequentialOrRandomChoiceGroup)
-    	{
-        	int i = m_SequentialOrRandomChoiceGroup.getSelectedIndex();
-            String sChoice = m_SequentialOrRandomChoiceGroup.getString(i);
-            boolean bSequential = (sChoice.equals(SEQUENTIAL));
-            setFirstQuestionTextFieldVisibility(bSequential);
-    	}
-    }
-    */
-
-   protected void setFirstQuestionTextFieldVisibility(boolean bVisible)
-   {
-	   for (int i=0; i<size(); i++)
-	   {
-			Item matchingItem = get(i);
-			if (matchingItem==m_FirstQuestionTextField)
-			{
-				if (bVisible==false) delete(i);
-				return;
-			}
-	   }
-
-	   // Couldn't find it, so the textfield isn't already in the Form.
-	   if (bVisible)
-	   {
-	       append(m_FirstQuestionTextField);
-	   }
-   }
-    
-   protected QADirection getQADirection() throws Exception
-   {
-       boolean bReverse = false;
-       return new SimpleQADirection(false);
-   }
 
 }
 
