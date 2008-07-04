@@ -181,7 +181,7 @@ public class ListOfTests
         	}
         	
             String rsFilename = (String) enumKeys.nextElement();
-            System.out.println("rsFilename = " + rsFilename);
+            ////System.out.println("rsFilename = " + rsFilename);
 
             // Ignore MP3 and (from 0.9.5) GIF files
             boolean bIgnore = 
