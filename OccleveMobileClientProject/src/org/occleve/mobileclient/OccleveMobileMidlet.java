@@ -293,8 +293,16 @@ implements CommandListener,Runnable
     	{
     		try
     		{
+    			// This could be time consuming if there are lots of them, so
+    			// display a progress alert.
+    			Displayable currentDisp = getCurrentDisplayable();
+    	        Alert progress = new Alert(null,"Indexing media files...",null,AlertType.INFO);
+    	        displayAlert(progress,currentDisp);
+    			
     			m_MediaRecordStoreManager =
     				new VocabRecordStoreManager(VocabRecordStoreManager.MEDIA_RECORDSTORE_NAME);
+    			
+    			setCurrentForm(currentDisp);
     		}
     		catch (Exception e) {onError(e);}
     	}
