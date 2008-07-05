@@ -71,11 +71,6 @@ implements CommandListener,Runnable
     which source to download quizzes from.*/
     protected Command m_DownloadQuizzesCommand;
     
-    // 0.9.6 - disabled
-    //protected Command m_BrowseWikiversityCommand;
-    //protected Command m_BrowseFrenchWikiversityCommand;
-    //protected Command m_BrowseOccleveCommand;
-
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
     protected Command m_RedownloadCommand;
@@ -102,19 +97,12 @@ implements CommandListener,Runnable
         {
         	m_DownloadQuizzesCommand = new Command("Download quizzes",Command.ITEM,1);
         	
-            // 0.9.6 - disabled
-            //m_BrowseWikiversityCommand = new Command("Download Wikiversity quizzes", Command.ITEM, 2);
-            //m_BrowseFrenchWikiversityCommand = new Command("Download French Wikiversity quizzes", Command.ITEM, 2);
-            //m_BrowseOccleveCommand = new Command("Download Occleve tests", Command.ITEM, 2);
-
             m_TestCommand = new Command("Test", Command.ITEM, 1);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
-
             m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
-
             m_DictionaryCommand = new Command("Dictionary", Command.ITEM, 2); // 0.9.7
 
             // Disabled in 0.9.6 - see earlier comment
@@ -123,31 +111,20 @@ implements CommandListener,Runnable
 
             m_CommonCommands = new CommonCommands();
 
-            // 0.9.6
-            addCommand(m_DownloadQuizzesCommand);
-
-            // 0.9.6 - disable
-            //addCommand(m_BrowseWikiversityCommand);
-            //addCommand(m_BrowseFrenchWikiversityCommand);
-            //addCommand(m_BrowseOccleveCommand);
-
+            addCommand(m_DownloadQuizzesCommand); // 0.9.6
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
             addCommand(m_RedownloadCommand);
             addCommand(m_SearchAllTestsCommand);
-            ///addCommand(m_PauseCommand);
-
             addCommand(m_DevStuffScreenCommand);
-
             addCommand(m_ShowLicenseCommand);
             addCommand(m_DictionaryCommand); // 0.9.7
+            m_CommonCommands.addToDisplayable(this);
 
             // Disabled in 0.9.6 - see earlier comment
             //addCommand(m_EditCommand);
             //addCommand(m_RapidAddCommand);
             
-            m_CommonCommands.addToDisplayable(this);
-
             // 0.9.6 - "Test" is the default select command.
             setSelectCommand(m_TestCommand);
         }
@@ -238,33 +215,6 @@ implements CommandListener,Runnable
         	ChooseQuizServerScreen chooser = new ChooseQuizServerScreen();
             OccleveMobileMidlet.getInstance().setCurrentForm(chooser);
         }
-        // 0.9.6 - disabled
-        /*
-        else if (c==m_BrowseWikiversityCommand)
-        {
-            ServerBrowser browser =
-               new ServerBrowser(Config.WIKIVERSITY_LIST_OF_QUIZZES_URL,
-                                 Config.WIKIVERSITY_QUIZ_URL_STUB,
-                                 Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
-            browser.populateAndDisplay();
-        }
-        else if (c==m_BrowseFrenchWikiversityCommand)
-        {
-            ServerBrowser browser =
-               new ServerBrowser(Config.FRENCH_WIKIVERSITY_LIST_OF_QUIZZES_URL,
-                                 Config.FRENCH_WIKIVERSITY_QUIZ_URL_STUB,
-                                 Config.WIKIVERSITY_QUIZ_URL_SUFFIX);
-            browser.populateAndDisplay();
-        }
-        else if (c==m_BrowseOccleveCommand)
-        {
-            ServerBrowser browser =
-                    new ServerBrowser(Config.OCCLEVE_LIST_OF_TESTS_URL,
-                                      Config.OCCLEVE_QUIZ_URL_STUB,
-                                      Config.OCCLEVE_QUIZ_URL_SUFFIX);
-            browser.populateAndDisplay();
-        }
-        */
 
         // The rest of the commands aren't appropriate if there
         // aren't any tests in the phone.
