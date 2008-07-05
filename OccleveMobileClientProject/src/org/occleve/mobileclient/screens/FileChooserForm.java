@@ -25,6 +25,7 @@ package org.occleve.mobileclient.screens;
 import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.dictionary.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
@@ -79,9 +80,9 @@ implements CommandListener,Runnable
     protected Command m_ViewCommand;
     protected Command m_RedownloadCommand;
     protected Command m_SearchAllTestsCommand;
-    //protected Command m_PauseCommand;
     protected Command m_DevStuffScreenCommand;
     protected Command m_ShowLicenseCommand;
+    protected Command m_DictionaryCommand;  // 0.9.7
     protected CommonCommands m_CommonCommands;
 
     // 0.9.6 - remove the Edit and Rapid Add commands - those functions aren't
@@ -110,11 +111,12 @@ implements CommandListener,Runnable
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
-            //m_PauseCommand = new Command("Pause", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
 
             m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
-            
+
+            m_DictionaryCommand = new Command("Dictionary", Command.ITEM, 2); // 0.9.7
+
             // Disabled in 0.9.6 - see earlier comment
             //m_EditCommand = new Command("Edit", Command.ITEM, 2);
             //m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
@@ -138,6 +140,7 @@ implements CommandListener,Runnable
             addCommand(m_DevStuffScreenCommand);
 
             addCommand(m_ShowLicenseCommand);
+            addCommand(m_DictionaryCommand); // 0.9.7
 
             // Disabled in 0.9.6 - see earlier comment
             //addCommand(m_EditCommand);
@@ -320,6 +323,11 @@ implements CommandListener,Runnable
         {
             Displayable gplForm = new ShowGPLForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(gplForm);
+        }
+        else if (c==m_DictionaryCommand)
+        {
+        	DictionaryBrowser dictBrowser = new DictionaryBrowser();
+            /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
         }
         else
         {

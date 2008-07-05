@@ -216,6 +216,8 @@ public class StaticHelpers
         }
     }
 
+    public static final String END_OF_STREAM_REACHED = "";
+    
     /**Reads a string from the InputStreamReader.
     Either stops at the first newline, or at the end of the data, depending
     on the flag supplied.*/
@@ -236,6 +238,10 @@ public class StaticHelpers
             if ((ch!=-1) && (ch!=FIRST_NEWLINE_CHAR)) buffer.append((char) ch);
         } while ((ch!=-1) && (ch!=FIRST_NEWLINE_CHAR));
 
+        ///if (ch==-1)
+        ///	return END_OF_STREAM_REACHED;
+        ///else
+        
         return buffer.toString();
     }
 
