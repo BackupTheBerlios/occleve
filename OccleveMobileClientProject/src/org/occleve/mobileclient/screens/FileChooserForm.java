@@ -71,13 +71,13 @@ implements CommandListener,Runnable
     which source to download quizzes from.*/
     protected Command m_DownloadQuizzesCommand;
     
+    protected Command m_DictionaryCommand;  // 0.9.7
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
     protected Command m_RedownloadCommand;
     protected Command m_SearchAllTestsCommand;
     protected Command m_DevStuffScreenCommand;
     protected Command m_ShowLicenseCommand;
-    protected Command m_DictionaryCommand;  // 0.9.7
     protected CommonCommands m_CommonCommands;
 
     // 0.9.6 - remove the Edit and Rapid Add commands - those functions aren't
@@ -97,13 +97,13 @@ implements CommandListener,Runnable
         {
         	m_DownloadQuizzesCommand = new Command("Download quizzes",Command.ITEM,1);
         	
-            m_TestCommand = new Command("Test", Command.ITEM, 1);
+            m_DictionaryCommand = new Command("Dictionary", Command.ITEM, 1); // 0.9.7
+            m_TestCommand = new Command("Test", Command.ITEM, 2);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
             m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
             m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
             m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
-            m_DictionaryCommand = new Command("Dictionary", Command.ITEM, 2); // 0.9.7
 
             // Disabled in 0.9.6 - see earlier comment
             //m_EditCommand = new Command("Edit", Command.ITEM, 2);
@@ -111,6 +111,7 @@ implements CommandListener,Runnable
 
             m_CommonCommands = new CommonCommands();
 
+            addCommand(m_DictionaryCommand); // 0.9.7
             addCommand(m_DownloadQuizzesCommand); // 0.9.6
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
@@ -118,7 +119,6 @@ implements CommandListener,Runnable
             addCommand(m_SearchAllTestsCommand);
             addCommand(m_DevStuffScreenCommand);
             addCommand(m_ShowLicenseCommand);
-            addCommand(m_DictionaryCommand); // 0.9.7
             m_CommonCommands.addToDisplayable(this);
 
             // Disabled in 0.9.6 - see earlier comment
@@ -215,6 +215,16 @@ implements CommandListener,Runnable
         	ChooseQuizServerScreen chooser = new ChooseQuizServerScreen();
             OccleveMobileMidlet.getInstance().setCurrentForm(chooser);
         }
+        else if (c==m_ShowLicenseCommand)
+        {
+            Displayable gplForm = new ShowGPLForm();
+            OccleveMobileMidlet.getInstance().setCurrentForm(gplForm);
+        }
+        else if (c==m_DictionaryCommand)
+        {
+        	DictionaryBrowser dictBrowser = new DictionaryBrowser();
+            /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
+        }
 
         // The rest of the commands aren't appropriate if there
         // aren't any tests in the phone.
@@ -248,14 +258,14 @@ implements CommandListener,Runnable
         {
             redownloadQuiz(entry);
         }
-        else if (c==m_DevStuffScreenCommand)
-        {
-            ExcludableHooks.displayDevStuffScreen(entry);
-        }
         else if (c==m_SearchAllTestsCommand)
         {
             SearchAllFilesForm saff = new SearchAllFilesForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(saff);
+        }
+        else if (c==m_DevStuffScreenCommand)
+        {
+            ExcludableHooks.displayDevStuffScreen(entry);
         }
         /*
         // Disabled in 0.9.6 - see earlier comment
@@ -269,16 +279,6 @@ implements CommandListener,Runnable
             ExcludableHooks.displayRapidAdd(entry);
         }
         */
-        else if (c==m_ShowLicenseCommand)
-        {
-            Displayable gplForm = new ShowGPLForm();
-            OccleveMobileMidlet.getInstance().setCurrentForm(gplForm);
-        }
-        else if (c==m_DictionaryCommand)
-        {
-        	DictionaryBrowser dictBrowser = new DictionaryBrowser();
-            /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
-        }
         else
         {
         	m_CommonCommands.commandAction(c,this);
