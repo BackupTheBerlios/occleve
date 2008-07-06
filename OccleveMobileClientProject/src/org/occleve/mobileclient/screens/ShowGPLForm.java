@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-8  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens;
@@ -35,12 +35,14 @@ public class ShowGPLForm extends Form implements CommandListener
         super("Copyright and license");
 
         String sCopyright =
-            "Copyright (C) 2007 Joe Gittings, except for: " + Constants.NEWLINE +
+            "Copyright (C) 2007-8 Joe Gittings, except for: " + Constants.NEWLINE +
             "Floating point classes copyright " +
-            "(C) 2003, 2004 David Clausen " + Constants.NEWLINE +
+            "(C) 2003, 2004 David Clausen. " + Constants.NEWLINE +
             "XML parser copyright " +
-            "(C) 2000 Michael Claßen " + Constants.NEWLINE +
-            "All rights reserved. ";
+            "(C) 2000 Michael Claßen. " + Constants.NEWLINE +
+            "OpenBaseMovil database classes " +
+            "copyright (C) 2004-2008 Elondra S.L." + Constants.NEWLINE +
+        	"All rights reserved. " + Constants.NEWLINE;
         sCopyright += Constants.NEWLINE + Constants.NEWLINE;
         StringItem si = new StringItem(null,sCopyright);
         append(si);
