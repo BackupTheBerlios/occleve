@@ -35,55 +35,74 @@ import org.occleve.mobileclient.*;
 public class DictionaryBrowser extends Form
 implements CommandListener,ItemCommandListener,Runnable
 {
-	private static final String DICTIONARY_DB_NAME = "dictionaryDB_2";
+	private static final String DICTIONARY_DB_NAME = "dictDb77";
+	private static final String DICTIONARY_TABLE_NAME = "CEDICT";
 
 	private static final String TRADITIONAL_FIELD_NAME = "traditional";
 	private static final String SIMPLIFIED_FIELD_NAME = "simplified";
 	private static final String PINYIN_FIELD_NAME = "pinyin";
 	private static final String ENGLISH1_FIELD_NAME = "english1";
 	private static final String ENGLISH2_FIELD_NAME = "english2";
-	
-    protected StringItem m_StartTestItem =
-            new StringItem(null,"Start test",Item.BUTTON);
 
+	protected Database m_Database;
+	
+    protected Command m_QuizModeCommand;
+    protected Command m_DeleteDatabaseCommand;
+    protected Command m_CreateDatabaseCommand;
+    protected CommonCommands m_CommonCommands;
+
+    protected TextField m_SearchForTextField;
+
+    protected static final String SEARCH_BUTTON_TEXT = "Search";
+    protected StringItem m_SearchButton =
+        new StringItem(null,SEARCH_BUTTON_TEXT,Item.BUTTON);
+
+    protected TextField m_SearchResultsTextField;
+
+    /*
     protected String SEQUENTIAL = "In sequence";
     protected String RANDOM = "Random";
     protected ChoiceGroup m_SequentialOrRandomChoiceGroup;
-
-    // 0.9.6 - add a Start From Question No field for sequential mode
-    protected TextField m_FirstQuestionTextField;
-    protected TextField m_LastQuestionTextField;
-    protected TextField m_RestartOnPercentageBelowTextField;
+    */
     
-    protected Command m_OKCommand;
-    protected Command m_CancelCommand;
-
     public DictionaryBrowser() throws Exception
     {
-        super(org.occleve.mobileclient.Constants.PRODUCT_NAME);
+        super("Dictionary");
 
-        m_OKCommand = new Command("OK",Command.OK,0);
-        m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
+        m_QuizModeCommand = new Command("Quiz mode", Command.ITEM, 1);
+        addCommand(m_QuizModeCommand);
 
-        addCommand(m_OKCommand);
-        addCommand(m_CancelCommand);
+        m_DeleteDatabaseCommand = new Command("Delete DB", Command.ITEM, 1);
+        addCommand(m_DeleteDatabaseCommand);
+
+        m_CreateDatabaseCommand = new Command("Create DB", Command.ITEM, 1);
+        addCommand(m_CreateDatabaseCommand);
+
+        m_CommonCommands = new CommonCommands();
+        m_CommonCommands.addToDisplayable(this);
+        
         setCommandListener(this);
 
         // Append items to this form.
 
-        append(m_StartTestItem);
-        m_StartTestItem.setItemCommandListener(this);
-        m_StartTestItem.setDefaultCommand(m_OKCommand);
+        m_SearchForTextField =
+        	new TextField("Search for:","",10,TextField.ANY);
+        append(m_SearchForTextField);
 
+        append(m_SearchButton);
+        m_SearchButton.setItemCommandListener(this);
+        Command temp = new Command("temp",Command.OK,1);
+        m_SearchButton.setDefaultCommand(temp);
+
+        m_SearchResultsTextField =
+        	new TextField(null,"",500,TextField.UNEDITABLE);
+        append(m_SearchResultsTextField);
+
+        /*
         String[] orderChoices = {SEQUENTIAL,RANDOM};
         m_SequentialOrRandomChoiceGroup =
             new ChoiceGroup(null,ChoiceGroup.POPUP,orderChoices,null);
         append(m_SequentialOrRandomChoiceGroup);
-
-        /*
-        m_FirstQuestionTextField =
-        	new TextField("Question to start from:","1",10,TextField.NUMERIC);
-        append(m_FirstQuestionTextField);
 
         m_LastQuestionTextField =
         	new TextField("Question to end at:","1",10,TextField.NUMERIC);
@@ -95,14 +114,30 @@ implements CommandListener,ItemCommandListener,Runnable
         */
 
         OccleveMobileMidlet.getInstance().setCurrentForm(this);        
-        new Thread(this).start();
+
+        /*
+		Database db = null;
+		db = Database.connect(DICTIONARY_DB_NAME);
+        Table tbl = db.getTable(DICTIONARY_TABLE_NAME);            
+        if (tbl!=null)
+        {
+			System.out.println("Successfully connected to database " + DICTIONARY_DB_NAME);
+		}
+        else
+		{        
+			System.out.println("Couldn't connect to database " + DICTIONARY_DB_NAME);
+			System.out.println("Starting background thread to create and populate it");
+			new Thread(this).start();
+		}
+		*/
     }
 
     public void run()
     {
     	try
     	{
-    		connectToDictionaryDatabase();
+    		createAndPopulateDictionaryDatabase();
+            OccleveMobileMidlet.getInstance().setCurrentForm(this);        
     	}
     	catch (Exception e)
     	{
@@ -110,27 +145,6 @@ implements CommandListener,ItemCommandListener,Runnable
     	}
     }
     
-    private void connectToDictionaryDatabase() throws Exception
-    {
-    	Database db = null;
-    	
-    	try
-    	{
-    		db = Database.connect(DICTIONARY_DB_NAME);
-    		System.out.println("Successfully connected to database " + DICTIONARY_DB_NAME);
-
-    		System.out.println("Now dropping...");
-    		db.drop();
-    		db = null;
-    	}
-    	catch (Exception e) {System.err.println("Error in db connect section: " + e);}
-    	
-    	if (db==null)
-    	{
-    		createAndPopulateDictionaryDatabase();
-    	}
-    }
-
     /**The database doesn't exist yet. Create it, and then import the CEDICT data
     into it from the CEDICT flat file which should be somewhere on the phone's
     filesystem.*/
@@ -140,8 +154,8 @@ implements CommandListener,ItemCommandListener,Runnable
         OccleveMobileMidlet.getInstance().displayAlert(progress,this);
         progress.setTimeout(Alert.FOREVER);
     	
-    	Database db = Database.create(DICTIONARY_DB_NAME);
-    	Table tbl = new Table("CEDICT");
+    	m_Database = Database.create(DICTIONARY_DB_NAME);
+    	Table tbl = new Table(DICTIONARY_TABLE_NAME);
     	
     	// According to Row.serializeField(), which in turns calls
     	// SerializerOutputStream.writeString(), the string
@@ -155,7 +169,8 @@ implements CommandListener,ItemCommandListener,Runnable
     	
     	tbl.createFullTextIndex("pinyinIndex",PINYIN_FIELD_NAME,false);
     	
-    	db.createTable(tbl);
+        progress.setString("Creating table...");
+    	m_Database.createTable(tbl);
     	
     	progress.setString("Importing dictionary....");
 
@@ -177,7 +192,7 @@ implements CommandListener,ItemCommandListener,Runnable
 
         // while (oneLine!=StaticHelpers.END_OF_STREAM_REACHED)
         //while (isr.ready())
-        for (int i=0; i<5000; i++)
+        for (int i=0; i<751; i++)
         {
         	oneLine = StaticHelpers.readFromISR(isr,true);
         	if (oneLine.length() > iMaxLength) iMaxLength = oneLine.length();
@@ -191,8 +206,6 @@ implements CommandListener,ItemCommandListener,Runnable
         	}
         }
         
-        db.dropTable(tbl);
-
         System.out.println("Max line length = " + iMaxLength);
     }
 
@@ -229,16 +242,30 @@ implements CommandListener,ItemCommandListener,Runnable
     /**Implementation of CommandListener.*/
     public void commandAction(Command c, Displayable s)
     {
-        if (c==m_OKCommand)
+        if (c==m_QuizModeCommand)
         {
             try
             {
+            	OccleveMobileMidlet.getInstance().displayFileChooser(false);
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
-        else if (c==m_CancelCommand)
+        else if (c==m_DeleteDatabaseCommand)
         {
-            OccleveMobileMidlet.getInstance().displayFileChooser();
+            try
+            {
+        		Database db = Database.connect(DICTIONARY_DB_NAME);
+        		db.drop();            	
+            }
+            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        }
+        else if (c==m_CreateDatabaseCommand)
+        {
+            try
+            {
+    			new Thread(this).start();
+            }
+            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
         else
         {
@@ -251,9 +278,70 @@ implements CommandListener,ItemCommandListener,Runnable
     {
         try
         {
-            if (item==m_StartTestItem)
+        	System.out.println("Entering commandAction...");
+         	
+            if (item==m_SearchButton)
             {
-                OccleveMobileMidlet.getInstance().beep();
+            	System.out.println("Search button clicked...");
+            	OccleveMobileMidlet.getInstance().beep();
+                m_SearchButton.setText("Searching...");
+
+        		Database db = Database.connect(DICTIONARY_DB_NAME);
+            	System.out.println("db = " + db);
+            	if (db==null)
+            	{
+            		m_SearchResultsTextField.setString("No database connection");
+                    m_SearchButton.setText(SEARCH_BUTTON_TEXT);
+            		return;
+            	}
+            	else
+            	{
+            		db.start();
+            	}
+                
+                Table tbl = db.getTable(DICTIONARY_TABLE_NAME);
+                System.out.println("tbl = " + tbl);
+            	if (tbl==null)
+            	{
+            		m_SearchResultsTextField.setString("Table not found in database");
+                    m_SearchButton.setText(SEARCH_BUTTON_TEXT);
+            		return;
+            	}
+                
+                RowSet rs = tbl.findFuzzy(PINYIN_FIELD_NAME,m_SearchForTextField.getString());
+                System.out.println("rs = " + rs);
+                
+                System.out.println("Rowset contains " + rs.size() + " rows");
+                
+                StringBuffer sbResults = new StringBuffer();
+
+                if (rs.size()==0)
+                {
+                	sbResults.append("No matches");
+                }
+                else if (rs.size()>5)
+                {
+                	sbResults.append(rs.size() + " results... showing first 5" +
+                						org.occleve.mobileclient.Constants.NEWLINE);
+                }
+
+                int iCount = 0;
+                while (rs.next() && (iCount<5))
+                {
+                	String sTrad = rs.getCurrent().getString(TRADITIONAL_FIELD_NAME);
+                	String sSimp = rs.getCurrent().getString(SIMPLIFIED_FIELD_NAME);
+                	String sPinyin = rs.getCurrent().getString(PINYIN_FIELD_NAME);
+                	
+                	sbResults.append(sTrad);
+                	sbResults.append(" " + sSimp);
+                	sbResults.append(" " + sPinyin);
+                	sbResults.append(org.occleve.mobileclient.Constants.NEWLINE);
+                	
+                	iCount++;
+                }
+                
+                m_SearchResultsTextField.setString(sbResults.toString());
+                m_SearchButton.setText(SEARCH_BUTTON_TEXT);
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
