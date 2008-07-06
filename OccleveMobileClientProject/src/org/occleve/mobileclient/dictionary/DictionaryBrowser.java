@@ -44,7 +44,7 @@ implements CommandListener,ItemCommandListener,Runnable
 	private static final String ENGLISH1_FIELD_NAME = "english1";
 	private static final String ENGLISH2_FIELD_NAME = "english2";
 
-	protected Database m_Database;
+	////////protected Database m_Database;
 	
     protected Command m_QuizModeCommand;
     protected Command m_DeleteDatabaseCommand;
@@ -58,12 +58,6 @@ implements CommandListener,ItemCommandListener,Runnable
         new StringItem(null,SEARCH_BUTTON_TEXT,Item.BUTTON);
 
     protected TextField m_SearchResultsTextField;
-
-    /*
-    protected String SEQUENTIAL = "In sequence";
-    protected String RANDOM = "Random";
-    protected ChoiceGroup m_SequentialOrRandomChoiceGroup;
-    */
     
     public DictionaryBrowser() throws Exception
     {
@@ -98,21 +92,6 @@ implements CommandListener,ItemCommandListener,Runnable
         	new TextField(null,"",500,TextField.UNEDITABLE);
         append(m_SearchResultsTextField);
 
-        /*
-        String[] orderChoices = {SEQUENTIAL,RANDOM};
-        m_SequentialOrRandomChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,orderChoices,null);
-        append(m_SequentialOrRandomChoiceGroup);
-
-        m_LastQuestionTextField =
-        	new TextField("Question to end at:","1",10,TextField.NUMERIC);
-        append(m_LastQuestionTextField);
-
-        m_RestartOnPercentageBelowTextField =
-        	new TextField("Restart if percentage drops under:","0",10,TextField.NUMERIC);
-        append(m_RestartOnPercentageBelowTextField);
-        */
-
         OccleveMobileMidlet.getInstance().setCurrentForm(this);        
 
         /*
@@ -132,6 +111,8 @@ implements CommandListener,ItemCommandListener,Runnable
 		*/
     }
 
+    /**Note that this code needs to be in a separate thread because it accesses the
+    phone's filesystem, *not* because it uses the OpenBaseMovil database.*/
     public void run()
     {
     	try
@@ -154,7 +135,7 @@ implements CommandListener,ItemCommandListener,Runnable
         OccleveMobileMidlet.getInstance().displayAlert(progress,this);
         progress.setTimeout(Alert.FOREVER);
     	
-    	m_Database = Database.create(DICTIONARY_DB_NAME);
+    	Database db = Database.create(DICTIONARY_DB_NAME);
     	Table tbl = new Table(DICTIONARY_TABLE_NAME);
     	
     	// According to Row.serializeField(), which in turns calls
@@ -170,7 +151,7 @@ implements CommandListener,ItemCommandListener,Runnable
     	tbl.createFullTextIndex("pinyinIndex",PINYIN_FIELD_NAME,false);
     	
         progress.setString("Creating table...");
-    	m_Database.createTable(tbl);
+    	db.createTable(tbl);
     	
     	progress.setString("Importing dictionary....");
 
