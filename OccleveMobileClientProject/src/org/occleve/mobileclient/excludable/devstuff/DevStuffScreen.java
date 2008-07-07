@@ -542,7 +542,7 @@ implements CommandListener,Excludable,Runnable
     // From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/
     private void showFilesystemRoots() throws Exception
     {
-        Manager.playTone(69, 1000, 100);
+        ///////Manager.playTone(69, 1000, 100);
         System.out.println("About to call listRoots...");
 
         Enumeration drives = FileSystemRegistry.listRoots();
