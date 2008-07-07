@@ -23,13 +23,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.dictionary;
 
 import java.io.*;
-
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
 
 import bm.db.*;
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.util.*;
 
 /**0.9.7 - a browser for the CC-CEDICT dictionary.*/
 public class DictionaryBrowser extends Form
@@ -93,8 +93,11 @@ implements CommandListener,ItemCommandListener,Runnable
         	new TextField(null,"",500,TextField.UNEDITABLE);
         append(m_SearchResultsTextField);
 
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);        
+////        OccleveMobileMidlet.getInstance().setCurrentForm(this);        
 
+J2MEFileSelector fs = new J2MEFileSelector("Choose a file please",null);        
+OccleveMobileMidlet.getInstance().setCurrentForm(fs);        
+        
         /*
 		Database db = null;
 		db = Database.connect(DICTIONARY_DB_NAME);
