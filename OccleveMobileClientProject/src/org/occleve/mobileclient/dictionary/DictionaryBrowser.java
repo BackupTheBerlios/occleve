@@ -33,7 +33,7 @@ import org.occleve.mobileclient.util.*;
 
 /**0.9.7 - a browser for the CC-CEDICT dictionary.*/
 public class DictionaryBrowser extends Form
-implements CommandListener,ItemCommandListener,Runnable
+implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
 {
 	private static final String DICTIONARY_DB_NAME = "dictionaryDb";
 	private static final String DICTIONARY_TABLE_NAME = "CEDICT";
@@ -46,6 +46,9 @@ implements CommandListener,ItemCommandListener,Runnable
 	private static final String ENGLISH2_FIELD_NAME = "english2";
 
 	////////protected Database m_Database;
+
+	/**The full URL of the CEDICT file, including the "file:///" prefix.*/
+	protected String m_sCedictFileURL;
 	
     protected Command m_QuizModeCommand;
     protected Command m_DeleteDatabaseCommand;
@@ -93,10 +96,8 @@ implements CommandListener,ItemCommandListener,Runnable
         	new TextField(null,"",500,TextField.UNEDITABLE);
         append(m_SearchResultsTextField);
 
-////        OccleveMobileMidlet.getInstance().setCurrentForm(this);        
+        OccleveMobileMidlet.getInstance().setCurrentForm(this);        
 
-J2MEFileSelector fs = new J2MEFileSelector("Choose a file please",null);        
-OccleveMobileMidlet.getInstance().setCurrentForm(fs);        
         
         /*
 		Database db = null;
@@ -176,10 +177,12 @@ OccleveMobileMidlet.getInstance().setCurrentForm(fs);
     to the OpenBaseMovil database.*/
     private void importDictionary(Table tbl,Alert progress) throws Exception
     {
-    	// For now, this should be the UNCOMPRESSED file.
-        String sFilename = "file:///root1/cedict_ts.u8";
-        
-        FileConnection fc = (FileConnection)Connector.open(sFilename);
+    	System.out.println("Opening " + m_sCedictFileURL);
+    	
+        ////////String sFilename = "file:///root1/cedict_ts.u8";
+
+    	// For now, this should be the UNCOMPRESSED file.        
+        FileConnection fc = (FileConnection)Connector.open(m_sCedictFileURL);
         if(!fc.exists())
         {
         	throw new IOException("The dictionary file does not exist");
@@ -194,12 +197,12 @@ OccleveMobileMidlet.getInstance().setCurrentForm(fs);
 
         // while (oneLine!=StaticHelpers.END_OF_STREAM_REACHED)
         //while (isr.ready())
-        for (int i=0; i<751; i++)
+        for (int i=0; i<65000; i++)
         {
         	oneLine = StaticHelpers.readFromISR(isr,true);
         	if (oneLine.length() > iMaxLength) iMaxLength = oneLine.length();
         	
-        	boolean bTrace = (i%250 == 0);
+        	boolean bTrace = (i%50 == 0);
         	processCedictLine(oneLine,tbl,bTrace,i);
         	
         	if (bTrace)
@@ -289,7 +292,9 @@ OccleveMobileMidlet.getInstance().setCurrentForm(fs);
         {
             try
             {
-    			new Thread(this).start();
+            	J2MEFileSelector fs = new J2MEFileSelector("Choose CEDICT file",null);        
+            	fs.setJ2MEFileSelectorListener(this);
+            	OccleveMobileMidlet.getInstance().setCurrentForm(fs);        
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
@@ -318,7 +323,6 @@ OccleveMobileMidlet.getInstance().setCurrentForm(fs);
     private void searchDatabase() throws Exception
     {
     	System.out.println("Search button clicked...");
-    	OccleveMobileMidlet.getInstance().beep();
         m_SearchButton.setText("Searching...");
 
 		Database db = Database.connect(DICTIONARY_DB_NAME);
@@ -379,16 +383,16 @@ OccleveMobileMidlet.getInstance().setCurrentForm(fs);
         	String sEnglish2 = rs.getCurrent().getString(ENGLISH2_FIELD_NAME);
         	
         	sbResults.append(sTrad);
-        	sbResults.append(", " + sSimp);
-        	sbResults.append(", " + sPinyin);
-        	sbResults.append(", " + sEnglish1);
+        	sbResults.append("; " + sSimp);
+        	sbResults.append("; " + sPinyin);
+        	sbResults.append("; " + sEnglish1);
 
         	// Not all entries have a second english meaning.
         	if (sEnglish2!=null)
         	{
         		if (sEnglish2.length()!=0)
         		{
-        			sbResults.append(", " + sEnglish2);
+        			sbResults.append("; " + sEnglish2);
         		}
         	}
         	
@@ -408,5 +412,11 @@ OccleveMobileMidlet.getInstance().setCurrentForm(fs);
         m_SearchButton.setText(SEARCH_BUTTON_TEXT);    	
     }
 
+    /**Implementation of J2MEFileSelectorListener.*/
+	public void fileSelected(String sFullPathname)
+	{
+		m_sCedictFileURL = "file:///" + sFullPathname;
+		new Thread(this).start();		
+	}
 }
 

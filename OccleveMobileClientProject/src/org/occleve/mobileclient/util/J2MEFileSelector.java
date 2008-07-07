@@ -43,9 +43,12 @@ implements CommandListener,Runnable
     private Command m_SelectCommand;
     private Command m_UpCommand;
 
+    private J2MEFileSelectorListener m_Listener;
+    
     /**The symbol displayed in the list of files to enable the user to move up a level.*/
     private static final String UP_SYMBOL = "..";
-    
+
+        
     public J2MEFileSelector(String sTitle,String sInitialPath)
     throws Exception
     {
@@ -189,7 +192,8 @@ implements CommandListener,Runnable
     		moveDownFilesystem(sFilename);
     	else
     	{
-//////    		m_Listener.    		
+    		String sFullPathname = m_sCurrentPath + sFilename;
+    		if (m_Listener!=null) m_Listener.fileSelected(sFullPathname);    		
     	}
     }
     
@@ -205,6 +209,11 @@ implements CommandListener,Runnable
     	}
 
     	new Thread(this).start();    	
+    }
+    
+    public void setJ2MEFileSelectorListener(J2MEFileSelectorListener listener)
+    {
+    	m_Listener = listener;
     }
 }
 
