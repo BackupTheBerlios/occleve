@@ -548,7 +548,7 @@ implements CommandListener,Excludable,Runnable
         Enumeration drives = FileSystemRegistry.listRoots();
 
         System.out.println("Called listRoots...");
-        Manager.playTone(90, 1000, 100);
+        ///////Manager.playTone(90, 1000, 100);
 
 
         String sMsg = "The valid roots found are:" + Constants.NEWLINE;
