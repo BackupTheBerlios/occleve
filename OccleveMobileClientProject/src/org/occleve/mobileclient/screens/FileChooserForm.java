@@ -209,6 +209,17 @@ implements CommandListener,Runnable
     /*Subfunction for code clarity.*/
     public void commandAction_Inner(Command c,Displayable d) throws Exception
     {
+        ListOfTestsEntry entry;
+        if (m_ListOfTests.getSize()==0)
+        {
+        	entry = null;
+        }
+        else
+        {
+	        int iSelIndex = getSelectedIndex();
+	        entry = m_ListOfTests.getEntry(iSelIndex);
+        }
+
         if (c==m_DownloadQuizzesCommand)
         {
         	// 0.9.6
@@ -225,6 +236,10 @@ implements CommandListener,Runnable
         	DictionaryBrowser dictBrowser = new DictionaryBrowser();
             /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
         }
+        else if (c==m_DevStuffScreenCommand)
+        {
+            ExcludableHooks.displayDevStuffScreen(entry);
+        }
 
         // The rest of the commands aren't appropriate if there
         // aren't any tests in the phone.
@@ -232,9 +247,6 @@ implements CommandListener,Runnable
         {
             return;
         }
-
-        int iSelIndex = getSelectedIndex();
-        ListOfTestsEntry entry = m_ListOfTests.getEntry(iSelIndex);
 
         if (c==m_TestCommand)
         {
@@ -262,10 +274,6 @@ implements CommandListener,Runnable
         {
             SearchAllFilesForm saff = new SearchAllFilesForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(saff);
-        }
-        else if (c==m_DevStuffScreenCommand)
-        {
-            ExcludableHooks.displayDevStuffScreen(entry);
         }
         /*
         // Disabled in 0.9.6 - see earlier comment
