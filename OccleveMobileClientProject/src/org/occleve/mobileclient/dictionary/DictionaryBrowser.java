@@ -26,9 +26,11 @@ import java.io.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 import javax.microedition.lcdui.*;
+import javax.microedition.rms.RecordStore;
 
 import bm.db.*;
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.util.*;
 
 /**0.9.7 - a browser for the CC-CEDICT dictionary.*/
@@ -47,6 +49,8 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
 
 	////////protected Database m_Database;
 
+	protected String m_sExceptionContext;
+	
 	/**The full URL of the CEDICT file, including the "file:///" prefix.*/
 	protected String m_sCedictFileURL;
 	
@@ -128,6 +132,9 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     	catch (Exception e)
     	{
     		System.err.println(e);
+    		
+    		String sMsg = "While: " + m_sExceptionContext + "..." + e.toString();    			
+    		OccleveMobileMidlet.getInstance().onError(sMsg);
     	}
     }
     
@@ -137,12 +144,13 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     private void createAndPopulateDictionaryDatabase() throws Exception
     {
         Alert progress = new Alert(null,"Creating database...",null,null);
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
         progress.setTimeout(Alert.FOREVER);
+        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
 
         Table tbl = createDatabaseAndTable(progress);
     	
     	progress.setString("Importing dictionary....");
+        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
 
     	importDictionary(tbl,progress);
     }
@@ -195,19 +203,30 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         String oneLine = "";
         int iMaxLength = 0;
 
+        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+
         // while (oneLine!=StaticHelpers.END_OF_STREAM_REACHED)
         //while (isr.ready())
         for (int i=0; i<65000; i++)
         {
+        	m_sExceptionContext = "Reading line from dictionary file";
         	oneLine = StaticHelpers.readFromISR(isr,true);
+        	
         	if (oneLine.length() > iMaxLength) iMaxLength = oneLine.length();
         	
-        	boolean bTrace = (i%50 == 0);
+////        	boolean bTrace = (i%50 == 0);
+        	boolean bTrace = true;
+        	
         	processCedictLine(oneLine,tbl,bTrace,i);
         	
         	if (bTrace)
         	{
-        		progress.setString("Processed " + i + " lines");
+        		String sMsg =
+        			"Processed " + i + " lines" +
+        			org.occleve.mobileclient.Constants.NEWLINE +
+					"Free memory in bytes = " +
+					Runtime.getRuntime().freeMemory();
+        		progress.setString(sMsg);
         	}
         }
         
@@ -226,6 +245,8 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     	// If it's a comment line, drop out.
     	if (sLine.startsWith("#")) return;
 
+    	m_sExceptionContext = "Parsing dictionary line";
+    	
     	int iDivider1 = sLine.indexOf(' ');
     	int iDivider2 = sLine.indexOf(' ',iDivider1 + 1);
     	int iDivider3 = sLine.indexOf('[',iDivider2 + 1);
@@ -244,21 +265,27 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     		sEnglish2 = sLine.substring(iDivider6 + 1, iDivider7);
     	else
     		sEnglish2 = null;
-    	
+
+    	m_sExceptionContext = "Calling Table.createRow()";
     	Row rw = tbl.createRow();
-    	
+
+    	m_sExceptionContext = "Calling Row.setField()";
     	rw.setField(TRADITIONAL_FIELD_NAME,sTraditional);
     	rw.setField(SIMPLIFIED_FIELD_NAME,sSimplified);
     	rw.setField(PINYIN_FIELD_NAME,sPinyin);
     	rw.setField(ENGLISH1_FIELD_NAME,sEnglish1);
     	rw.setField(ENGLISH2_FIELD_NAME,sEnglish2);
+
+    	m_sExceptionContext = "Calling Row.save()";
     	rw.save();
 
     	if (bTrace)
     	{
+        	m_sExceptionContext = "Tracing out dictionary line";
         	System.out.println(iLineNo + ": " + sLine);
-        	System.out.flush();
     	}
+
+    	m_sExceptionContext = "";
     }
     
     /**Implementation of CommandListener.*/
@@ -276,15 +303,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         {
             try
             {
-                Alert progress = new Alert(null,"Deleting database...",null,null);
-                OccleveMobileMidlet.getInstance().displayAlert(progress,this);
-                progress.setTimeout(Alert.FOREVER);
-
-            	Database db = Database.connect(DICTIONARY_DB_NAME);
-        		db.start();
-        		db.drop();            	
-        		
-        		progress.setString("Database deleted");
+            	deleteDatabase();
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
@@ -304,6 +323,37 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         }
     }
 
+    private void deleteDatabase() throws Exception
+    {
+        Alert progress = new Alert(null,"Deleting database...",null,null);
+        progress.setTimeout(Alert.FOREVER);
+        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+
+        //// This approach didn't work....
+    	////Database db = Database.connect(DICTIONARY_DB_NAME);
+		///db.start();
+		////db.drop();            	
+		    	
+    	String[] rsNames = RecordStore.listRecordStores();
+        
+        if (rsNames==null)
+        {
+            OccleveMobileMidlet.getInstance().onError("No recordstores");
+        }
+        else
+        {
+	        for (int i=0; i<rsNames.length; i++)
+	        {
+	        	boolean bIsQuizData =
+	        		(rsNames[i].equals(VocabRecordStoreManager.MEDIA_RECORDSTORE_NAME)) ||
+	        		(rsNames[i].equals(VocabRecordStoreManager.QUIZ_RECORDSTORE_NAME));
+	        	if (bIsQuizData==false) RecordStore.deleteRecordStore(rsNames[i]);
+	        }
+        }
+
+		progress.setString("Database deleted");
+    }
+    
     /*Implementation of ItemCommandListener.*/
     public void commandAction(Command c, Item item)
     {
