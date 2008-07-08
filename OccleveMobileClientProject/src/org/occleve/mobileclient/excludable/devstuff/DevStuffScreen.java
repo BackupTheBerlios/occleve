@@ -82,7 +82,9 @@ implements CommandListener,Excludable,Runnable
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
     protected final String BUILD_EUCCN_UNICODE_MAP = "Build EUC-CN to Unicode map";
-    protected final String COUNT_RS_RECORDS = "Count records in recordstore";
+    protected final String COUNT_RS_RECORDS = "Count records in recordstores";
+    protected final String LIST_RECORDSTORES = "List recordstores";
+    
     //protected final String MOVE_MEDIA_FILES_TO_MEDIA_RS = "Move media files to media RS";
     //protected final String FIX_FOULED_MEDIA_FILES = "Fix fouled media files";
 
@@ -124,6 +126,8 @@ implements CommandListener,Excludable,Runnable
         append(CREATE_NEW_TEST,null);
         append(BUILD_EUCCN_UNICODE_MAP,null);
         append(COUNT_RS_RECORDS,null);
+        append(LIST_RECORDSTORES,null);
+
         //append(MOVE_MEDIA_FILES_TO_MEDIA_RS,null);
         //append(FIX_FOULED_MEDIA_FILES,null);
         
@@ -301,6 +305,11 @@ implements CommandListener,Excludable,Runnable
         else if (sOption.equals(COUNT_RS_RECORDS))
         {
         	countRecordsInRecordStores();
+        }
+        else if (sOption.equals(LIST_RECORDSTORES))
+        {
+        	RecordStoreExplorer rse = new RecordStoreExplorer();
+            OccleveMobileMidlet.getInstance().setCurrentForm(rse);        	
         }
         
         /*
