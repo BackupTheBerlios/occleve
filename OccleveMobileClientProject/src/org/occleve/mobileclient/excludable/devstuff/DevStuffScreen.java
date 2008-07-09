@@ -71,6 +71,7 @@ implements CommandListener,Excludable,Runnable
     protected final String TESTBED_CANVAS = "Testbed canvas";
     protected final String TESTBED_FORM = "Testbed form";
     protected final String TESTBED_TEXTBOX = "Testbed textbox";
+    protected final String TEST_LWUIT = "Test the LWUIT";
     protected final String COUNT_QUESTIONS = "Count questions";
     protected final String DISPLAY_PHONE_MODEL = "Display phone model";
     protected final String DISPLAY_MEMORY_STATS = "Memory stats";
@@ -114,6 +115,7 @@ implements CommandListener,Excludable,Runnable
         append(TESTBED_CANVAS,null);
         append(TESTBED_FORM,null);
         append(TESTBED_TEXTBOX,null);
+        append(TEST_LWUIT,null);
         append(COUNT_QUESTIONS,null);
         append(DISPLAY_PHONE_MODEL,null);
         append(DISPLAY_MEMORY_STATS,null);
@@ -243,6 +245,11 @@ implements CommandListener,Excludable,Runnable
         {
             TestbedTextBox ttb = new TestbedTextBox();
             OccleveMobileMidlet.getInstance().setCurrentForm(ttb);
+        }
+        else if (sOption.equals(TEST_LWUIT))
+        {
+            TestLWUIT tl = new TestLWUIT();
+            tl.display();
         }
         else if (sOption.equals(COUNT_QUESTIONS))
         {

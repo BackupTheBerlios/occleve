@@ -23,6 +23,7 @@ OccleveMobileMidlet.java
 
 package org.occleve.mobileclient;
 
+///////import com.sun.lwuit.Display;
 import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.*;
@@ -82,9 +83,12 @@ implements CommandListener,Runnable
 
 	private void OccleveMobileMidlet_Inner() throws Exception
 	{
-            System.out.println("Entering OccleveMobileMidlet_Inner()");
-            m_FileChooserForm = new FileChooserForm(true);
-            m_CurrentForm = m_FileChooserForm;
+		System.out.println("Entering OccleveMobileMidlet_Inner()");
+		m_FileChooserForm = new FileChooserForm(true);
+		m_CurrentForm = m_FileChooserForm;
+		
+		// 0.9.7 - initialize display for LWUIT
+		//////com.sun.lwuit.Displaỵ.init(this);
 	}
 
         // Not sure if this really works...
