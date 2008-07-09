@@ -217,7 +217,10 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
 ////        	boolean bTrace = (i%50 == 0);
         	boolean bTrace = true;
         	
-        	processCedictLine(oneLine,tbl,bTrace,i);
+        	if (i!=45)
+        	{
+        		processCedictLine(oneLine,tbl,bTrace,i);
+        	}
         	
         	if (bTrace)
         	{
