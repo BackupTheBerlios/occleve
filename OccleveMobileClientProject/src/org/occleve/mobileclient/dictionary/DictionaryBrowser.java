@@ -22,10 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.dictionary;
 
+import com.sun.lwuit.*;
+import com.sun.lwuit.plaf.*;
+import com.sun.lwuit.util.*;
+
 import java.io.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
-import javax.microedition.lcdui.*;
+//////import javax.microedition.lcdui.*;
 import javax.microedition.rms.RecordStore;
 
 import bm.db.*;
@@ -33,9 +37,11 @@ import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.util.*;
 
-/**0.9.7 - a browser for the CC-CEDICT dictionary.*/
+/**0.9.7 - a browser for the CC-CEDICT dictionary.
+Now using LWUIT rather than MIDP for the UI.*/
 public class DictionaryBrowser extends Form
-implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
+implements J2MEFileSelectorListener,Runnable
+////CommandListener,ItemCommandListener,  MIDP STUFF
 {
 	private static final String DICTIONARY_DB_NAME = "dictionaryDb";
 	private static final String DICTIONARY_TABLE_NAME = "CEDICT";
@@ -54,6 +60,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
 	/**The full URL of the CEDICT file, including the "file:///" prefix.*/
 	protected String m_sCedictFileURL;
 	
+	protected Command m_SearchCommand;
     protected Command m_QuizModeCommand;
     protected Command m_DeleteDatabaseCommand;
     protected Command m_CreateDatabaseCommand;
@@ -62,47 +69,68 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     protected TextField m_SearchForTextField;
 
     protected static final String SEARCH_BUTTON_TEXT = "Search";
-    protected StringItem m_SearchButton =
-        new StringItem(null,SEARCH_BUTTON_TEXT,Item.BUTTON);
+    protected Button m_SearchButton;
 
-    protected TextField m_SearchResultsTextField;
+    protected TextArea m_SearchResultsTextArea;
     
     public DictionaryBrowser() throws Exception
     {
         super("Dictionary");
 
-        m_QuizModeCommand = new Command("Quiz mode", Command.ITEM, 1);
+        m_SearchCommand = new Command("Search",0);
+        addCommand(m_SearchCommand);
+
+        m_QuizModeCommand = new Command("Quiz mode",1);
         addCommand(m_QuizModeCommand);
 
-        m_DeleteDatabaseCommand = new Command("Delete DB", Command.ITEM, 1);
+        m_DeleteDatabaseCommand = new Command("Delete DB",2);
         addCommand(m_DeleteDatabaseCommand);
 
-        m_CreateDatabaseCommand = new Command("Create DB", Command.ITEM, 1);
+        m_CreateDatabaseCommand = new Command("Create DB",3);
         addCommand(m_CreateDatabaseCommand);
 
-        m_CommonCommands = new CommonCommands();
-        m_CommonCommands.addToDisplayable(this);
+        /////m_CommonCommands = new CommonCommands();
+        /////m_CommonCommands.addToDisplayable(this);
         
-        setCommandListener(this);
+        ///////setCommandListener(this);
 
         // Append items to this form.
 
-        m_SearchForTextField =
-        	new TextField("Search for:","",10,TextField.ANY);
-        append(m_SearchForTextField);
-
-        append(m_SearchButton);
-        m_SearchButton.setItemCommandListener(this);
-        Command temp = new Command("temp",Command.OK,1);
-        m_SearchButton.setDefaultCommand(temp);
-
-        m_SearchResultsTextField =
-        	new TextField(null,"",500,TextField.UNEDITABLE);
-        append(m_SearchResultsTextField);
-
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);        
-
+        Label prompt = new Label("Search for:");
+        addComponent(prompt);
         
+        m_SearchForTextField = new TextField();
+        addComponent(m_SearchForTextField);
+
+        m_SearchButton = new Button(m_SearchCommand);
+        addComponent(m_SearchButton);
+        
+        ////m_SearchButton.setItemCommandListener(this);
+        ///Command temp = new Command("temp",Command.OK,1);
+        ////m_SearchButton.setDefaultCommand(temp);
+
+        m_SearchResultsTextArea = new TextArea();
+        m_SearchResultsTextArea.setConstraint(TextArea.UNEDITABLE);
+        m_SearchResultsTextArea.setMaxSize(500);
+        addComponent(m_SearchResultsTextArea);
+
+        ///// OccleveMobileMidlet.getInstance().setCurrentForm(this);        
+
+		Display.init(OccleveMobileMidlet.getInstance());
+		show();
+
+        try
+        {
+        	  Resources r = Resources.open("/javaTheme.res");
+        	  UIManager.getInstance().setThemeProps(r.getTheme("javaTheme"));
+              Display.getInstance().getCurrent().refreshTheme();
+    	}
+        catch (Exception e)
+        {
+        	System.out.println("Couldn't load theme.");
+        	OccleveMobileMidlet.getInstance().onError(e);
+    	}
+                        
         /*
 		Database db = null;
 		db = Database.connect(DICTIONARY_DB_NAME);
@@ -127,7 +155,8 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     	try
     	{
     		createAndPopulateDictionaryDatabase();
-            OccleveMobileMidlet.getInstance().setCurrentForm(this);        
+            ///OccleveMobileMidlet.getInstance().setCurrentForm(this);
+    		show();
     	}
     	catch (Exception e)
     	{
@@ -143,19 +172,18 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     filesystem.*/
     private void createAndPopulateDictionaryDatabase() throws Exception
     {
-        Alert progress = new Alert(null,"Creating database...",null,null);
-        progress.setTimeout(Alert.FOREVER);
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+        LWUITAlert progress = new LWUITAlert(null,"Creating database...");
+        progress.show();
 
         Table tbl = createDatabaseAndTable(progress);
     	
     	progress.setString("Importing dictionary....");
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+    	progress.show();
 
     	importDictionary(tbl,progress);
     }
 
-    private Table createDatabaseAndTable(Alert progress) throws Exception
+    private Table createDatabaseAndTable(LWUITAlert progress) throws Exception
     {
     	Database db = Database.create(DICTIONARY_DB_NAME);
     	Table tbl = new Table(DICTIONARY_TABLE_NAME);
@@ -183,7 +211,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
 
     /**Imports the dictionary from the CEDICT flat file on the local filesystem,
     to the OpenBaseMovil database.*/
-    private void importDictionary(Table tbl,Alert progress) throws Exception
+    private void importDictionary(Table tbl,LWUITAlert progress) throws Exception
     {
     	System.out.println("Opening " + m_sCedictFileURL);
     	
@@ -203,7 +231,8 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         String oneLine = "";
         int iMaxLength = 0;
 
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+        ////OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+        progress.show();
 
         // while (oneLine!=StaticHelpers.END_OF_STREAM_REACHED)
         //while (isr.ready())
@@ -292,9 +321,19 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     }
     
     /**Implementation of CommandListener.*/
-    public void commandAction(Command c, Displayable s)
+    //// MIDP STUFF ///// public void commandAction(Command c, Displayable s)
+    
+    protected void actionCommand(Command c)
     {
-        if (c==m_QuizModeCommand)
+    	if (c==m_SearchCommand)
+        {
+            try
+            {
+            	searchDatabase();
+            }
+            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        }
+    	else if (c==m_QuizModeCommand)
         {
             try
             {
@@ -328,10 +367,14 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
 
     private void deleteDatabase() throws Exception
     {
-        Alert progress = new Alert(null,"Deleting database...",null,null);
-        progress.setTimeout(Alert.FOREVER);
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+    	//// MIDP STUFF
+        /////Alert progress = new Alert(null,"Deleting database...",null,null);
+        ////progress.setTimeout(Alert.FOREVER);
+        ////OccleveMobileMidlet.getInstance().displayAlert(progress,this);
 
+    	LWUITAlert progress = new LWUITAlert("","Deleting database...");
+    	progress.show();
+    	
         //// This approach didn't work....
     	////Database db = Database.connect(DICTIONARY_DB_NAME);
 		///db.start();
@@ -358,6 +401,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     }
     
     /*Implementation of ItemCommandListener.*/
+    /*
     public void commandAction(Command c, Item item)
     {
         try
@@ -371,6 +415,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
+    */
 
     /**Called when the user clicks Search.*/
     private void searchDatabase() throws Exception
@@ -382,7 +427,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     	System.out.println("db = " + db);
     	if (db==null)
     	{
-    		m_SearchResultsTextField.setString("No database connection");
+    		m_SearchResultsTextArea.setText("No database connection");
             m_SearchButton.setText(SEARCH_BUTTON_TEXT);
     		return;
     	}
@@ -396,7 +441,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         System.out.println("tbl = " + tbl);
     	if (tbl==null)
     	{
-    		m_SearchResultsTextField.setString("Table not found in database");
+    		m_SearchResultsTextArea.setText("Table not found in database");
             m_SearchButton.setText(SEARCH_BUTTON_TEXT);
     		return;
     	}
@@ -409,7 +454,7 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
     		ENGLISH1_FIELD_NAME + "+" +
     		ENGLISH2_FIELD_NAME;
     		    	
-        RowSet rs = tbl.findFuzzy(sFieldExpression,m_SearchForTextField.getString());
+        RowSet rs = tbl.findFuzzy(sFieldExpression,m_SearchForTextField.getText());
         System.out.println("rs = " + rs);
         
         System.out.println("Rowset contains " + rs.size() + " rows");
@@ -455,13 +500,13 @@ implements CommandListener,ItemCommandListener,J2MEFileSelectorListener,Runnable
         }
 
         String sDisplayMe = sbResults.toString();
-        int iMaxLength = m_SearchResultsTextField.getMaxSize();
+        int iMaxLength = m_SearchResultsTextArea.getMaxSize();
         if (sDisplayMe.length() > iMaxLength)
         {
         	sDisplayMe = sDisplayMe.substring(0,iMaxLength);
         }
         
-        m_SearchResultsTextField.setString(sDisplayMe);
+        m_SearchResultsTextArea.setText(sDisplayMe);
         m_SearchButton.setText(SEARCH_BUTTON_TEXT);    	
     }
 
