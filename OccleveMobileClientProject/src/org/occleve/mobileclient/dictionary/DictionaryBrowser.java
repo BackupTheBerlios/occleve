@@ -23,6 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.dictionary;
 
 import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
 import com.sun.lwuit.plaf.*;
 import com.sun.lwuit.util.*;
 
@@ -40,7 +42,7 @@ import org.occleve.mobileclient.util.*;
 /**0.9.7 - a browser for the CC-CEDICT dictionary.
 Now using LWUIT rather than MIDP for the UI.*/
 public class DictionaryBrowser extends Form
-implements J2MEFileSelectorListener,Runnable
+implements ActionListener,J2MEFileSelectorListener,Runnable
 ////CommandListener,ItemCommandListener,  MIDP STUFF
 {
 	private static final String DICTIONARY_DB_NAME = "dictionaryDb";
@@ -94,22 +96,27 @@ implements J2MEFileSelectorListener,Runnable
         
         ///////setCommandListener(this);
 
-        // Append items to this form.
+        // Append items to this form, on a vertical axis.
+
+        BoxLayout layout = new BoxLayout(BoxLayout.Y_AXIS);
+        setLayout(layout);
 
         Label prompt = new Label("Search for:");
-        addComponent(prompt);
-        
         m_SearchForTextField = new TextField();
-        addComponent(m_SearchForTextField);
+        Container promptAndField = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        promptAndField.addComponent(prompt);
+        promptAndField.addComponent(m_SearchForTextField);
+        addComponent(promptAndField);
 
         m_SearchButton = new Button(m_SearchCommand);
         addComponent(m_SearchButton);
+        m_SearchButton.addActionListener(this);
         
         ////m_SearchButton.setItemCommandListener(this);
         ///Command temp = new Command("temp",Command.OK,1);
         ////m_SearchButton.setDefaultCommand(temp);
 
-        m_SearchResultsTextArea = new TextArea();
+        m_SearchResultsTextArea = new TextArea(10,20);
         m_SearchResultsTextArea.setConstraint(TextArea.UNEDITABLE);
         m_SearchResultsTextArea.setMaxSize(500);
         addComponent(m_SearchResultsTextArea);
@@ -130,7 +137,13 @@ implements J2MEFileSelectorListener,Runnable
         	System.out.println("Couldn't load theme.");
         	OccleveMobileMidlet.getInstance().onError(e);
     	}
-                        
+
+        // Switch the results textarea to using the system font, or the Chinese
+        // characters won't display.
+        Font systemFont =
+        	Font.createSystemFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
+        m_SearchResultsTextArea.getStyle().setFont(systemFont);
+        
         /*
 		Database db = null;
 		db = Database.connect(DICTIONARY_DB_NAME);
@@ -322,6 +335,16 @@ implements J2MEFileSelectorListener,Runnable
     
     /**Implementation of CommandListener.*/
     //// MIDP STUFF ///// public void commandAction(Command c, Displayable s)
+
+    /**Implementation of ActionListener.*/
+    public void actionPerformed(ActionEvent ae)
+    {
+        try
+        {
+            if (ae.getSource()==m_SearchButton) searchDatabase();
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}    	
+    }
     
     protected void actionCommand(Command c)
     {
@@ -361,7 +384,7 @@ implements J2MEFileSelectorListener,Runnable
         }
         else
         {
-            OccleveMobileMidlet.getInstance().onError("Unknown command in DictionaryBrowser.commandAction");
+            OccleveMobileMidlet.getInstance().onError("Unknown command in DictionaryBrowser.actionCommand");
         }
     }
 
@@ -404,16 +427,6 @@ implements J2MEFileSelectorListener,Runnable
     /*
     public void commandAction(Command c, Item item)
     {
-        try
-        {
-        	System.out.println("Entering commandAction...");
-         	
-            if (item==m_SearchButton)
-            {
-            	searchDatabase();
-            }
-        }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
     */
 
