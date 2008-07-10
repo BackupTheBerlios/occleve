@@ -187,13 +187,24 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     {
         LWUITAlert progress = new LWUITAlert(null,"Creating database...");
         progress.show();
-
         Table tbl = createDatabaseAndTable(progress);
     	
     	progress.setString("Importing dictionary....");
     	progress.show();
-
     	importDictionary(tbl,progress);
+    	
+    	// Create an index across all the columns.
+    	progress.setString("Indexing dictionary....");
+    	progress.show();
+    	String[] cols = {TRADITIONAL_FIELD_NAME,SIMPLIFIED_FIELD_NAME,PINYIN_FIELD_NAME,
+    						ENGLISH1_FIELD_NAME,ENGLISH2_FIELD_NAME};
+      	tbl.createFullTextIndex(INDEX_NAME,cols,false);
+
+    	progress.setString("Finished!");
+    	progress.show();
+    	Thread.sleep(5000);
+
+    	this.show();
     }
 
     private Table createDatabaseAndTable(LWUITAlert progress) throws Exception
@@ -210,11 +221,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     	tbl.addColumn(PINYIN_FIELD_NAME, bm.db.Constants.FT_STRING,255);
     	tbl.addColumn(ENGLISH1_FIELD_NAME, bm.db.Constants.FT_STRING,255);
     	tbl.addColumn(ENGLISH2_FIELD_NAME, bm.db.Constants.FT_STRING,255);
-
-    	// Create an index across all the columns.
-    	String[] cols = {TRADITIONAL_FIELD_NAME,SIMPLIFIED_FIELD_NAME,PINYIN_FIELD_NAME,
-    						ENGLISH1_FIELD_NAME,ENGLISH2_FIELD_NAME};
-    	tbl.createFullTextIndex(INDEX_NAME,cols,false);
     	
         progress.setString("Creating table...");
     	db.createTable(tbl);    	
@@ -247,17 +253,21 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         ////OccleveMobileMidlet.getInstance().displayAlert(progress,this);
         progress.show();
 
+        // Open all dependent stores to prevent opening/closing every time a row is added
+        // (as per "Improving operations with open and close" section of developer's guide)
+        tbl.openTree();
+        
         // while (oneLine!=StaticHelpers.END_OF_STREAM_REACHED)
         //while (isr.ready())
-        for (int i=0; i<65000; i++)
+        ///for (int i=0; i<65000; i++)
+        for (int i=0; i<2000; i++)
         {
         	m_sExceptionContext = "Reading line from dictionary file";
         	oneLine = StaticHelpers.readFromISR(isr,true);
         	
         	if (oneLine.length() > iMaxLength) iMaxLength = oneLine.length();
         	
-////        	boolean bTrace = (i%50 == 0);
-        	boolean bTrace = true;
+        	boolean bTrace = (i%20 == 0);
         	
         	if (i!=45)
         	{
@@ -272,8 +282,12 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 					"Free memory in bytes = " +
 					Runtime.getRuntime().freeMemory();
         		progress.setString(sMsg);
+        		progress.show();
         	}
         }
+
+        // Close all dependent stores.
+        tbl.closeTree();
         
         System.out.println("Max line length = " + iMaxLength);    	
     }
@@ -345,46 +359,46 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}    	
     }
-    
+
     protected void actionCommand(Command c)
+    {
+    	try
+    	{
+    		actionCommand_Inner(c);
+    	}
+    	catch (Exception e)
+    	{
+    		OccleveMobileMidlet.getInstance().onError(e);
+    	}
+    }
+
+    private void actionCommand_Inner(Command c) throws Exception
     {
     	if (c==m_SearchCommand)
         {
-            try
-            {
-            	searchDatabase();
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        	searchDatabase();
         }
     	else if (c==m_QuizModeCommand)
         {
-            try
-            {
-            	OccleveMobileMidlet.getInstance().displayFileChooser(false);
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        	OccleveMobileMidlet.getInstance().displayFileChooser(false);
         }
         else if (c==m_DeleteDatabaseCommand)
         {
-            try
-            {
-            	deleteDatabase();
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        	deleteDatabase();
         }
         else if (c==m_CreateDatabaseCommand)
         {
-            try
-            {
-            	J2MEFileSelector fs = new J2MEFileSelector("Choose CEDICT file",null);        
-            	fs.setJ2MEFileSelectorListener(this);
-            	OccleveMobileMidlet.getInstance().setCurrentForm(fs);        
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        	J2MEFileSelector fs = new J2MEFileSelector("Choose CEDICT file",null);        
+        	fs.setJ2MEFileSelectorListener(this);
+        	OccleveMobileMidlet.getInstance().setCurrentForm(fs);        
         }
         else
         {
-            OccleveMobileMidlet.getInstance().onError("Unknown command in DictionaryBrowser.actionCommand");
+        	String sMsg =
+        		"Unknown command in DictionaryBrowser.actionCommand... " +
+        		"name = " + c.getCommandName() +
+        		"toString = " + c.toString();
+        	m_SearchResultsTextArea.setText(sMsg);
         }
     }
 
@@ -421,6 +435,9 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         }
 
 		progress.setString("Database deleted");
+		progress.show();
+		Thread.sleep(4000);
+		this.show();
     }
     
     /*Implementation of ItemCommandListener.*/
