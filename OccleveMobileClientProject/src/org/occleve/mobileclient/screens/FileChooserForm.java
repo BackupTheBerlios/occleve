@@ -237,7 +237,7 @@ implements CommandListener,Runnable
             /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
         }
         else if (c==m_DevStuffScreenCommand)
-        {
+        {           	
             ExcludableHooks.displayDevStuffScreen(entry);
         }
 
