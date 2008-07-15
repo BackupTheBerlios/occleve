@@ -29,12 +29,14 @@ import com.sun.lwuit.plaf.*;
 import com.sun.lwuit.util.*;
 
 import java.io.*;
+
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 //////import javax.microedition.lcdui.*;
 import javax.microedition.rms.RecordStore;
 
 import bm.db.*;
+import bm.db.index.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.util.*;
@@ -57,6 +59,8 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 
 	////////protected Database m_Database;
 
+	protected Index m_Index;
+	
 	protected String m_sExceptionContext;
 	
 	/**The full URL of the CEDICT file, including the "file:///" prefix.*/
@@ -78,7 +82,7 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     public DictionaryBrowser() throws Exception
     {
         super("Dictionary");
-
+      
         m_SearchCommand = new Command("Search",0);
         addCommand(m_SearchCommand);
 
@@ -179,6 +183,135 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     		OccleveMobileMidlet.getInstance().onError(sMsg);
     	}
     }
+
+    /**A different approach where the dictionary remains a flat file in the
+    JAR, and we just index it.*/
+    private void planB_indexDictionaryFile() throws Exception
+    {
+        LWUITAlert progress = new LWUITAlert(null,"Indexing dictionary file...");
+        progress.show();
+
+        m_Index = new Index(INDEX_NAME,30,Index.KT_STRING,false,false);
+        
+        // Reading the file from the OccleveMobileClient jar,
+        // therefore call getResourceAsStream() on the midlet class
+        // in order to ensure that the correct JAR is read from.
+        Class c = OccleveMobileMidlet.getInstance().getClass();
+        InputStream is = c.getResourceAsStream("/cedict_ts.u8");
+        if (is == null)
+        {
+        	throw new Exception("Can't find dictionary file in JAR");
+        }
+    
+	    InputStreamReader isr = new InputStreamReader(is,"UTF-8");
+	    int iCharsRead = 0;
+	    int iLinesRead = 0;
+	    while (iCharsRead < 100000)
+	    {
+	    	iCharsRead = planB_readAndIndexCedictLine(isr,iCharsRead);
+	    	
+	    	progress.setString(iCharsRead + " chars read");
+	    	progress.show();
+	    	
+	    	iLinesRead++;
+	    	if (iLinesRead%100==0) System.out.println(iLinesRead + "    " + iCharsRead);
+	    }
+	    
+    	progress.setString("Finished!");
+    	progress.show();
+    	Thread.sleep(5000);
+
+    	this.show();
+    }
+
+    private class FileOffsets
+    {
+    	private int[] m_FileOffsets;
+    	
+    	public FileOffsets(int iFileOffset)
+    	{
+        	m_FileOffsets = new int[1];
+        	m_FileOffsets[0] = iFileOffset;
+    	}
+    	
+    	/**Since each line is indexed in sequence, we don't have to worry about duplicates.*/
+    	public void addNewOffset(int iFileOffset)
+    	{
+    		int[] newArray = new int[m_FileOffsets.length];
+    		System.arraycopy(m_FileOffsets,0,newArray,0,m_FileOffsets.length);
+    		m_FileOffsets = newArray;
+    	}
+    }
+    
+    
+    private int planB_readAndIndexCedictLine(InputStreamReader isr,int iCharsRead) 
+    throws Exception
+    {
+    	String sLine = StaticHelpers.readFromISR(isr,true);
+    	/////System.out.println(sLine);
+
+    	// If it's a comment line, drop out.
+    	if (sLine.startsWith("#")==false)
+    	{
+	    	m_sExceptionContext = "Parsing dictionary line";
+	    	////Integer objCharsRead = new Integer(iCharsRead);
+
+	    	boolean bWhitespace;	    	
+	    	int iIndex = 0;
+	    	
+	    	while (iIndex < sLine.length())
+	    	{	    		
+	    		bWhitespace = true;
+		    	while (bWhitespace && iIndex<sLine.length())
+		    	{		    		
+		    		char c = sLine.charAt(iIndex);
+		    		bWhitespace = StaticHelpers.isPunctuation(c);
+		    		////	! (Character.isDigit(c) || Character.isLowerCase(c) || Character.isUpperCase(c));
+
+		    		////System.out.println("iIndex = " + iIndex + "  c=" + (char)c + "  bWhitespace=" + bWhitespace);
+		    		
+		    		iIndex++;
+		    	}
+		    	
+		    	////System.out.println("Exiting eat-whitespace loop with iIndex = " + iIndex);
+		    	
+		    	if (iIndex<sLine.length()) iIndex--;
+		    	
+		    	StringBuffer sbToken = new StringBuffer();
+		    	while ((bWhitespace==false) && (iIndex<sLine.length()))
+		    	{
+		    		char c = sLine.charAt(iIndex);
+		    		bWhitespace = StaticHelpers.isPunctuation(c);
+		    		///bWhitespace =
+		    		///	! (Character.isDigit(c) || Character.isLowerCase(c) || Character.isUpperCase(c));
+		    		if (!bWhitespace) sbToken.append(c);
+		    		iIndex++;
+		    	}
+
+		    	/////System.out.println("sbToken = " + sbToken.toString());
+
+		    	// If this token already has a FileOffsets object for it in the index,
+		    	// add the current offset to it. Else create a new FileOffsets object.
+		    	Object indexEntry = m_Index.find(sbToken.toString());
+		    	if (indexEntry!=null)
+		    	{
+		    		System.out.println("adding new offset to existing FileOffsets obj");
+		    		System.out.println("Type of FileOffsets obj is " + indexEntry.getClass().toString());
+		    		((FileOffsets)indexEntry).addNewOffset(iCharsRead);
+		    	}
+		    	else
+		    	{
+		    		System.out.println("creating new FileOffsets object");
+		    		indexEntry = new FileOffsets(iCharsRead);
+		    		m_Index.insertObject(sbToken.toString(),indexEntry);
+		    	}
+	    	}
+
+    	}
+    	
+    	return (iCharsRead + sLine.length() + 1);
+    }
+
     
     /**The database doesn't exist yet. Create it, and then import the CEDICT data
     into it from the CEDICT flat file which should be somewhere on the phone's
@@ -388,9 +521,11 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         }
         else if (c==m_CreateDatabaseCommand)
         {
-        	J2MEFileSelector fs = new J2MEFileSelector("Choose CEDICT file",null);        
-        	fs.setJ2MEFileSelectorListener(this);
-        	OccleveMobileMidlet.getInstance().setCurrentForm(fs);        
+        	///J2MEFileSelector fs = new J2MEFileSelector("Choose CEDICT file",null);        
+        	///fs.setJ2MEFileSelectorListener(this);
+        	///OccleveMobileMidlet.getInstance().setCurrentForm(fs);
+        	
+            planB_indexDictionaryFile();
         }
         else
         {
