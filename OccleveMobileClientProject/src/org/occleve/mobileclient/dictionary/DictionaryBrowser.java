@@ -171,7 +171,8 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     {
     	try
     	{
-    		createAndPopulateDictionaryDatabase();
+            planB_indexDictionaryFile();
+    		////////createAndPopulateDictionaryDatabase();
             ///OccleveMobileMidlet.getInstance().setCurrentForm(this);
     		show();
     	}
@@ -192,7 +193,22 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         progress.show();
 
         m_Index = new Index(INDEX_NAME,30,Index.KT_STRING,false,false);
-        
+
+/*        
+m_Index.insertObject("red fruit","apples");
+m_Index.insertObject("yellow fruit","bananas");
+m_Index.insertObject("not fruit",new FileOffsets(0));
+
+String sFind = (String)m_Index.find("red fruit");
+System.out.println("Search for red fruit found: " + sFind);
+
+Object oFind = m_Index.find("not fruit");
+System.out.println("Search for not fruit found: " + oFind);
+FileOffsets casted = (FileOffsets)oFind;
+System.out.println("casted = " + casted);
+return;
+*/        
+
         // Reading the file from the OccleveMobileClient jar,
         // therefore call getResourceAsStream() on the midlet class
         // in order to ensure that the correct JAR is read from.
@@ -209,12 +225,14 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 	    while (iCharsRead < 100000)
 	    {
 	    	iCharsRead = planB_readAndIndexCedictLine(isr,iCharsRead);
-	    	
-	    	progress.setString(iCharsRead + " chars read");
-	    	progress.show();
-	    	
+	    		    	
 	    	iLinesRead++;
-	    	if (iLinesRead%100==0) System.out.println(iLinesRead + "    " + iCharsRead);
+	    	if (iLinesRead%20==0)
+	    	{
+	    		System.out.println("######" + iLinesRead + "    " + iCharsRead);
+		    	progress.setString(iCharsRead + " chars read, " + iLinesRead + " lines read");
+		    	progress.show();
+	    	}
 	    }
 	    
     	progress.setString("Finished!");
@@ -224,6 +242,7 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     	this.show();
     }
 
+    /*
     private class FileOffsets
     {
     	private int[] m_FileOffsets;
@@ -234,7 +253,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         	m_FileOffsets[0] = iFileOffset;
     	}
     	
-    	/**Since each line is indexed in sequence, we don't have to worry about duplicates.*/
     	public void addNewOffset(int iFileOffset)
     	{
     		int[] newArray = new int[m_FileOffsets.length];
@@ -242,13 +260,12 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     		m_FileOffsets = newArray;
     	}
     }
-    
-    
+	*/
+        
     private int planB_readAndIndexCedictLine(InputStreamReader isr,int iCharsRead) 
     throws Exception
     {
     	String sLine = StaticHelpers.readFromISR(isr,true);
-    	/////System.out.println(sLine);
 
     	// If it's a comment line, drop out.
     	if (sLine.startsWith("#")==false)
@@ -260,50 +277,73 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 	    	int iIndex = 0;
 	    	
 	    	while (iIndex < sLine.length())
-	    	{	    		
+	    	{
+	    		// Skip any whitespace preceding the next token.
 	    		bWhitespace = true;
 		    	while (bWhitespace && iIndex<sLine.length())
 		    	{		    		
 		    		char c = sLine.charAt(iIndex);
-		    		bWhitespace = StaticHelpers.isPunctuation(c);
-		    		////	! (Character.isDigit(c) || Character.isLowerCase(c) || Character.isUpperCase(c));
-
-		    		////System.out.println("iIndex = " + iIndex + "  c=" + (char)c + "  bWhitespace=" + bWhitespace);
-		    		
+		    		bWhitespace = StaticHelpers.isPunctuation(c);		    		
 		    		iIndex++;
 		    	}
-		    	
-		    	////System.out.println("Exiting eat-whitespace loop with iIndex = " + iIndex);
-		    	
+		    			    	
 		    	if (iIndex<sLine.length()) iIndex--;
-		    	
+
+		    	// Now parse the token that's after the whitespace.
 		    	StringBuffer sbToken = new StringBuffer();
 		    	while ((bWhitespace==false) && (iIndex<sLine.length()))
 		    	{
 		    		char c = sLine.charAt(iIndex);
 		    		bWhitespace = StaticHelpers.isPunctuation(c);
-		    		///bWhitespace =
-		    		///	! (Character.isDigit(c) || Character.isLowerCase(c) || Character.isUpperCase(c));
 		    		if (!bWhitespace) sbToken.append(c);
 		    		iIndex++;
 		    	}
 
-		    	/////System.out.println("sbToken = " + sbToken.toString());
+		    	if (sbToken.length()!=0 && sbToken.equals("a")==false &&
+		    			sbToken.equals("the")==false &&
+		    			sbToken.equals("of")==false)
+		    	{
+			    	// If this token already has a FileOffsets object for it in the index,
+			    	// add the current offset to it. Else create a new FileOffsets object.
 
-		    	// If this token already has a FileOffsets object for it in the index,
-		    	// add the current offset to it. Else create a new FileOffsets object.
-		    	Object indexEntry = m_Index.find(sbToken.toString());
-		    	if (indexEntry!=null)
-		    	{
-		    		System.out.println("adding new offset to existing FileOffsets obj");
-		    		System.out.println("Type of FileOffsets obj is " + indexEntry.getClass().toString());
-		    		((FileOffsets)indexEntry).addNewOffset(iCharsRead);
-		    	}
-		    	else
-		    	{
-		    		System.out.println("creating new FileOffsets object");
-		    		indexEntry = new FileOffsets(iCharsRead);
-		    		m_Index.insertObject(sbToken.toString(),indexEntry);
+		    		///// Object indexEntry = m_Index.find(sbToken.toString());
+		    		String indexEntry = (String)m_Index.find(sbToken.toString());
+		    		
+			    	if (indexEntry!=null)
+			    	{
+			    		/*
+			    		System.out.println("====================================================");
+			    		System.out.println("adding new offset to existing FileOffsets obj");
+			    		System.out.println("sbToken = " + sbToken.toString());
+			    		System.out.println("sbToken.length = " + sbToken.length());
+			    		System.out.println("Type of FileOffsets obj is " + indexEntry.getClass());
+			    		System.out.println("toString on FileOffsets obj gives " + indexEntry.toString());
+						*/
+	
+			    		//if (indexEntry.getClass().toString().equals("class java.lang.String"))
+			    		//{
+			    		//	System.out.println("***Anomalous FileOffsets string obj is " + (String)indexEntry);
+			    		//}
+			    		//else
+			    		//{
+			    		
+			    			//System.out.println("Deleting object...");
+			    			m_Index.delete(sbToken.toString());
+
+			    			//System.out.println("Reinserting updated object...");
+			    			// ((FileOffsets)indexEntry).addNewOffset(iCharsRead);
+			    			indexEntry += "," + iCharsRead;
+				    		m_Index.insertObject(sbToken.toString(),indexEntry);			    			
+			    		//}
+			    	}
+			    	else
+			    	{
+			    		//System.out.println("====================================================");
+			    		//System.out.println("creating new FileOffsets object for token: " + sbToken.toString());
+			    		//indexEntry = new FileOffsets(iCharsRead);
+			    		indexEntry = new Integer(iCharsRead).toString();
+			    		m_Index.insertObject(sbToken.toString(),indexEntry);
+			    	}
 		    	}
 	    	}
 
@@ -525,7 +565,9 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         	///fs.setJ2MEFileSelectorListener(this);
         	///OccleveMobileMidlet.getInstance().setCurrentForm(fs);
         	
-            planB_indexDictionaryFile();
+            ////planB_indexDictionaryFile();
+        	
+    		new Thread(this).start();
         }
         else
         {
