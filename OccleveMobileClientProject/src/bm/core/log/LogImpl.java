@@ -25,7 +25,7 @@ package bm.core.log;
  * Default log implementation, debug version.
  *
  * @author <a href="mailto:narciso@elondra.org">Narciso Cerezo</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class LogImpl
     implements Log,
@@ -198,6 +198,8 @@ public class LogImpl
             final Throwable e
     )
     {
+    	// DISABLED JRG 20TH JULY 08
+    	/*
         final StringBuffer msg = new StringBuffer();
         msg.append( "[" ).append( shortName ).append( "] " )
                 .append( level ).append( " " )
@@ -207,5 +209,6 @@ public class LogImpl
         {
             e.printStackTrace();
         }
+        */
     }
 }
