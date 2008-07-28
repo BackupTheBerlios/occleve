@@ -29,6 +29,7 @@ import com.sun.lwuit.plaf.*;
 import com.sun.lwuit.util.*;
 
 import java.io.*;
+import java.util.*;
 
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
@@ -60,6 +61,9 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 	////////protected Database m_Database;
 
 	protected Index m_Index;
+	protected Hashtable m_Hashtable;
+	protected int m_iTotalTokensIndexed;
+	protected int m_iUniqueTokensIndexed;
 	
 	protected String m_sExceptionContext;
 	
@@ -176,38 +180,28 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
             ///OccleveMobileMidlet.getInstance().setCurrentForm(this);
     		show();
     	}
-    	catch (Exception e)
+    	catch (Throwable t)
     	{
-    		System.err.println(e);
+    		System.err.println(t);
+    		t.printStackTrace();
     		
-    		String sMsg = "While: " + m_sExceptionContext + "..." + e.toString();    			
+    		String sMsg = "While: " + m_sExceptionContext + "..." + t.toString();    			
     		OccleveMobileMidlet.getInstance().onError(sMsg);
     	}
     }
 
     /**A different approach where the dictionary remains a flat file in the
     JAR, and we just index it.*/
-    private void planB_indexDictionaryFile() throws Exception
+    private void planB_indexDictionaryFile() throws Throwable
     {
+    	m_iTotalTokensIndexed = 0;
+    	m_iUniqueTokensIndexed = 0;
+    	
         LWUITAlert progress = new LWUITAlert(null,"Indexing dictionary file...");
         progress.show();
 
-        m_Index = new Index(INDEX_NAME,30,Index.KT_STRING,false,false);
-
-/*        
-m_Index.insertObject("red fruit","apples");
-m_Index.insertObject("yellow fruit","bananas");
-m_Index.insertObject("not fruit",new FileOffsets(0));
-
-String sFind = (String)m_Index.find("red fruit");
-System.out.println("Search for red fruit found: " + sFind);
-
-Object oFind = m_Index.find("not fruit");
-System.out.println("Search for not fruit found: " + oFind);
-FileOffsets casted = (FileOffsets)oFind;
-System.out.println("casted = " + casted);
-return;
-*/        
+        ////////m_Index = new Index(INDEX_NAME,30,Index.KT_STRING,false,false);
+        m_Hashtable = new Hashtable(100000);
 
         // Reading the file from the OccleveMobileClient jar,
         // therefore call getResourceAsStream() on the midlet class
@@ -222,15 +216,22 @@ return;
 	    InputStreamReader isr = new InputStreamReader(is,"UTF-8");
 	    int iCharsRead = 0;
 	    int iLinesRead = 0;
-	    while (iCharsRead < 100000)
+	    while (iLinesRead < 65000)
 	    {
-	    	iCharsRead = planB_readAndIndexCedictLine(isr,iCharsRead);
+	    	iCharsRead = planB_readAndIndexCedictLine(isr,iCharsRead,iLinesRead);
 	    		    	
 	    	iLinesRead++;
-	    	if (iLinesRead%20==0)
+	    	if (iLinesRead%100==0)
 	    	{
-	    		System.out.println("######" + iLinesRead + "    " + iCharsRead);
-		    	progress.setString(iCharsRead + " chars read, " + iLinesRead + " lines read");
+	    		String sTrace =
+	    			iCharsRead + " chars read, " +
+					iLinesRead + " lines read, " +
+					m_iTotalTokensIndexed + " total tokens indexed, " +
+					m_iUniqueTokensIndexed + " unique tokens indexed, " +				
+	    			"Free memory in bytes = " + Runtime.getRuntime().freeMemory();
+	    		System.out.println(sTrace);
+
+	    		progress.setString(sTrace);
 		    	progress.show();
 	    	}
 	    }
@@ -241,29 +242,9 @@ return;
 
     	this.show();
     }
-
-    /*
-    private class FileOffsets
-    {
-    	private int[] m_FileOffsets;
-    	
-    	public FileOffsets(int iFileOffset)
-    	{
-        	m_FileOffsets = new int[1];
-        	m_FileOffsets[0] = iFileOffset;
-    	}
-    	
-    	public void addNewOffset(int iFileOffset)
-    	{
-    		int[] newArray = new int[m_FileOffsets.length];
-    		System.arraycopy(m_FileOffsets,0,newArray,0,m_FileOffsets.length);
-    		m_FileOffsets = newArray;
-    	}
-    }
-	*/
         
-    private int planB_readAndIndexCedictLine(InputStreamReader isr,int iCharsRead) 
-    throws Exception
+    private int planB_readAndIndexCedictLine(InputStreamReader isr,int iCharsRead,int iLineIndex) 
+    throws Throwable
     {
     	String sLine = StaticHelpers.readFromISR(isr,true);
 
@@ -307,42 +288,44 @@ return;
 			    	// add the current offset to it. Else create a new FileOffsets object.
 
 		    		///// Object indexEntry = m_Index.find(sbToken.toString());
-		    		String indexEntry = (String)m_Index.find(sbToken.toString());
+		    		////String indexEntry = (String)m_Index.find(sbToken.toString());
+		    		String indexEntry = (String)m_Hashtable.get(sbToken.toString());
 		    		
 			    	if (indexEntry!=null)
 			    	{
-			    		/*
-			    		System.out.println("====================================================");
-			    		System.out.println("adding new offset to existing FileOffsets obj");
-			    		System.out.println("sbToken = " + sbToken.toString());
-			    		System.out.println("sbToken.length = " + sbToken.length());
-			    		System.out.println("Type of FileOffsets obj is " + indexEntry.getClass());
-			    		System.out.println("toString on FileOffsets obj gives " + indexEntry.toString());
-						*/
-	
-			    		//if (indexEntry.getClass().toString().equals("class java.lang.String"))
-			    		//{
-			    		//	System.out.println("***Anomalous FileOffsets string obj is " + (String)indexEntry);
-			    		//}
-			    		//else
-			    		//{
-			    		
-			    			//System.out.println("Deleting object...");
-			    			m_Index.delete(sbToken.toString());
+		    			//System.out.println("Deleting object...");
+		    			////m_Index.delete(sbToken.toString());
+///			    		m_Hashtable.remove(sbToken.toString());
 
-			    			//System.out.println("Reinserting updated object...");
-			    			// ((FileOffsets)indexEntry).addNewOffset(iCharsRead);
-			    			indexEntry += "," + iCharsRead;
-				    		m_Index.insertObject(sbToken.toString(),indexEntry);			    			
-			    		//}
+		    			//System.out.println("Reinserting updated object...");
+		    			// ((FileOffsets)indexEntry).addNewOffset(iCharsRead);
+///		    			char c = (char)iLineIndex;
+		    			//indexEntry += new Character(c).toString();
+///		    			indexEntry += "," + iCharsRead;
+			    		////m_Index.insertObject(sbToken.toString(),indexEntry);
+///		    			m_Hashtable.put(sbToken.toString(),indexEntry);
+			    		m_iTotalTokensIndexed++;
 			    	}
 			    	else
 			    	{
-			    		//System.out.println("====================================================");
-			    		//System.out.println("creating new FileOffsets object for token: " + sbToken.toString());
-			    		//indexEntry = new FileOffsets(iCharsRead);
-			    		indexEntry = new Integer(iCharsRead).toString();
-			    		m_Index.insertObject(sbToken.toString(),indexEntry);
+			    		// This is a new token, not encountered so far in the indexing.
+		    			//char c = (char)iLineIndex;
+		    			//indexEntry = new Character(c).toString();
+			    		indexEntry = ""; ///// + iCharsRead;
+			    		/////m_Index.insertObject(sbToken.toString(),indexEntry);
+			    		
+			    		try
+			    		{
+			    			m_Hashtable.put(sbToken.toString(),indexEntry);
+			    		}
+			    		catch (Throwable t)
+			    		{
+			    			System.out.println("Caught it");
+			    			System.out.println(t);
+			    		}
+			    		
+			    		m_iTotalTokensIndexed++;
+			    		m_iUniqueTokensIndexed++;
 			    	}
 		    	}
 	    	}
