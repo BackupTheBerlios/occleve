@@ -1,0 +1,6 @@
+CHANGE LOG
+==============
+
+0.9.7:
+*Greatly improved UI by using LWUIT
+*Introduce DictionaryBrowser to read CEDICT dictionary
