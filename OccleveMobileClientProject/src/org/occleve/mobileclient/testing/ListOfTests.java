@@ -25,7 +25,10 @@ package org.occleve.mobileclient.testing;
 import java.util.*;
 
 import javax.microedition.io.*;
-////////import javax.microedition.io.file.*;
+
+//// NEED TO MOVE TO SEPARATE CLASS
+import javax.microedition.io.file.*;
+
 import javax.microedition.lcdui.Alert;
 import javax.microedition.media.Manager;
 
@@ -99,11 +102,12 @@ public class ListOfTests
         ListOfTests_LoadFromJar();
         ListOfTests_LoadFromRS(progressAlert);
         
-        ////// DISABLED FOR NOW AS CAUSES EXCEPTION IN THE MICROEMULATOR
-        ///if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
-        ///{
-        ///	ListOfTests_LoadFromFilesystem();
-        ///}
+        ////// CAUSES EXCEPTION IN THE MICROEMULATOR
+        /////  NEED TO MOVE File API CODE TO SEPARATE CLASS
+        if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
+        {
+        	ListOfTests_LoadFromFilesystem();
+        }
         
         ListOfTests_AlphaSort();
         System.out.println("Number of tests = " + m_vEntries.size());
@@ -214,8 +218,9 @@ public class ListOfTests
     /**New in 0.9.4: Subfunction for code clarity.
     Now get the list of tests that are in the phone's filesystem.
     From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
-    /*
-    ////// DISABLED FOR NOW AS CAUSES EXCEPTION IN THE MICROEMULATOR
+    ////// CAUSES EXCEPTION IN THE MICROEMULATOR....
+    //////  NEED TO MOVE TO SEPARATE CLASS TO AVOID ClassNotFoundException
+    /////   IN MICROEMULATOR
     private void ListOfTests_LoadFromFilesystem() throws Exception
     {
 		Enumeration drives = FileSystemRegistry.listRoots();
@@ -249,7 +254,6 @@ public class ListOfTests
 			fc.close();
 		}
     }
-    */
 
     /**Subfunction for code clarity.
     Sort the list into alpha order.

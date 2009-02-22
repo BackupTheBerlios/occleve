@@ -36,6 +36,7 @@ implements CommandListener
     protected Command m_DeleteCommand;
     protected Command m_DetailsCommand;
 
+    protected String[] m_RecordStoreNames;
     protected Hashtable m_RecordIndicesKeyedByFilenames;
 
     public RecordStoreExplorer()
@@ -61,15 +62,22 @@ implements CommandListener
         // Clear out the existing items in this form, if any.
         deleteAll();
 
-        String[] rsNames = RecordStore.listRecordStores();
+        m_RecordStoreNames = RecordStore.listRecordStores();
         
-        if (rsNames==null)
+        if (m_RecordStoreNames==null)
         {
         	append("No recordstores",null);
         }
         else
         {
-	        for (int i=0; i<rsNames.length; i++) append(rsNames[i],null);
+	        for (int i=0; i<m_RecordStoreNames.length; i++)
+	        {
+	        	RecordStore rs = RecordStore.openRecordStore(m_RecordStoreNames[i],false);
+	        	int iSize = rs.getSize();
+	        	rs.closeRecordStore();
+
+	        	append(m_RecordStoreNames[i] + " " + (iSize/1024) + "K",null);
+	        }
         }
     }
 
@@ -97,13 +105,13 @@ implements CommandListener
         }
         else if (c==m_DeleteCommand)
         {
-        	String sRSName = getString(iSelIndex);
+        	String sRSName = m_RecordStoreNames[iSelIndex];
         	RecordStore.deleteRecordStore(sRSName);
         	populate();
         }
         else if (c==m_DetailsCommand)
         {
-        	String sRSName = getString(iSelIndex);
+        	String sRSName = m_RecordStoreNames[iSelIndex];
         	showRecordStoreDetails(sRSName);
         }
         else

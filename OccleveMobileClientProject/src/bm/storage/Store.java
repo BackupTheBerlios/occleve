@@ -44,8 +44,8 @@ import java.util.Vector;
  * Created on       : 26-abr-2007 0:51:53
  * Created by       : narciso
  * Last modified by : $Author: joe_gittings $
- * Last modified on : $Date: 2008/07/04 18:42:54 $
- * Revision         : $Revision: 1.1 $
+ * Last modified on : $Date: 2009/02/22 13:58:36 $
+ * Revision         : $Revision: 1.2 $
  */
 
 /**
@@ -53,7 +53,7 @@ import java.util.Vector;
  * using multiplexing.
  *
  * @author <a href="mailto:narciso@elondra.com">Narciso Cerezo</a>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  */
 public class Store
 {
@@ -61,7 +61,9 @@ public class Store
 
     static final Log log = LogFactory.getLog( CLASS_NAME );
 
-    static Boolean useCompression;
+    /**Made public by JRG, July 2008, so that compression can be forced on.*/
+    public static Boolean useCompression;
+    
     static boolean burstMode;
 
     /** @noinspection FieldRepeatedlyAccessedInMethod,JavaDoc*/

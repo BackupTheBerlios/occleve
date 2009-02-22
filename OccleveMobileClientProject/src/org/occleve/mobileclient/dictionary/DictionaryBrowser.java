@@ -33,11 +33,12 @@ import java.util.*;
 
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
-//////import javax.microedition.lcdui.*;
 import javax.microedition.rms.RecordStore;
 
 import bm.db.*;
 import bm.db.index.*;
+import bm.storage.*;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.util.*;
@@ -46,7 +47,6 @@ import org.occleve.mobileclient.util.*;
 Now using LWUIT rather than MIDP for the UI.*/
 public class DictionaryBrowser extends Form
 implements ActionListener,J2MEFileSelectorListener,Runnable
-////CommandListener,ItemCommandListener,  MIDP STUFF
 {
 	private static final String DICTIONARY_DB_NAME = "dictionaryDb";
 	private static final String DICTIONARY_TABLE_NAME = "CEDICT";
@@ -87,6 +87,11 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     {
         super("Dictionary");
       
+        // Force openBaseMovil to use GZIP compression.
+        System.out.println("Default value of Store.useCompression = " + Store.useCompression());
+        ////Store.useCompression = new Boolean(true);
+        ////System.out.println("New value of Store.useCompression = " + Store.useCompression());
+        
         m_SearchCommand = new Command("Search",0);
         addCommand(m_SearchCommand);
 
@@ -98,11 +103,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 
         m_CreateDatabaseCommand = new Command("Create DB",3);
         addCommand(m_CreateDatabaseCommand);
-
-        /////m_CommonCommands = new CommonCommands();
-        /////m_CommonCommands.addToDisplayable(this);
-        
-        ///////setCommandListener(this);
 
         // Append items to this form, on a vertical axis.
 
@@ -120,16 +120,10 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         addComponent(m_SearchButton);
         m_SearchButton.addActionListener(this);
         
-        ////m_SearchButton.setItemCommandListener(this);
-        ///Command temp = new Command("temp",Command.OK,1);
-        ////m_SearchButton.setDefaultCommand(temp);
-
         m_SearchResultsTextArea = new TextArea(10,20);
         m_SearchResultsTextArea.setConstraint(TextArea.UNEDITABLE);
         m_SearchResultsTextArea.setMaxSize(500);
         addComponent(m_SearchResultsTextArea);
-
-        ///// OccleveMobileMidlet.getInstance().setCurrentForm(this);        
 
 		Display.init(OccleveMobileMidlet.getInstance());
 		show();
@@ -151,8 +145,13 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         Font systemFont =
         	Font.createSystemFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM);
         m_SearchResultsTextArea.getStyle().setFont(systemFont);
-        
-        /*
+
+        ////////////connectToDatabase();
+    }
+
+    /**Defunct.... for now.*/
+    private void connectToDatabase()
+    {
 		Database db = null;
 		db = Database.connect(DICTIONARY_DB_NAME);
         Table tbl = db.getTable(DICTIONARY_TABLE_NAME);            
@@ -165,10 +164,9 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 			System.out.println("Couldn't connect to database " + DICTIONARY_DB_NAME);
 			System.out.println("Starting background thread to create and populate it");
 			new Thread(this).start();
-		}
-		*/
+		}    	
     }
-
+    
     /**Note that this code needs to be in a separate thread because it accesses the
     phone's filesystem, *not* because it uses the OpenBaseMovil database.*/
     public void run()
@@ -192,7 +190,7 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 
     /**A different approach where the dictionary remains a flat file in the
     JAR, and we just index it.*/
-    private void planB_indexDictionaryFile() throws Throwable
+    private void planB_indexDictionaryFile() throws Exception
     {
     	m_iTotalTokensIndexed = 0;
     	m_iUniqueTokensIndexed = 0;
@@ -200,8 +198,8 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         LWUITAlert progress = new LWUITAlert(null,"Indexing dictionary file...");
         progress.show();
 
-        ////////m_Index = new Index(INDEX_NAME,30,Index.KT_STRING,false,false);
-        m_Hashtable = new Hashtable(100000);
+        m_Index = new Index(INDEX_NAME,30,Index.KT_STRING,false,false);
+        ////m_Hashtable = new Hashtable(100000);
 
         // Reading the file from the OccleveMobileClient jar,
         // therefore call getResourceAsStream() on the midlet class
@@ -221,7 +219,7 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 	    	iCharsRead = planB_readAndIndexCedictLine(isr,iCharsRead,iLinesRead);
 	    		    	
 	    	iLinesRead++;
-	    	if (iLinesRead%100==0)
+	    	if (iLinesRead%20==0)
 	    	{
 	    		String sTrace =
 	    			iCharsRead + " chars read, " +
@@ -244,7 +242,7 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     }
         
     private int planB_readAndIndexCedictLine(InputStreamReader isr,int iCharsRead,int iLineIndex) 
-    throws Throwable
+    throws Exception
     {
     	String sLine = StaticHelpers.readFromISR(isr,true);
 
@@ -271,10 +269,13 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 		    	if (iIndex<sLine.length()) iIndex--;
 
 		    	// Now parse the token that's after the whitespace.
+		    	// If it's a unicode character, restrict it to one char's length.
 		    	StringBuffer sbToken = new StringBuffer();
-		    	while ((bWhitespace==false) && (iIndex<sLine.length()))
+		    	char c = 0;
+		    	char cUnicodeBoundary = 256;
+		    	while ((bWhitespace==false) && (iIndex<sLine.length()) && (c<cUnicodeBoundary))
 		    	{
-		    		char c = sLine.charAt(iIndex);
+		    		c = sLine.charAt(iIndex);
 		    		bWhitespace = StaticHelpers.isPunctuation(c);
 		    		if (!bWhitespace) sbToken.append(c);
 		    		iIndex++;
@@ -288,45 +289,43 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 			    	// add the current offset to it. Else create a new FileOffsets object.
 
 		    		///// Object indexEntry = m_Index.find(sbToken.toString());
-		    		////String indexEntry = (String)m_Index.find(sbToken.toString());
-		    		String indexEntry = (String)m_Hashtable.get(sbToken.toString());
+		    		String indexEntry = (String)m_Index.find(sbToken.toString());
+		    		////String indexEntry = (String)m_Hashtable.get(sbToken.toString());
 		    		
 			    	if (indexEntry!=null)
 			    	{
 		    			//System.out.println("Deleting object...");
-		    			////m_Index.delete(sbToken.toString());
-///			    		m_Hashtable.remove(sbToken.toString());
+		    			//////m_Index.delete(sbToken.toString());
+			    		/////m_Hashtable.remove(sbToken.toString());
 
 		    			//System.out.println("Reinserting updated object...");
 		    			// ((FileOffsets)indexEntry).addNewOffset(iCharsRead);
-///		    			char c = (char)iLineIndex;
-		    			//indexEntry += new Character(c).toString();
-///		    			indexEntry += "," + iCharsRead;
-			    		////m_Index.insertObject(sbToken.toString(),indexEntry);
-///		    			m_Hashtable.put(sbToken.toString(),indexEntry);
+		    			char cLineIndex = (char)iLineIndex;
+		    			indexEntry += new Character(cLineIndex).toString();
+		    			///////indexEntry += "," + iLinesIndex;
+			    		m_Index.insertObject(sbToken.toString(),indexEntry);
+		    			////m_Hashtable.put(sbToken.toString(),indexEntry);
 			    		m_iTotalTokensIndexed++;
 			    	}
 			    	else
 			    	{
 			    		// This is a new token, not encountered so far in the indexing.
-		    			//char c = (char)iLineIndex;
-		    			//indexEntry = new Character(c).toString();
-			    		indexEntry = ""; ///// + iCharsRead;
-			    		/////m_Index.insertObject(sbToken.toString(),indexEntry);
+		    			char cLineIndex = (char)iLineIndex;
+		    			indexEntry = new Character(cLineIndex).toString();
+			    		//////indexEntry = "" + iCharsRead;
+			    		m_Index.insertObject(sbToken.toString(),indexEntry);
 			    		
-			    		try
-			    		{
-			    			m_Hashtable.put(sbToken.toString(),indexEntry);
-			    		}
-			    		catch (Throwable t)
-			    		{
-			    			System.out.println("Caught it");
-			    			System.out.println(t);
-			    		}
+			    		/////m_Hashtable.put(sbToken.toString(),indexEntry);
 			    		
 			    		m_iTotalTokensIndexed++;
 			    		m_iUniqueTokensIndexed++;
 			    	}
+			    	
+			    	if (m_iTotalTokensIndexed%500==0)
+			    	{
+			    		////System.out.println("sbToken = " + sbToken.toString() + "   Index entry = " + indexEntry);
+			    	}
+
 		    	}
 	    	}
 
@@ -503,9 +502,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
     	m_sExceptionContext = "";
     }
     
-    /**Implementation of CommandListener.*/
-    //// MIDP STUFF ///// public void commandAction(Command c, Displayable s)
-
     /**Implementation of ActionListener.*/
     public void actionPerformed(ActionEvent ae)
     {
@@ -564,11 +560,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 
     private void deleteDatabase() throws Exception
     {
-    	//// MIDP STUFF
-        /////Alert progress = new Alert(null,"Deleting database...",null,null);
-        ////progress.setTimeout(Alert.FOREVER);
-        ////OccleveMobileMidlet.getInstance().displayAlert(progress,this);
-
     	LWUITAlert progress = new LWUITAlert("","Deleting database...");
     	progress.show();
     	
@@ -600,13 +591,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
 		this.show();
     }
     
-    /*Implementation of ItemCommandListener.*/
-    /*
-    public void commandAction(Command c, Item item)
-    {
-    }
-    */
-
     /**Called when the user clicks Search.*/
     private void searchDatabase() throws Exception
     {
