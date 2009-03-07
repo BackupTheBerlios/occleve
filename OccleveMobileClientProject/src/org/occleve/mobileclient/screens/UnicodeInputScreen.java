@@ -36,6 +36,7 @@ import org.occleve.mobileclient.serverbrowser.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
 import org.occleve.mobileclient.testing.qaview.*;
+import org.occleve.mobileclient.util.*;
 
 /**If the next testable character is an 'exotic' Unicode one (such as a Chinese character),
 the application displays this input screen.*/
@@ -169,12 +170,24 @@ implements CommandListener,Runnable
     displaying the animated GIF from the Ocrat mirror as a still image.*/
     public void onViewDrawing() throws Exception
     {
-    	String sHexString =
+    	// Need to get this first as it may display its own progress bar
+    	// if it needs to index the recordstore.
+		VocabRecordStoreManager mediaRsMgr =
+			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+
+        Alert progressAlert = new Alert(null, "Loading image...",null, null);
+		progressAlert.setTimeout(Alert.FOREVER);
+		StaticHelpers.safeAddGaugeToAlert(progressAlert);
+		Displayable previousDisplayable =
+			OccleveMobileMidlet.getInstance().getCurrentDisplayable();
+		OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
+
+		String sHexString =
 			StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
 
     	String sFilename = sHexString + ".gif";
     	String sURL = Config.OCRAT_ANIMATIONS_MIRROR_URL_STUB + sFilename;
-    	byte[] imageData = loadImage(sFilename,sURL);
+    	byte[] imageData = MediaHelpers.loadImage(sFilename,sURL,mediaRsMgr,progressAlert);
         Image image = Image.createImage(imageData, 0, imageData.length);
 
     	String sTitle = "" + m_UnicodeCharToInput;
@@ -191,14 +204,50 @@ implements CommandListener,Runnable
     For now, that means attempting to retrieve an animated character from the mirror
     of the Ocrat animations of Chinese characters.*/
     public void onViewAnimation() throws Exception
-    {
-    	String sHexString =
-			StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
+    {    	
+        // 0.9.7 - store media files in a separate recordstore.
+    	// Need to get this first as it may display its own progress bar
+    	// if it needs to index the recordstore.
+		VocabRecordStoreManager mediaRsMgr =
+			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
+    	
+        Alert progressAlert = new Alert(null, "Loading image...",null, null);
+		progressAlert.setTimeout(Alert.FOREVER);
+		StaticHelpers.safeAddGaugeToAlert(progressAlert);
+		Displayable previousDisplayable =
+			OccleveMobileMidlet.getInstance().getCurrentDisplayable();
+		OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
-    	String sFilename = sHexString + ".gif";
-    	String sURL = Config.OCRAT_ANIMATIONS_MIRROR_URL_STUB + sFilename;
-    	byte[] animationData = loadImage(sFilename,sURL);
+    	String sWikipediaFilename = m_UnicodeCharToInput + "-order.gif";
+    	String sHexString = StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
+    	String sOcratFilename = sHexString + ".gif";
 
+    	byte[] animationData =
+    		MediaHelpers.loadImageFromRecordStore(sWikipediaFilename,mediaRsMgr);
+
+    	if (animationData==null)
+    	{
+        	animationData =
+        		MediaHelpers.loadImageFromRecordStore(sOcratFilename,mediaRsMgr);
+    	}
+
+    	if (animationData==null)
+    	{
+	    	String sWikipediaLocatorURL = 
+	    		"http://commons.wikimedia.org/w/index.php?title=File:" + sWikipediaFilename +
+	    		"&action=edit&externaledit=true&mode=file";
+	    	animationData =
+	    		MediaHelpers.loadImageFromWeb(sWikipediaFilename,null,sWikipediaLocatorURL,
+	    		mediaRsMgr,Config.CONNECTION_TRIES_LIMIT,progressAlert);
+    	}
+
+    	if (animationData==null)
+    	{
+	    	String sOcratURL = Config.OCRAT_ANIMATIONS_MIRROR_URL_STUB + sOcratFilename;
+	    	animationData =
+	    		MediaHelpers.loadImageFromWeb(sOcratFilename,sOcratURL,null,
+	    		mediaRsMgr,Config.CONNECTION_TRIES_LIMIT,progressAlert);
+    	}
 
         // Get a player for the clip.
         ByteArrayInputStream bais = new ByteArrayInputStream(animationData);
@@ -206,7 +255,7 @@ implements CommandListener,Runnable
 
         try
         {
-            player = Manager.createPlayer(bais, "image/gif");
+            player = Manager.createPlayer(bais,"image/gif");
         }
         catch (MediaException me)
         {
@@ -252,10 +301,13 @@ implements CommandListener,Runnable
         m_TestResults.addResponse(false);
     }
 
+	/*
     private byte[] loadImage(String sImageFilename,String sImageURL)
     throws Exception
     {
-        // Display a progress bar during the whole process
+		//return MediaHelpers.loadImage(sImageFilename,sImageURL,mediaRsMgr,3);
+
+    	// Display a progress bar during the whole process
         Alert progressAlert = new Alert(null, "Loading image...",
                                     null, null);
         progressAlert.setTimeout(Alert.FOREVER);
@@ -264,9 +316,6 @@ implements CommandListener,Runnable
             OccleveMobileMidlet.getInstance().getCurrentDisplayable();
         OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
-        // 0.9.7 - store media files in a separate recordstore.
-		VocabRecordStoreManager mediaRsMgr =
-			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
 
         Integer rsid = mediaRsMgr.findRecordByFilename(sImageFilename);
         System.out.println("rsid = " + rsid);
@@ -318,6 +367,7 @@ implements CommandListener,Runnable
                 
         return imageData;
     }
+    */
     
     public void run()
     {
