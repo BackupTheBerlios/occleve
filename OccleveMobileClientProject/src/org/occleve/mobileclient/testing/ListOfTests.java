@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,21 +25,18 @@ package org.occleve.mobileclient.testing;
 import java.util.*;
 
 import javax.microedition.io.*;
-
-//// NEED TO MOVE TO SEPARATE CLASS
-import javax.microedition.io.file.*;
-
 import javax.microedition.lcdui.Alert;
 import javax.microedition.media.Manager;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
+import org.occleve.mobileclient.util.*;
 
 /**Contains a list of all the tests known to the system, whether they
 be in the JAR's resource file, or in the application's RecordStore.*/
 public class ListOfTests
 {
-    private static final String FILENAME = "/list_of_tests.txt";
+    private static final String JAR_INDEX_FILENAME = "/list_of_tests.txt";
 
     private String m_sOriginalProgressAlertPrompt;
 
@@ -102,11 +99,18 @@ public class ListOfTests
         ListOfTests_LoadFromJar();
         ListOfTests_LoadFromRS(progressAlert);
         
-        ////// CAUSES EXCEPTION IN THE MICROEMULATOR
-        /////  NEED TO MOVE File API CODE TO SEPARATE CLASS
         if (OccleveMobileMidlet.getInstance().isLocalFilesystemAvailable())
         {
-        	ListOfTests_LoadFromFilesystem();
+        	try
+        	{
+        		ListOfTests_LoadFromFilesystem(progressAlert);
+        	}
+        	catch (Exception e)
+        	{
+        		// Even if the phone supports JSR75, perhaps the permissions set up
+        		// will not allow access. Silently tolerate this.
+        		System.err.println(e);
+        	}
         }
         
         ListOfTests_AlphaSort();
@@ -117,7 +121,7 @@ public class ListOfTests
     Read the list of tests that are embedded in the jar.*/
     private void ListOfTests_LoadFromJar() throws Exception
     {
-        String sContents = StaticHelpers.readUnicodeFile(FILENAME);
+        String sContents = StaticHelpers.readUnicodeFile(JAR_INDEX_FILENAME);
 
         // Release 0.9.3 doesn't have any tests in the jar.
         // Deal with this possibility.
@@ -131,7 +135,7 @@ public class ListOfTests
         // FUDGE: Discard the first character of the contents list since
         // for reasons I don't understand, it's junk.
         // TO DO: Sort this problem out.
-        sContents = sContents.substring(1);
+        ///////////sContents = sContents.substring(1);
 
         Vector vTestFilenames = StaticHelpers.stringToVector(sContents, true);
 
@@ -185,7 +189,7 @@ public class ListOfTests
         	}
         	
             String rsFilename = (String) enumKeys.nextElement();
-            ////System.out.println("rsFilename = " + rsFilename);
+            System.out.println("rsFilename = " + rsFilename);
 
             // Ignore MP3 and (from 0.9.5) GIF files
             boolean bIgnore = 
@@ -215,44 +219,27 @@ public class ListOfTests
         }
     }
 
-    /**New in 0.9.4: Subfunction for code clarity.
-    Now get the list of tests that are in the phone's filesystem.
-    From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
-    ////// CAUSES EXCEPTION IN THE MICROEMULATOR....
-    //////  NEED TO MOVE TO SEPARATE CLASS TO AVOID ClassNotFoundException
-    /////   IN MICROEMULATOR
-    private void ListOfTests_LoadFromFilesystem() throws Exception
+    /**Get the list of tests that are in the phone's filesystem.*/
+    private void ListOfTests_LoadFromFilesystem(Alert progressAlert) throws Exception
     {
-		Enumeration drives = FileSystemRegistry.listRoots();
-		while (drives.hasMoreElements())
+    	Hashtable filenamesToURLs = FileConnectionHelpers.getAllFilenamesInRootDirs("*.xml");
+    	
+    	// Make sure the progress alert is still visible (the phone's own
+    	// security popup for JSR75 access might have displaced it).
+        OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
+    	
+		Enumeration filelist = filenamesToURLs.keys();
+		while(filelist.hasMoreElements())
 		{
-			String root = (String) drives.nextElement();
-			
-			FileConnection fc = (FileConnection)
-			Connector.open("file:///" + root);
-			
-			// Get a filtered list of all files and directories.
-			// True means: include hidden files.
-			// To list just visible files and directories, use
-			// list() with no arguments.
-			System.out.println("List of files and directories under " + root);
-			Enumeration filelist = fc.list("*", true);
-			while(filelist.hasMoreElements())
-			{
-			    String fileName = (String) filelist.nextElement();
-			    System.out.println(fileName);
-			    
-			    if (fileName.endsWith(".xml"))
-			    {
-				    ListOfTestsEntry entry = new ListOfTestsEntry(fileName,null,
-				    		"file:///" + root + fileName);
-	
-		            m_vEntries.addElement(entry);
-		            m_htEntriesKeyedByFilename.put(entry.getFilename(), entry);
-			    }
-			}   
-			fc.close();
-		}
+		    String filename = (String) filelist.nextElement();		    
+		    if (filename.endsWith(".xml"))
+		    {
+		    	String sFileURL = (String)filenamesToURLs.get(filename);
+			    ListOfTestsEntry entry = new ListOfTestsEntry(filename,null,sFileURL);
+	            m_vEntries.addElement(entry);
+	            m_htEntriesKeyedByFilename.put(entry.getFilename(), entry);
+		    }
+		}   
     }
 
     /**Subfunction for code clarity.
