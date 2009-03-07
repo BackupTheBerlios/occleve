@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,11 +24,10 @@ package org.occleve.mobileclient;
 
 import java.io.*;
 import java.util.*;
-import javax.microedition.io.*;
+/////import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
 
-////NEED TO MOVE TO SEPARATE CLASS
-import javax.microedition.io.file.*;
+import org.occleve.mobileclient.util.*;
 
 public class StaticHelpers
 {
@@ -38,17 +37,10 @@ public class StaticHelpers
         InputStream is = null;
         InputStreamReader isr = null;
 
-        ///// CAUSES EXCEPTION IN THE MICROEMULATOR
-        ///// NEED TO MOVE INTO SEPARATE CLASS
         if (filename.startsWith("file:"))
         {
         	// Read the file from the local filesystem.
-            FileConnection fc = (FileConnection)Connector.open(filename);
-            if(!fc.exists())
-            {
-            	throw new IOException("File does not exist");
-            }
-            is = fc.openInputStream();        	
+        	is = FileConnectionHelpers.openFileInputStream(filename);        	
         }
         else
         {
@@ -345,6 +337,6 @@ public class StaticHelpers
 
 		Image image = Image.createImage(imageData, 0, imageData.length);
 		return image;
-    }    
+    }        
 }
 
