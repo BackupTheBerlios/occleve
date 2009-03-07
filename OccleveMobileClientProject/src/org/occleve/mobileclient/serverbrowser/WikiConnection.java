@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -110,8 +110,10 @@ public class WikiConnection
         int rc = m_HttpConnection.getResponseCode();
         if (rc != HttpConnection.HTTP_OK)
         {
-        	setConnectionAction("Response code not HTTP_OK... throwing IOException");
-            throw new IOException("HTTP response code indicates failure: " + rc);
+        	setConnectionAction("Deliberately thrown exception");
+            throw new IOException("HTTP response code indicates failure: " +
+            		"Response code=" + rc +
+            		", response message=" + m_HttpConnection.getResponseMessage() + "\n");
         }
 
         // New in 0.9.4: test if the response headers indicate chunked encoding
