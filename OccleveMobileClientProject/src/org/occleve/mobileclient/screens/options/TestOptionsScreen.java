@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-2009  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens.options;
@@ -51,6 +51,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     //protected String FORM = "Form view";
     //protected ChoiceGroup m_ViewChoiceGroup;
 
+    protected CommonCommands m_CommonCommands;
     protected Command m_OKCommand;
     protected Command m_CancelCommand;
 
@@ -60,6 +61,9 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     public TestOptionsScreen() throws Exception
     {
         super(Constants.PRODUCT_NAME);
+
+        m_CommonCommands = new CommonCommands();
+        m_CommonCommands.addToDisplayable(this);
 
         m_OKCommand = new Command("OK",Command.OK,0);
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
@@ -91,10 +95,8 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         append(m_LastQuestionTextField);
 
         m_RestartOnPercentageBelowTextField =
-        	new TextField("Restart if percentage drops under:","0",10,TextField.NUMERIC);
-        append(m_RestartOnPercentageBelowTextField);
-        
-        //////setItemStateListener(this);
+        	new TextField("Restart if score below:","0",10,TextField.NUMERIC);
+        append(m_RestartOnPercentageBelowTextField);        
     }
 
     /**Implementation of CommandListener.*/
@@ -114,7 +116,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         }
         else
         {
-            OccleveMobileMidlet.getInstance().onError("Unknown command in TestOptionsScreen.commandAction");
+        	m_CommonCommands.commandAction(c,this);
         }
     }
 
