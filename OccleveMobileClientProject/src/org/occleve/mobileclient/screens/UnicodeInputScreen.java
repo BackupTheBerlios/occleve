@@ -57,11 +57,11 @@ implements CommandListener,Runnable
     protected static final int VIEW_DRAWING = 2;
     protected int m_iThreadAction;
 
+    protected CommonCommands m_CommonCommands;
     protected Command m_ViewAnimationCommand;
     protected Command m_ViewDrawingCommand;
     protected Command m_PeekCommand;
     protected Command m_CancelCommand;
-    protected Command m_PauseCommand;
 
     protected boolean m_bExitThread;
 
@@ -84,17 +84,18 @@ implements CommandListener,Runnable
         m_TestControllerThatInvokedThis = testControllerThatInvokedThis;
         m_TestResults = results;
 
+        m_CommonCommands = new CommonCommands();
+        m_CommonCommands.addToDisplayable(this);
+
         m_ViewAnimationCommand = new Command("View animation",Command.ITEM,0);
         m_ViewDrawingCommand = new Command("View drawing",Command.ITEM,0);
         m_PeekCommand = new Command("Peek",Command.ITEM,0);
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
-        m_PauseCommand = new Command("Pause",Command.ITEM,0);
 
         addCommand(m_ViewAnimationCommand);
         addCommand(m_ViewDrawingCommand);
         addCommand(m_PeekCommand);
         addCommand(m_CancelCommand);
-        addCommand(m_PauseCommand);
         setCommandListener(this);
 
         m_iThreadAction = MONITOR_TEXTBOX;
@@ -125,13 +126,9 @@ implements CommandListener,Runnable
 	            m_bExitThread = true;
 	            m_TestControllerThatInvokedThis.setVisible();
 	        }
-	        else if (c==m_PauseCommand)
-	        {
-	            OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
-	        }
 	        else
 	        {
-	            OccleveMobileMidlet.getInstance().onError("Unknown command in UnicodeInputScreen.commandAction");
+	        	m_CommonCommands.commandAction(c,this);
 	        }
     	}
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
