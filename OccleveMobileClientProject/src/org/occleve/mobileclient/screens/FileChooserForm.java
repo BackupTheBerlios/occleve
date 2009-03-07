@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -71,6 +71,7 @@ implements CommandListener,Runnable
     which source to download quizzes from.*/
     protected Command m_DownloadQuizzesCommand;
     
+    protected Command m_ConnectionTroubleshooterCommand;  // 0.9.7
     protected Command m_DictionaryCommand;  // 0.9.7
     protected Command m_TestCommand;
     protected Command m_ViewCommand;
@@ -96,8 +97,10 @@ implements CommandListener,Runnable
         if (bAddCommands)
         {
         	m_DownloadQuizzesCommand = new Command("Download quizzes",Command.ITEM,1);
-        	
-            m_DictionaryCommand = new Command("Dictionary", Command.ITEM, 1); // 0.9.7
+
+        	m_ConnectionTroubleshooterCommand =
+        		new Command("Test connection",Command.ITEM,2); // 0.9.7
+            m_DictionaryCommand = new Command("Dictionary",Command.ITEM,2); // 0.9.7
             m_TestCommand = new Command("Test", Command.ITEM, 2);
             m_ViewCommand = new Command("View", Command.ITEM, 2);
             m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
@@ -111,7 +114,8 @@ implements CommandListener,Runnable
 
             m_CommonCommands = new CommonCommands();
 
-            addCommand(m_DictionaryCommand); // 0.9.7
+            addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
+            ///////addCommand(m_DictionaryCommand); // 0.9.7
             addCommand(m_DownloadQuizzesCommand); // 0.9.6
             addCommand(m_TestCommand);
             addCommand(m_ViewCommand);
@@ -235,6 +239,11 @@ implements CommandListener,Runnable
         {
         	DictionaryBrowser dictBrowser = new DictionaryBrowser();
             /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
+        }
+        else if (c==m_ConnectionTroubleshooterCommand)
+        {
+        	ConnectionTroubleshooter ct = new ConnectionTroubleshooter();
+            OccleveMobileMidlet.getInstance().setCurrentForm(ct);
         }
         else if (c==m_DevStuffScreenCommand)
         {           	
