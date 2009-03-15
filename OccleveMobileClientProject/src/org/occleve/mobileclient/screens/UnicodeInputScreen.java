@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,20 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import javax.microedition.lcdui.*;
-import javax.microedition.media.Manager;
-import javax.microedition.media.MediaException;
-import javax.microedition.media.Player;
-import javax.microedition.media.control.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
-import org.occleve.mobileclient.serverbrowser.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
-import org.occleve.mobileclient.testing.qaview.*;
 import org.occleve.mobileclient.util.*;
 
 /**If the next testable character is an 'exotic' Unicode one (such as a Chinese character),
@@ -51,20 +43,26 @@ implements CommandListener,Runnable
 
     // 0.9.6
     protected static final int PEEK_LENGTH = 3000;
-    
+
+    // Thread actions
     protected static final int MONITOR_TEXTBOX = 0;
     protected static final int VIEW_ANIMATION = 1;
     protected static final int VIEW_DRAWING = 2;
+    protected static final int VIEW_WIKIPEDIA_ANIMATION = 3;
     protected int m_iThreadAction;
-
+    
     protected CommonCommands m_CommonCommands;
     protected Command m_ViewAnimationCommand;
+    protected Command m_ViewWikipediaAnimationCommand;
     protected Command m_ViewDrawingCommand;
     protected Command m_PeekCommand;
     protected Command m_CancelCommand;
 
     protected boolean m_bExitThread;
 
+    /**Accessor function.*/
+    public synchronized void setExitThread() {m_bExitThread=true;}
+    
     public UnicodeInputScreen
     (
         char unicodeCharToInput,
@@ -88,11 +86,13 @@ implements CommandListener,Runnable
         m_CommonCommands.addToDisplayable(this);
 
         m_ViewAnimationCommand = new Command("View animation",Command.ITEM,0);
+        m_ViewWikipediaAnimationCommand = new Command("View wikipedia animation",Command.ITEM,0);
         m_ViewDrawingCommand = new Command("View drawing",Command.ITEM,0);
         m_PeekCommand = new Command("Peek",Command.ITEM,0);
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
 
         addCommand(m_ViewAnimationCommand);
+        addCommand(m_ViewWikipediaAnimationCommand);
         addCommand(m_ViewDrawingCommand);
         addCommand(m_PeekCommand);
         addCommand(m_CancelCommand);
@@ -110,6 +110,11 @@ implements CommandListener,Runnable
 	        if (c==m_ViewAnimationCommand)
 	        {
 		        m_iThreadAction = VIEW_ANIMATION;
+		        new Thread(this).start();
+	        }
+	        if (c==m_ViewWikipediaAnimationCommand)
+	        {
+		        m_iThreadAction = VIEW_WIKIPEDIA_ANIMATION;
 		        new Thread(this).start();
 	        }
 	        else if (c==m_ViewDrawingCommand)
@@ -175,8 +180,6 @@ implements CommandListener,Runnable
         Alert progressAlert = new Alert(null, "Loading image...",null, null);
 		progressAlert.setTimeout(Alert.FOREVER);
 		StaticHelpers.safeAddGaugeToAlert(progressAlert);
-		Displayable previousDisplayable =
-			OccleveMobileMidlet.getInstance().getCurrentDisplayable();
 		OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
 		String sHexString =
@@ -199,8 +202,10 @@ implements CommandListener,Runnable
 
     /**0.9.5: Attempts to display an animation of how to draw the unicode character.
     For now, that means attempting to retrieve an animated character from the mirror
-    of the Ocrat animations of Chinese characters.*/
-    public void onViewAnimation() throws Exception
+    of the Ocrat animations of Chinese characters.
+    0.9.7 - add support for Wikipedia's stroke order animations.*/
+    public void onViewAnimation(boolean bOcratAnimation,boolean bWikipediaAnimation)
+    throws Exception
     {    	
         // 0.9.7 - store media files in a separate recordstore.
     	// Need to get this first as it may display its own progress bar
@@ -211,34 +216,70 @@ implements CommandListener,Runnable
         Alert progressAlert = new Alert(null, "Loading image...",null, null);
 		progressAlert.setTimeout(Alert.FOREVER);
 		StaticHelpers.safeAddGaugeToAlert(progressAlert);
-		Displayable previousDisplayable =
-			OccleveMobileMidlet.getInstance().getCurrentDisplayable();
 		OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
-    	String sWikipediaFilename = m_UnicodeCharToInput + "-order.gif";
+    	byte[] animationData = null;
+
+    	////String sWikipediaFilenameForJar = "/" + m_UnicodeCharToInput + "-order.gif";
+
+    	String sWikipediaFilenameForJar = "/wikipedia_stroke/" +
+    										m_UnicodeCharToInput + "-order.gif";
+    	
+    	String sWikipediaFilenameForRS = "WP_" + m_UnicodeCharToInput + "-order.gif";
+
+    	byte[] bUnicodeCharBytes =
+    		new Character(m_UnicodeCharToInput).toString().getBytes(Config.ENCODING);
+    	StringBuffer sbURLEncodedUnicodeChar = new StringBuffer();
+    	for (int i=0; i<bUnicodeCharBytes.length; i++)
+    	{
+    		sbURLEncodedUnicodeChar.append('%');
+  
+			// Integer.toHexString will produce an eight char string
+			// with the byte we want in the last two chars.
+			String sByteInHex =
+				Integer.toHexString(bUnicodeCharBytes[i]).substring(6);	  	  
+
+    		sbURLEncodedUnicodeChar.append(sByteInHex.toUpperCase());
+    	}
+
+    	String sWikipediaFilenameForURL =
+    		sbURLEncodedUnicodeChar.toString() + "-order.gif";
+    	
     	String sHexString = StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
     	String sOcratFilename = sHexString + ".gif";
+    	
+    	if (bWikipediaAnimation)
+    	{
+    		animationData =
+    			MediaHelpers.loadImageFromJar(sWikipediaFilenameForJar,progressAlert);
+    	}
+    	
+    	if (bWikipediaAnimation && (animationData==null))
+    	{
+    		animationData =
+    			MediaHelpers.loadImageFromRecordStore(sWikipediaFilenameForRS,mediaRsMgr);
+    	}
 
-    	byte[] animationData =
-    		MediaHelpers.loadImageFromRecordStore(sWikipediaFilename,mediaRsMgr);
-
-    	if (animationData==null)
+    	if (bOcratAnimation && (animationData==null))
     	{
         	animationData =
         		MediaHelpers.loadImageFromRecordStore(sOcratFilename,mediaRsMgr);
     	}
 
-    	if (animationData==null)
+    	// 0.9.7: The index page for these is at
+    	// http://commons.wikimedia.org/wiki/Category:Order.gif_stroke_order_images
+    	if (bWikipediaAnimation && (animationData==null))
     	{
 	    	String sWikipediaLocatorURL = 
-	    		"http://commons.wikimedia.org/w/index.php?title=File:" + sWikipediaFilename +
+	    		"http://commons.wikimedia.org/w/index.php?title=File:" +
+	    		sWikipediaFilenameForURL +
 	    		"&action=edit&externaledit=true&mode=file";
 	    	animationData =
-	    		MediaHelpers.loadImageFromWeb(sWikipediaFilename,null,sWikipediaLocatorURL,
+	    		MediaHelpers.loadImageFromWeb(sWikipediaFilenameForRS,null,sWikipediaLocatorURL,
 	    		mediaRsMgr,Config.CONNECTION_TRIES_LIMIT,progressAlert);
     	}
 
-    	if (animationData==null)
+    	if (bOcratAnimation && (animationData==null))
     	{
 	    	String sOcratURL = Config.OCRAT_ANIMATIONS_MIRROR_URL_STUB + sOcratFilename;
 	    	animationData =
@@ -246,126 +287,20 @@ implements CommandListener,Runnable
 	    		mediaRsMgr,Config.CONNECTION_TRIES_LIMIT,progressAlert);
     	}
 
-        // Get a player for the clip.
-        ByteArrayInputStream bais = new ByteArrayInputStream(animationData);
-        Player player = null;
-
-        try
-        {
-            player = Manager.createPlayer(bais,"image/gif");
-        }
-        catch (MediaException me)
-        {
-            String sMsg = "Sorry! It looks like your phone can't display animated GIFs";
-            System.out.println(sMsg);
-            OccleveMobileMidlet.getInstance().onError(sMsg);
-            return;
-        }
-
-        player.realize();
-
-        VideoControl video = (VideoControl) player.getControl("VideoControl");
-        Item videoItem = (Item)video.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE, null);
-    	String sTitle = "" + m_UnicodeCharToInput;
-        Form videoForm = new Form(sTitle);
-        videoForm.append(videoItem);
-    	OccleveMobileMidlet.getInstance().setCurrentForm(videoForm);
-
-        player.start();
-
-        try
-        {
-            // Wait until the animation has finished.
-        	// DISABLED - ON SOME PHONES THE ANIMATION LOOPS AND THIS WILL NEVER FINISH
-	        //do
-	        //{
-	        //    Thread.sleep(1000);
-	        //} while (player.getState()==Player.STARTED);
-
-            Thread.sleep(10000);
-        }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-        
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);
-
-    	// Release player resources. Failing to do this results in noticeable
-    	// resource drain on a Sony Ericsson Z558c.
-    	player.stop();
-    	player.deallocate();
-    	player.close();
-    	
-        // Viewing the animation counts as a "wrong" keypress.
-        m_TestResults.addResponse(false);
+    	if (animationData!=null)
+    	{
+	    	// Display the animation
+	    	String sTitle = "" + m_UnicodeCharToInput;
+	    	MediaHelpers.displayAnimation(animationData,sTitle);
+	
+	    	// Revert to displaying this screen
+	        OccleveMobileMidlet.getInstance().setCurrentForm(this);
+	
+	        // Viewing the animation counts as a "wrong" keypress.
+	        m_TestResults.addResponse(false);
+    	}
     }
 
-	/*
-    private byte[] loadImage(String sImageFilename,String sImageURL)
-    throws Exception
-    {
-		//return MediaHelpers.loadImage(sImageFilename,sImageURL,mediaRsMgr,3);
-
-    	// Display a progress bar during the whole process
-        Alert progressAlert = new Alert(null, "Loading image...",
-                                    null, null);
-        progressAlert.setTimeout(Alert.FOREVER);
-        StaticHelpers.safeAddGaugeToAlert(progressAlert);
-        Displayable previousDisplayable =
-            OccleveMobileMidlet.getInstance().getCurrentDisplayable();
-        OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
-
-
-        Integer rsid = mediaRsMgr.findRecordByFilename(sImageFilename);
-        System.out.println("rsid = " + rsid);
-
-        byte[] imageData;
-        if (rsid!=null)
-        {
-            // Load from recordstore.
-        	System.out.println("Animation already in recordstore... loading");
-            imageData = mediaRsMgr.getRecordContentsMinusFilename(rsid.intValue());
-        }
-        else
-        {
-            // Load from website.
-        	System.out.println("Animation not in recordstore... loading from web");
-        	WikiConnection wc = new WikiConnection();
-
-        	// 0.9.6 - use a retry system similar to that used for loading quizzes.
-        	// in order to get past the China Telecom "welcome" page.
-        	boolean bValidImage;
-        	int iTries = 0;
-        	do
-        	{
-        		imageData = wc.readAllBytes(sImageURL,progressAlert,false);
-        		bValidImage = true;
-        		iTries++;
-        		
-        		try
-        		{
-        			Image image = Image.createImage(imageData, 0, imageData.length);
-        		}
-        		catch (Exception e)
-        		{
-        			System.err.println(e);
-        			bValidImage = false;
-        		}
-        	} while ((bValidImage==false) && (iTries<3));
-        	
-        	if (bValidImage)
-        	{
-        		// Save the image into the recordstore for future use
-        		mediaRsMgr.createFileInRecordStore(sImageFilename,imageData,false);
-        	}
-        	else
-        	{
-        		progressAlert.setString("Couldn't load a valid image, even after retrying");
-        	}
-        }
-                
-        return imageData;
-    }
-    */
-    
     public void run()
     {
     	try
@@ -376,7 +311,11 @@ implements CommandListener,Runnable
 	    	}
 	    	else if (m_iThreadAction==VIEW_ANIMATION)
 	    	{
-				onViewAnimation();
+				onViewAnimation(true,true);
+	    	}
+	    	else if (m_iThreadAction==VIEW_WIKIPEDIA_ANIMATION)
+	    	{
+				onViewAnimation(false,true);
 	    	}
 	    	else if (m_iThreadAction==VIEW_DRAWING)
 	    	{
@@ -393,65 +332,66 @@ implements CommandListener,Runnable
         {
             if (size()==1)
             {
-                String contents = getString();
-                char inputtedChar = contents.charAt(0);
-                
-                // 0.9.4: Allow "?" to invoke the Peek function (useful when using a pen
-                // phone as it allows user to peek by writing "?" with the pen).
-                // 0.9.6: Also allow the subtly different Unicode "？" to invoke it,
-                // as you often get this if you try and write a question mark on a Chinese
-                // pen phone.               
-                boolean bPeek = ((inputtedChar=='?') && (m_UnicodeCharToInput!='?')) ||
-                				((inputtedChar=='？') && (m_UnicodeCharToInput!='？'));
-                if (bPeek)
-                {
-                	onPeek(false);
-                    setString("");
-                }
-                else if 
-                (
-	        		((inputtedChar=='!') && (m_UnicodeCharToInput!='!')) ||
-	        		((inputtedChar=='！') && (m_UnicodeCharToInput!='！'))
-                )
-                {
-                	// 0.9.6 Allow "!" to invoke the View Animation function.
-                	// Also allow the unicode equivalent "！" to invoke it.
-                	onViewAnimation();
-                    setString("");
-                }
-                else
-                {
-	                boolean bCorrect = (inputtedChar==m_UnicodeCharToInput);
-	                m_TestResults.addResponse(bCorrect);
-	
-	                if (bCorrect)
-	                {
-	                	m_bExitThread = true;
-	                    ///m_TestControllerThatInvokedThis.appendToAnswerFragment(inputtedChar);
-	                    m_TestControllerThatInvokedThis.setAnswerFragmentLastLine(m_sAnswerFragmentEndingInUnicodeChar);
-
-	                    // Call setVisible() on the test controller first, since
-	                    // if the test has been completed,
-	                    // checkForLineCompletionAndQuestionCompletion() will display
-	                    // the results form.
-	                    m_TestControllerThatInvokedThis.setVisible();
-	                    m_TestControllerThatInvokedThis.checkForLineCompletionAndQuestionCompletion();	                    
-	                }
-	                else
-	                {
-	                    setString("");
-	                }
-                }
+            	monitorTextBoxContents_Inner();
             }
 
             // Brief pause to prevent this thread hogging CPU time.
-            try
-            {
-                Thread.sleep(50);
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+            Thread.sleep(50);
         }
     }
 
+    /**Subfunction for code clarity.*/
+    private void monitorTextBoxContents_Inner() throws Exception
+    {
+        String contents = getString();
+        char inputtedChar = contents.charAt(0);
+        
+        // 0.9.4: Allow "?" to invoke the Peek function (useful when using a pen
+        // phone as it allows user to peek by writing "?" with the pen).
+        // 0.9.6: Also allow the subtly different Unicode "？" to invoke it,
+        // as you often get this if you try and write a question mark on a Chinese
+        // pen phone.               
+        boolean bPeek = ((inputtedChar=='?') && (m_UnicodeCharToInput!='?')) ||
+        				((inputtedChar=='？') && (m_UnicodeCharToInput!='？'));
+
+        boolean bViewAnim =
+			((inputtedChar=='!') && (m_UnicodeCharToInput!='!')) ||
+			((inputtedChar=='！') && (m_UnicodeCharToInput!='！'));
+
+        if (bPeek)
+        {
+        	onPeek(false);
+            setString("");
+        }
+        else if (bViewAnim)
+        {
+        	// 0.9.6 Allow "!" to invoke the View Animation function.
+        	// Also allow the unicode equivalent "！" to invoke it.
+        	onViewAnimation(true,true);
+            setString("");
+        }
+        else
+        {
+            boolean bCorrect = (inputtedChar==m_UnicodeCharToInput);
+            m_TestResults.addResponse(bCorrect);
+
+            if (bCorrect)
+            {
+            	m_bExitThread = true;
+                m_TestControllerThatInvokedThis.setAnswerFragmentLastLine(m_sAnswerFragmentEndingInUnicodeChar);
+
+                // Call setVisible() on the test controller first, since
+                // if the test has been completed,
+                // checkForLineCompletionAndQuestionCompletion() will display
+                // the results form.
+                m_TestControllerThatInvokedThis.setVisible();
+                m_TestControllerThatInvokedThis.checkForLineCompletionAndQuestionCompletion();	                    
+            }
+            else
+            {
+                setString("");
+            }
+        }
+    }
 }
 
