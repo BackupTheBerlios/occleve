@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,35 +17,40 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.testing.qacontrol;
 
-import javax.microedition.lcdui.*;
 import java.util.*;
+import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
-import org.occleve.mobileclient.testing.qaview.*;
 import org.occleve.mobileclient.testing.test.*;
 
-public class MagicTypewriterController
+/**This class contains the logic which controls the 'magic typewriter'
+question testing mode.
+0.9.6: switched from matching against the "next possible chars" to matching
+against the "next possible lines", i.e. checking against
+getMatchingLastLinesUpToNextTestableChars(). This enables the correct
+handling of multiline answers, where each line can be entered in any order
+(for example, the user having to type both the pinyin and english for a hanzi).*/
+public class MagicTypewriterController extends QAController
 {
     protected TestController m_TestController;
     protected Test m_Test;
     protected QADirection m_QADirection;
     protected TestResults m_TestResults;
 
-    /////protected int m_iCurrentQAIndex;
-    /////protected QuestionView m_TestController.getQuestionView();
-
+    /**0.9.7: start keeping a reference so we can shut down
+    UnicodeInputScreen's thread.*/
+    protected UnicodeInputScreen m_UnicodeInputScreen;
+    
     public void setAnswerFragmentLastLine(String sSetToThis) throws Exception
-    /////public void appendToAnswerFragment(char c) throws Exception
     {
-        ///m_TestController.getCurrentQA().appendToAnswerFragment(c);
         m_TestController.getCurrentQA().setAnswerFragmentLastLine(sSetToThis);
     }
 
@@ -73,7 +78,7 @@ public class MagicTypewriterController
 
     public void onKeyPressed(int keyCode)
     {
-        // trace("Key pressed = " + keyCode);
+        trace("Key pressed = " + keyCode);
         try
         {
             onKeyPressed_Inner(keyCode);
@@ -88,10 +93,10 @@ public class MagicTypewriterController
     	if (m_TestResults.getAccuracyPercentage() <
     			m_TestController.getMinScore())
     	{
-            //System.out.println("=====================================");
-            //System.out.println("Restarting because....");
-            //System.out.println("Score = " + m_TestResults.getAccuracyPercentage());
-            //System.out.println("Min score = " + m_TestController.getMinScore());
+            trace("=====================================");
+            trace("Restarting because....");
+            trace("Score = " + m_TestResults.getAccuracyPercentage());
+            trace("Min score = " + m_TestController.getMinScore());
     		m_TestController.restart();
     	}
     }
@@ -105,11 +110,11 @@ public class MagicTypewriterController
                               (keyCode == Canvas.KEY_POUND);
         boolean bUnicode =
             m_TestController.getCurrentQA().nextPossibleCharsAreUnicode();
-        ////System.out.println("nextPossibleCharsAreUnicode() = " + bUnicode);
+        trace("nextPossibleCharsAreUnicode() = " + bUnicode);
         
         int iCount =
             m_TestController.getCurrentQA().getNextPossibleCharsCount();
-        ////System.out.println("getNextPossibleCharsCount = " + iCount);
+        trace("getNextPossibleCharsCount = " + iCount);
 
         if (bUnicode && (iCount==1) && (bIsCheatKey == false))
         {
@@ -130,20 +135,17 @@ public class MagicTypewriterController
     	// Deal gracefully with multiple calls in quick succession.
         Displayable current =
         	OccleveMobileMidlet.getInstance().getCurrentDisplayable();
-        if (current instanceof UnicodeInputScreen) return;
+        if (current==m_UnicodeInputScreen) return;
             	
-        /////Vector v = m_TestController.getCurrentQA().getNextPossibleChars();        
-        /////Character c = (Character)v.elementAt(0);
-        /////char desiredChar = c.charValue();
         Vector v = m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
         String sFragment = (String)v.elementAt(0);
         char desiredChar = sFragment.charAt(sFragment.length()-1);
 
         ////////////// TO DO - allow UnicodeInputScreen to take
         /////////////          multiple desired chars
-        UnicodeInputScreen uis =
+        m_UnicodeInputScreen =
                 new UnicodeInputScreen(desiredChar,sFragment,this,m_TestResults);
-        OccleveMobileMidlet.getInstance().setCurrentForm(uis);    	
+        OccleveMobileMidlet.getInstance().setCurrentForm(m_UnicodeInputScreen);    	
     }
     
     protected void processKeypress(int iKeycode) throws Exception
@@ -151,7 +153,6 @@ public class MagicTypewriterController
         // Star is the cheat key for single characters,
         // hash/pound for the rest of the line.
 
-        ////Character matchingChar = possibleCharThatKeypressEquals(iKeycode);
     	String sMatchingFragment = lastLineFragmentEndingInKeypress(iKeycode);
     	
         if (sMatchingFragment!=null)
@@ -159,7 +160,6 @@ public class MagicTypewriterController
             trace("Setting last line of answer to: " + sMatchingFragment);
 
             m_TestController.getCurrentQA().setAnswerFragmentLastLine(sMatchingFragment);
-            //m_TestController.getCurrentQA().appendToAnswerFragment(matchingChar.charValue());
             m_TestResults.addResponse(true);
         }
         else if (iKeycode==Canvas.KEY_STAR) // Star key
@@ -204,6 +204,17 @@ public class MagicTypewriterController
         // Prior to 0.9.6 this was in the now-defunct skipPunctuation().
         if (m_TestController.getCurrentQA().isAnswered())
         {
+        	// 0.9.7: Shut down the UnicodeInputScreen's thread and mark for
+        	// garbage collection if appropriate. The failure to do this
+        	// before 0.9.7 meant that on a Sony Ericsson Z558c, once
+        	// the UnicodeInputScreen had been invoked, the power-hungry
+        	// pen input device driver was constantly running.
+        	if (m_UnicodeInputScreen!=null)
+        	{
+        		m_UnicodeInputScreen.setExitThread();
+        		m_UnicodeInputScreen = null;
+        	}
+        	
             m_TestController.getQuestionView().doRepainting();
             Thread.sleep(1000);
             m_TestController.moveToNextQuestion();
@@ -213,31 +224,17 @@ public class MagicTypewriterController
     protected void onIncorrectKeypress()
     {
         Display.getDisplay(OccleveMobileMidlet.getInstance()).flashBacklight(50);
-
-        /*
-        try
-        {
-            Manager.playTone(69, 200, 100);
-        } catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-        */
     }
 
     private void cheatOneCharacter() throws Exception
     {
-    	/*
-    	=============BEFORE 0.9.6:=============
-        Vector vPossibleChars =
-            m_TestController.getCurrentQA().getNextPossibleChars();
-        Character cFirstPoss = (Character) vPossibleChars.elementAt(0);
-        char firstPossChar = cFirstPoss.charValue();
-        m_TestController.getCurrentQA().appendToAnswerFragment(firstPossChar);
-        */
-
-    	//==============Since 0.9.6:===============
         Vector vPossibleLastLines =
             m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
     	String sFirstPoss = (String)vPossibleLastLines.elementAt(0);
-        m_TestController.getCurrentQA().setAnswerFragmentLastLine(sFirstPoss);    	
+
+        // Do it this way instead of using moveToNextQuestion(), because
+        // then we'll get a short pause before moving to the next question.
+    	m_TestController.getCurrentQA().setAnswerFragmentLastLine(sFirstPoss);    	
     }
 
     private void cheatQuestion() throws Exception
@@ -255,6 +252,7 @@ public class MagicTypewriterController
         m_TestController.getCurrentQA().setAnswerFragment(vWholeAnswer);
     }
 
+    /**Internal helper function.*/
     private int totalLengthOfStrings(Vector vStrings)
     {
         int result = 0;
@@ -271,13 +269,9 @@ public class MagicTypewriterController
     next in this stage of answering the question, returns the first
     one that matches this keypress. Returns null if there are no
     possible characters matching this keypress.*/
-    ////protected Character possibleCharThatKeypressEquals(int keyCode)
     protected String lastLineFragmentEndingInKeypress(int keyCode)
     throws Exception
     {
-        //Vector vPossibleChars =
-        //    m_TestController.getCurrentQA().getNextPossibleChars();
-
         Vector vPossibleLastLines =
             m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
 
@@ -295,6 +289,9 @@ public class MagicTypewriterController
         return null;
     }
 
+    /**Tests whether the specified mobile phone keycode (0,1,2, etc)
+    matches the supplied character.
+    For example, '2' matches a,b,c,A,B,C,2.*/
     protected boolean keypressEqualsChar(int iKeycode,char theChar)
     {
         trace("Entering keypressEqualsChar()");
@@ -324,75 +321,6 @@ public class MagicTypewriterController
         else
             return false;
     }
-
-    //====================Since 0.9.6==========================
-    // This is defunct now, since punctuation is skipped over by
-    // LanguageQA.getUnansweredLineUpToNextTestableChar().
-    //==========================================================
-    /*
-    public void skipPunctuation() throws Exception
-    {
-        if (m_TestController.getCurrentQA().isAnswered())
-        {
-            m_TestController.getQuestionView().doRepainting();
-            // serviceRepaints();
-            Thread.sleep(1000);
-            m_TestController.moveToNextQuestion();
-            return;
-        }
-
-        Vector vNPCSanityCheck = m_TestController.getCurrentQA().getNextPossibleChars();
-        if (vNPCSanityCheck.size()!=1)
-        {
-            trace("Exiting skipPunctuation because no of poss char = " +
-                               vNPCSanityCheck.size() );
-            trace("They are:");
-            for (int i=0; i<vNPCSanityCheck.size(); i++)
-            {
-                trace( vNPCSanityCheck.elementAt(i) );
-            }
-
-            return;
-        }
-
-        boolean bSkippedPunctuation;
-        do
-        {
-            if (m_TestController.getCurrentQA().isAnswered())
-            {
-                m_TestController.getQuestionView().doRepainting();
-                // serviceRepaints();
-                Thread.sleep(1000);
-                m_TestController.moveToNextQuestion();
-            }
-
-            bSkippedPunctuation = false;
-
-            Vector vNextPossibleChars = m_TestController.getCurrentQA().getNextPossibleChars();
-            Character cNextChar = (Character)vNextPossibleChars.firstElement();
-            char nextChar = cNextChar.charValue();
-
-            boolean bIsLowercaseLetter = (nextChar>='a') && (nextChar<='z');
-            boolean bIsUppercaseLetter = (nextChar>='A') && (nextChar<='Z');
-            boolean bIsUnicode = (((long)nextChar) > 255);
-
-            if ((bIsLowercaseLetter==false) && (bIsUppercaseLetter==false)
-                && (Character.isDigit(nextChar)==false)
-                && (bIsUnicode==false)   )
-            {
-                trace("-----------------------------------------");
-                trace("Skipping this char: " + (long)nextChar);
-
-                /////This substitution should really be done by the painting logic
-                /////if (nextChar=='\t') m_sAnswerFragment += "   ";
-
-                m_TestController.getCurrentQA().appendToAnswerFragment(nextChar);
-                m_TestController.getQuestionView().doRepainting();
-                bSkippedPunctuation = true;
-            }
-        } while (bSkippedPunctuation);
-    }
-    */
 
     public void setVisible()
     {
