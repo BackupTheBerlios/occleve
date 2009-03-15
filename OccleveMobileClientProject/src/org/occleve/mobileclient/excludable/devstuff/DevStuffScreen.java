@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -85,6 +85,7 @@ implements CommandListener,Excludable,Runnable
     protected final String BUILD_EUCCN_UNICODE_MAP = "Build EUC-CN to Unicode map";
     protected final String COUNT_RS_RECORDS = "Count records in recordstores";
     protected final String LIST_RECORDSTORES = "List recordstores";
+    protected final String SHOW_DEFAULT_ENCODING = "Show default encoding";
     
     //protected final String MOVE_MEDIA_FILES_TO_MEDIA_RS = "Move media files to media RS";
     //protected final String FIX_FOULED_MEDIA_FILES = "Fix fouled media files";
@@ -129,6 +130,7 @@ implements CommandListener,Excludable,Runnable
         append(BUILD_EUCCN_UNICODE_MAP,null);
         append(COUNT_RS_RECORDS,null);
         append(LIST_RECORDSTORES,null);
+        append(SHOW_DEFAULT_ENCODING,null);
 
         //append(MOVE_MEDIA_FILES_TO_MEDIA_RS,null);
         //append(FIX_FOULED_MEDIA_FILES,null);
@@ -317,6 +319,10 @@ implements CommandListener,Excludable,Runnable
         {
         	RecordStoreExplorer rse = new RecordStoreExplorer();
             OccleveMobileMidlet.getInstance().setCurrentForm(rse);        	
+        }
+        else if (sOption.equals(SHOW_DEFAULT_ENCODING))
+        {
+        	displayPropertyValue("microedition.encoding");
         }
         
         /*

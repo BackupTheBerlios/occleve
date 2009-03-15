@@ -22,15 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.util;
 
-//import java.io.*;
-//import java.util.*;
-//import javax.microedition.io.*;
-//import javax.microedition.io.file.*;
-
-import java.io.DataInputStream;
-import java.util.Vector;
-
+import java.io.*;
+import java.util.*;
 import javax.microedition.lcdui.*;
+import javax.microedition.media.*;
+import javax.microedition.media.control.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.VocabRecordStoreManager;
@@ -39,6 +35,8 @@ import org.occleve.mobileclient.serverbrowser.WikiConnection;
 /**0.9.7: Put FileConnection API specific stuff in here.*/
 public class MediaHelpers
 {		
+	private static final int TRACE_PAUSE = 2000;
+	
     public static byte[] loadImage(String sImageFilename,String sImageURL,
     	VocabRecordStoreManager rsMgr,Alert progressAlert) throws Exception
     {
@@ -49,6 +47,78 @@ public class MediaHelpers
     				Config.CONNECTION_TRIES_LIMIT,progressAlert);
     	}
     	return imageData;
+    }
+
+	public static byte[] loadImageFromJar(String sImageFilename,
+			Alert progressAlert) throws Exception
+    {
+        progressAlert.setString("Trying to load..." + sImageFilename + "...from jar");
+        Thread.sleep(TRACE_PAUSE);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(baos,"UTF-8");
+        writer.write(sImageFilename);
+        byte[] byteArray = baos.toByteArray();
+        String sUTFEncodedFilename = new String(byteArray);
+		
+		// Reading the file from the OccleveMobileClient jar,
+        // therefore call getResourceAsStream() on the midlet class
+        // in order to ensure that the correct JAR is read from.
+        Class c = OccleveMobileMidlet.getInstance().getClass();
+
+        progressAlert.setString("UTF-encoded filename = " + sUTFEncodedFilename);
+        Thread.sleep(TRACE_PAUSE);
+
+        InputStream is = c.getResourceAsStream(sUTFEncodedFilename);
+        progressAlert.setString("Got InputStream: is=" + is);
+        Thread.sleep(TRACE_PAUSE);
+
+        if (is==null)
+        {
+            progressAlert.setString("Length of filename = " + sImageFilename.length());
+            Thread.sleep(TRACE_PAUSE);
+
+            char lastChar = sImageFilename.charAt( sImageFilename.length()-1 );
+            progressAlert.setString("Last char in filename = " + ((long)lastChar));
+            Thread.sleep(TRACE_PAUSE);
+
+            return null;
+        }
+        {
+            DataInputStream dis = new DataInputStream(is);
+            progressAlert.setString("Got DataInputStream: dis=" + is);
+            Thread.sleep(TRACE_PAUSE);
+
+            int iBufferSize = 100000;
+            byte[] theData = new byte[iBufferSize];
+
+            int b;
+            int iBytesRead = 0;
+            do
+            {
+            	b = dis.read();
+            	if (b!=-1)
+            	{
+            		theData[iBytesRead] = (byte)b;
+            		iBytesRead++;
+            	}
+            } while (b!=-1);
+            	
+            progressAlert.setString("iBytesRead = " + iBytesRead);
+            Thread.sleep(TRACE_PAUSE);
+            
+        	// Copy the data into an array of the correct size.
+        	byte[] finalData = new byte[iBytesRead];
+        	System.arraycopy(theData, 0, finalData, 0, iBytesRead);
+                   
+        	progressAlert.setString("Closing streams");
+            Thread.sleep(TRACE_PAUSE);
+
+            dis.close();
+            is.close();
+            
+            return finalData;
+        }
     }
 
 	public static byte[] loadImageFromRecordStore(String sImageFilename,
@@ -71,32 +141,10 @@ public class MediaHelpers
     		VocabRecordStoreManager rsMgr,int iRetries,
     		Alert progressAlert)
     throws Exception
-    {
-    	// Display a progress bar during the whole process
-        // Alert progressAlert = new Alert(null, "Loading image " + sImageFilename,null, null);
-        // progressAlert.setTimeout(Alert.FOREVER);
-        // StaticHelpers.safeAddGaugeToAlert(progressAlert);
-        // Displayable previousDisplayable =
-        //     OccleveMobileMidlet.getInstance().getCurrentDisplayable();
-        // OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
-
-        // Integer rsid = rsMgr.findRecordByFilename(sImageFilename);
-        // System.out.println("rsid = " + rsid);
-        // byte[] imageData;
-        // if (rsid!=null)
-        //{
-            // Load from recordstore.
-        //	System.out.println("Animation already in recordstore... loading");
-        //    imageData = rsMgr.getRecordContentsMinusFilename(rsid.intValue());
-        // }
-        // else
-        // {
-    	
-        // Load from website.
-    	System.out.println("Animation not in recordstore... loading from web");
+    {    	
     	WikiConnection wc = new WikiConnection();
 
-    	// 0.9.6 - use a retry system similar to that used for loading quizzes.
+    	// 0.9.6 - use a retry system similar to that used for loading quizzes,
     	// in order to get past the China Telecom "welcome" page.
     	boolean bValidImage;
     	byte[] imageData = null;
@@ -111,24 +159,30 @@ public class MediaHelpers
         		{
                 	sImageURL = loadMediaFileLocatorFromWiki(sImageFilename,
                 				sWikiLocatorURL,progressAlert,wc,1);
+                	System.out.println(sImageURL);
         		}
         		
         		progressAlert.setString("Obtained image URL from locator: URL=" + sImageURL);
-                Thread.sleep(5000);
+                Thread.sleep(TRACE_PAUSE);
         		
         		imageData = wc.readAllBytes(sImageURL,progressAlert,false);
 
         		progressAlert.setString("Read image data OK: length=" + imageData.length);
-                Thread.sleep(5000);
+                Thread.sleep(TRACE_PAUSE);
 
+        		progressAlert.setString("Trying to create Image object from data");
+                Thread.sleep(TRACE_PAUSE);
     			Image image = Image.createImage(imageData, 0, imageData.length);
     			
         		progressAlert.setString("Created Image object from data ok");
-                Thread.sleep(5000);    			
+                Thread.sleep(TRACE_PAUSE);    			
     		}
     		catch (Exception e)
     		{
-    			System.err.println(e);
+        		progressAlert.setString("Failed to create Image object from data because: " + e);
+                Thread.sleep(TRACE_PAUSE);
+
+                System.err.println(e);
     			bValidImage = false;
         		iTries++;
     		}
@@ -141,8 +195,13 @@ public class MediaHelpers
     	}
     	else
     	{
-    		progressAlert.setString("Couldn't load a valid image, even after retrying");
-            Thread.sleep(5000);    			
+    		String sErr =
+    			"Couldn't load a valid image, even after retrying. " +
+    			"The image data loaded in the last attempt was: " +
+    			new String(imageData);
+    		progressAlert.setString(sErr);
+            Thread.sleep(TRACE_PAUSE);
+            imageData = null;
     	}
                 
         return imageData;
@@ -192,6 +251,61 @@ public class MediaHelpers
         }
 
         return sTrueURL;
+    }
+    
+    public static void displayAnimation(byte[] animationData,String sTitle)
+    throws Exception
+    {
+        // Get a player for the clip.
+        ByteArrayInputStream bais = new ByteArrayInputStream(animationData);
+        Player player = null;
+
+        try
+        {
+            player = Manager.createPlayer(bais,"image/gif");
+        }
+        catch (MediaException me)
+        {
+            String sMsg = "Sorry! It looks like your phone can't display animated GIFs";
+            System.out.println(sMsg);
+            OccleveMobileMidlet.getInstance().onError(sMsg);
+            return;
+        }
+
+        player.realize();
+
+        VideoControl video = (VideoControl) player.getControl("VideoControl");
+        Item videoItem = (Item)video.initDisplayMode(VideoControl.USE_GUI_PRIMITIVE, null);
+        Form videoForm = new Form(sTitle);
+        videoForm.append(videoItem);
+
+        ////Displayable oldDisplayable =
+        ////	OccleveMobileMidlet.getInstance().getCurrentDisplayable();
+        
+        OccleveMobileMidlet.getInstance().setCurrentForm(videoForm);
+
+        player.start();
+
+        try
+        {
+            // Wait until the animation has finished.
+        	// DISABLED - ON SOME PHONES THE ANIMATION LOOPS AND THIS WILL NEVER FINISH
+	        //do
+	        //{
+	        //    Thread.sleep(1000);
+	        //} while (player.getState()==Player.STARTED);
+
+            Thread.sleep(10000);
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        
+        ///////////OccleveMobileMidlet.getInstance().setCurrentForm(oldDisplayable);
+
+    	// Release player resources. Failing to do this results in noticeable
+    	// resource drain on a Sony Ericsson Z558c.
+    	player.stop();
+    	player.deallocate();
+    	player.close();    	
     }
 }
 
