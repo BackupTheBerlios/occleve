@@ -226,7 +226,7 @@ public class MagicTypewriterController extends QAController
         Display.getDisplay(OccleveMobileMidlet.getInstance()).flashBacklight(50);
     }
 
-    private void cheatOneCharacter() throws Exception
+    public void cheatOneCharacter() throws Exception
     {
         Vector vPossibleLastLines =
             m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
@@ -237,7 +237,7 @@ public class MagicTypewriterController extends QAController
     	m_TestController.getCurrentQA().setAnswerFragmentLastLine(sFirstPoss);    	
     }
 
-    private void cheatQuestion() throws Exception
+    public void cheatQuestion() throws Exception
     {
         Vector vWholeAnswer = m_TestController.getCurrentQA().getAnswer();
         int wholeAnswerLength = totalLengthOfStrings(vWholeAnswer);

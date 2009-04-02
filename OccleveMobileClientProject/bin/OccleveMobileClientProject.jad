@@ -1,5 +1,5 @@
 MIDlet-1: OccleveMobileClientProject, OccleveMobileClientProject.png, org.occleve.mobileclient.OccleveMobileMidlet
-MIDlet-Jar-Size: 778669
+MIDlet-Jar-Size: 6187246
 MIDlet-Jar-URL: http://occleve.berlios.de/OccleveMobileClientProject.jar
 MIDlet-Name: OccleveMobileClientProject
 MIDlet-Permissions: javax.microedition.io.Connector.socket,javax.microedition.io.Connector.serversocket

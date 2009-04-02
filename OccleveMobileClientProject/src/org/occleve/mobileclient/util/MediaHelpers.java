@@ -34,9 +34,7 @@ import org.occleve.mobileclient.serverbrowser.WikiConnection;
 
 /**0.9.7: Put FileConnection API specific stuff in here.*/
 public class MediaHelpers
-{		
-	private static final int TRACE_PAUSE = 2000;
-	
+{			
     public static byte[] loadImage(String sImageFilename,String sImageURL,
     	VocabRecordStoreManager rsMgr,Alert progressAlert) throws Exception
     {
@@ -52,42 +50,57 @@ public class MediaHelpers
 	public static byte[] loadImageFromJar(String sImageFilename,
 			Alert progressAlert) throws Exception
     {
-        progressAlert.setString("Trying to load..." + sImageFilename + "...from jar");
-        Thread.sleep(TRACE_PAUSE);
+		try
+		{
+			return loadImageFromJar_Inner(sImageFilename,progressAlert);
+		}
+		catch (Throwable t)
+		{
+			throw new Exception(t.getMessage());
+		}
+    }
 
+	private static byte[] loadImageFromJar_Inner(String sImageFilename,
+			Alert progressAlert) throws Throwable
+    {
+        OccleveTrace.trace(progressAlert,"Trying to load..." + sImageFilename + "...from jar");
+
+        /*
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(baos,"UTF-8");
         writer.write(sImageFilename);
         byte[] byteArray = baos.toByteArray();
         String sUTFEncodedFilename = new String(byteArray);
-		
+        */
+
 		// Reading the file from the OccleveMobileClient jar,
         // therefore call getResourceAsStream() on the midlet class
         // in order to ensure that the correct JAR is read from.
         Class c = OccleveMobileMidlet.getInstance().getClass();
+        OccleveTrace.trace(progressAlert,"Got OccleveMobileMidlet.class ok");
 
-        progressAlert.setString("UTF-encoded filename = " + sUTFEncodedFilename);
-        Thread.sleep(TRACE_PAUSE);
-
-        InputStream is = c.getResourceAsStream(sUTFEncodedFilename);
-        progressAlert.setString("Got InputStream: is=" + is);
-        Thread.sleep(TRACE_PAUSE);
+        InputStream is = c.getResourceAsStream(sImageFilename);
+        
+        // It seems like on the Z558c, tracing out the InputStream this way
+        // actually crashes the VM!
+        ////// OccleveTrace.trace(progressAlert,"InputStream: is=" + is);
 
         if (is==null)
         {
-            progressAlert.setString("Length of filename = " + sImageFilename.length());
-            Thread.sleep(TRACE_PAUSE);
+            OccleveTrace.trace(progressAlert,"InputStream is null");
+            OccleveTrace.trace(progressAlert,"Length of filename = " + sImageFilename.length());
 
             char lastChar = sImageFilename.charAt( sImageFilename.length()-1 );
-            progressAlert.setString("Last char in filename = " + ((long)lastChar));
-            Thread.sleep(TRACE_PAUSE);
+            OccleveTrace.trace(progressAlert,"Last char in filename = " + ((long)lastChar));
 
             return null;
         }
+        else
         {
+            OccleveTrace.trace(progressAlert,"Got InputStream OK");
+            
             DataInputStream dis = new DataInputStream(is);
-            progressAlert.setString("Got DataInputStream: dis=" + is);
-            Thread.sleep(TRACE_PAUSE);
+            OccleveTrace.trace(progressAlert,"Got DataInputStream OK");
 
             int iBufferSize = 100000;
             byte[] theData = new byte[iBufferSize];
@@ -104,15 +117,13 @@ public class MediaHelpers
             	}
             } while (b!=-1);
             	
-            progressAlert.setString("iBytesRead = " + iBytesRead);
-            Thread.sleep(TRACE_PAUSE);
+            OccleveTrace.trace(progressAlert,"iBytesRead = " + iBytesRead);
             
         	// Copy the data into an array of the correct size.
         	byte[] finalData = new byte[iBytesRead];
         	System.arraycopy(theData, 0, finalData, 0, iBytesRead);
                    
-        	progressAlert.setString("Closing streams");
-            Thread.sleep(TRACE_PAUSE);
+        	OccleveTrace.trace(progressAlert,"Closing streams");
 
             dis.close();
             is.close();
@@ -144,46 +155,39 @@ public class MediaHelpers
     {    	
     	WikiConnection wc = new WikiConnection();
 
-    	// 0.9.6 - use a retry system similar to that used for loading quizzes,
+    	// Since 0.9.6 - use a retry system similar to that used for loading quizzes,
     	// in order to get past the China Telecom "welcome" page.
-    	boolean bValidImage;
+    	boolean bValidImage = false;
     	byte[] imageData = null;
     	int iTries = 0;
+
     	do
     	{    		
     		try
     		{
-        		bValidImage = true;
-
         		if (sWikiLocatorURL!=null)
         		{
                 	sImageURL = loadMediaFileLocatorFromWiki(sImageFilename,
                 				sWikiLocatorURL,progressAlert,wc,1);
-                	System.out.println(sImageURL);
+            		OccleveTrace.trace(progressAlert,"Obtained image URL from locator: URL=" + sImageURL);
         		}
         		
-        		progressAlert.setString("Obtained image URL from locator: URL=" + sImageURL);
-                Thread.sleep(TRACE_PAUSE);
-        		
-        		imageData = wc.readAllBytes(sImageURL,progressAlert,false);
+        		if (sImageURL!=null)
+        		{
+	        		imageData = wc.readAllBytes(sImageURL,progressAlert,false);
+	        		OccleveTrace.trace(progressAlert,"Read image data OK: length=" + imageData.length);
+	
+	        		OccleveTrace.trace(progressAlert,"Trying to create Image object from data");
+	    			Image image = Image.createImage(imageData, 0, imageData.length);    			
+	        		OccleveTrace.trace(progressAlert,"Created Image object from data ok");
 
-        		progressAlert.setString("Read image data OK: length=" + imageData.length);
-                Thread.sleep(TRACE_PAUSE);
-
-        		progressAlert.setString("Trying to create Image object from data");
-                Thread.sleep(TRACE_PAUSE);
-    			Image image = Image.createImage(imageData, 0, imageData.length);
-    			
-        		progressAlert.setString("Created Image object from data ok");
-                Thread.sleep(TRACE_PAUSE);    			
+	        		bValidImage = true;
+        		}
     		}
     		catch (Exception e)
     		{
-        		progressAlert.setString("Failed to create Image object from data because: " + e);
-                Thread.sleep(TRACE_PAUSE);
-
+        		OccleveTrace.trace(progressAlert,"Failed to create Image object from data because: " + e);
                 System.err.println(e);
-    			bValidImage = false;
         		iTries++;
     		}
     	} while ((bValidImage==false) && (iTries<iRetries));
@@ -195,12 +199,15 @@ public class MediaHelpers
     	}
     	else
     	{
-    		String sErr =
-    			"Couldn't load a valid image, even after retrying. " +
-    			"The image data loaded in the last attempt was: " +
-    			new String(imageData);
-    		progressAlert.setString(sErr);
-            Thread.sleep(TRACE_PAUSE);
+    		String sErr = "Couldn't load a valid image, even after retrying. ";
+    		
+    		if (imageData!=null)
+    		{
+    			sErr += "The image data loaded in the last attempt was: " +
+    				new String(imageData);
+    		}
+    		
+    		OccleveTrace.trace(progressAlert,sErr);
             imageData = null;
     	}
                 
@@ -220,10 +227,10 @@ public class MediaHelpers
             progressAlert.setString(sMsg);
 
         	byte[] locatorData = wc.readAllBytes(sDescriptorURL,progressAlert,true);        	
-        	System.out.println("About to instantiate String from bytes");
+        	OccleveTrace.trace(progressAlert,"About to instantiate sLocatorPage from bytes");
 
         	String sLocatorPage = new String(locatorData,Config.ENCODING);
-        	System.out.println("Instantiated String from bytes ok");
+        	OccleveTrace.trace(progressAlert,"Instantiated sLocatorPage from bytes ok");
 
             sTrueURL = null;
             Vector locatorLines = StaticHelpers.stringToVector(sLocatorPage);
@@ -231,13 +238,13 @@ public class MediaHelpers
             do
             {
             	String sLine = vr.readLine();
-                System.out.println("Parsing " + sLine);
+            	OccleveTrace.trace(progressAlert,"Parsing " + sLine);
 
                 int iIndex = sLine.indexOf("URL=");
                 if (iIndex != -1)
                 {
                     sTrueURL = sLine.substring(iIndex + "URL=".length());
-                    System.out.println("sTrueURL = " + sTrueURL);
+                    OccleveTrace.trace(progressAlert,"sTrueURL = " + sTrueURL);
                 }
 
             } while ((vr.hasMoreLines()) && (sTrueURL == null));
@@ -245,10 +252,10 @@ public class MediaHelpers
             iTries++;
         } while ((sTrueURL == null) && (iTries<iMaxTries));
 
-        if (sTrueURL==null)
-        {
-            throw new Exception("Couldn't find true URL of media file on wiki");
-        }
+        ////if (sTrueURL==null)
+        ///{
+        ////    throw new Exception("Couldn't find true URL of media file on wiki");
+        ////}
 
         return sTrueURL;
     }

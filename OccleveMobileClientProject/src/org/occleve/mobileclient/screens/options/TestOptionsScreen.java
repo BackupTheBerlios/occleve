@@ -208,7 +208,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         {
             if (item==m_StartTestItem)
             {
-                OccleveMobileMidlet.getInstance().beep();
+                ///////OccleveMobileMidlet.getInstance().beep();
                 runTest();
             }
         }

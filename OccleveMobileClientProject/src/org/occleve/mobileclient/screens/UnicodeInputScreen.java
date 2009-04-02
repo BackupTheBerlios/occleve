@@ -49,15 +49,19 @@ implements CommandListener,Runnable
     protected static final int VIEW_ANIMATION = 1;
     protected static final int VIEW_DRAWING = 2;
     protected static final int VIEW_WIKIPEDIA_ANIMATION = 3;
+    protected static final int VIEW_OCRAT_ANIMATION = 4;
     protected int m_iThreadAction;
     
     protected CommonCommands m_CommonCommands;
     protected Command m_ViewAnimationCommand;
     protected Command m_ViewWikipediaAnimationCommand;
+    protected Command m_ViewOcratAnimationCommand;
     protected Command m_ViewDrawingCommand;
     protected Command m_PeekCommand;
     protected Command m_CancelCommand;
 
+    /**When true, the main thread which monitors the textbox
+    contents should exit.*/
     protected boolean m_bExitThread;
 
     /**Accessor function.*/
@@ -74,8 +78,6 @@ implements CommandListener,Runnable
     {
         super("Input character:","",1,TextField.ANY);
 
-        ///System.out.println("Entering UnicodeInputScreen constructor with char=" + unicodeCharToInput);
-        
         m_UnicodeCharToInput = unicodeCharToInput;
         m_sAnswerFragmentEndingInUnicodeChar = sAnswerFragmentEndingInUnicodeChar;
         
@@ -87,12 +89,14 @@ implements CommandListener,Runnable
 
         m_ViewAnimationCommand = new Command("View animation",Command.ITEM,0);
         m_ViewWikipediaAnimationCommand = new Command("View wikipedia animation",Command.ITEM,0);
+        m_ViewOcratAnimationCommand = new Command("View ocrat animation",Command.ITEM,0);
         m_ViewDrawingCommand = new Command("View drawing",Command.ITEM,0);
         m_PeekCommand = new Command("Peek",Command.ITEM,0);
         m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
 
         addCommand(m_ViewAnimationCommand);
         addCommand(m_ViewWikipediaAnimationCommand);
+        addCommand(m_ViewOcratAnimationCommand);
         addCommand(m_ViewDrawingCommand);
         addCommand(m_PeekCommand);
         addCommand(m_CancelCommand);
@@ -112,9 +116,14 @@ implements CommandListener,Runnable
 		        m_iThreadAction = VIEW_ANIMATION;
 		        new Thread(this).start();
 	        }
-	        if (c==m_ViewWikipediaAnimationCommand)
+	        else if (c==m_ViewWikipediaAnimationCommand)
 	        {
 		        m_iThreadAction = VIEW_WIKIPEDIA_ANIMATION;
+		        new Thread(this).start();
+	        }
+	        else if (c==m_ViewWikipediaAnimationCommand)
+	        {
+		        m_iThreadAction = VIEW_OCRAT_ANIMATION;
 		        new Thread(this).start();
 	        }
 	        else if (c==m_ViewDrawingCommand)
@@ -200,30 +209,26 @@ implements CommandListener,Runnable
         m_TestResults.addResponse(false);
     }
 
-    /**0.9.5: Attempts to display an animation of how to draw the unicode character.
+    /**Attempts to display an animation of how to draw the unicode character.
     For now, that means attempting to retrieve an animated character from the mirror
     of the Ocrat animations of Chinese characters.
+    0.9.5 - feature introduced.
     0.9.7 - add support for Wikipedia's stroke order animations.*/
     public void onViewAnimation(boolean bOcratAnimation,boolean bWikipediaAnimation)
     throws Exception
     {    	
-        // 0.9.7 - store media files in a separate recordstore.
-    	// Need to get this first as it may display its own progress bar
-    	// if it needs to index the recordstore.
-		VocabRecordStoreManager mediaRsMgr =
-			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
-    	
         Alert progressAlert = new Alert(null, "Loading image...",null, null);
 		progressAlert.setTimeout(Alert.FOREVER);
 		StaticHelpers.safeAddGaugeToAlert(progressAlert);
 		OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
 
+    	// 0.9.7 - store media files in a separate recordstore.
+		VocabRecordStoreManager mediaRsMgr =
+			OccleveMobileMidlet.getInstance().getMediaRecordStoreManager(progressAlert);
+
+		progressAlert.setString("Loading image...");
+		
     	byte[] animationData = null;
-
-    	////String sWikipediaFilenameForJar = "/" + m_UnicodeCharToInput + "-order.gif";
-
-    	String sWikipediaFilenameForJar = "/wikipedia_stroke/" +
-    										m_UnicodeCharToInput + "-order.gif";
     	
     	String sWikipediaFilenameForRS = "WP_" + m_UnicodeCharToInput + "-order.gif";
 
@@ -244,7 +249,10 @@ implements CommandListener,Runnable
 
     	String sWikipediaFilenameForURL =
     		sbURLEncodedUnicodeChar.toString() + "-order.gif";
-    	
+
+    	String sWikipediaFilenameForJar = "/wikipedia_stroke/" +
+    		sbURLEncodedUnicodeChar.toString() + "-order.gif";
+
     	String sHexString = StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
     	String sOcratFilename = sHexString + ".gif";
     	
@@ -292,13 +300,18 @@ implements CommandListener,Runnable
 	    	// Display the animation
 	    	String sTitle = "" + m_UnicodeCharToInput;
 	    	MediaHelpers.displayAnimation(animationData,sTitle);
-	
-	    	// Revert to displaying this screen
-	        OccleveMobileMidlet.getInstance().setCurrentForm(this);
-	
+		
 	        // Viewing the animation counts as a "wrong" keypress.
 	        m_TestResults.addResponse(false);
     	}
+    	else
+    	{
+    		progressAlert.setString("Unable to find any animations for this character");
+    		Thread.sleep(2000);
+    	}
+    	
+    	// Revert to displaying this screen
+        OccleveMobileMidlet.getInstance().setCurrentForm(this);
     }
 
     public void run()
@@ -317,6 +330,10 @@ implements CommandListener,Runnable
 	    	{
 				onViewAnimation(false,true);
 	    	}
+	    	else if (m_iThreadAction==VIEW_OCRAT_ANIMATION)
+	    	{
+				onViewAnimation(true,false);
+	    	}
 	    	else if (m_iThreadAction==VIEW_DRAWING)
 	    	{
 				onViewDrawing();
@@ -325,6 +342,8 @@ implements CommandListener,Runnable
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
+    /**The main thread which monitors the textbox contents, and decides
+    if it matches the character the user is supposed to write.*/
     protected void monitorTextBoxContents() throws Exception
     {
         m_bExitThread = false;
@@ -358,6 +377,14 @@ implements CommandListener,Runnable
 			((inputtedChar=='!') && (m_UnicodeCharToInput!='!')) ||
 			((inputtedChar=='！') && (m_UnicodeCharToInput!='！'));
 
+        // 0.9.7 - allow cheating directly from this screen.
+        boolean bCheatOneChar =
+			((inputtedChar=='*') && (m_UnicodeCharToInput!='*'));
+
+        // 0.9.7 - allow cheating directly from this screen.
+        boolean bCheatQuestion =
+			((inputtedChar=='#') && (m_UnicodeCharToInput!='#'));
+
         if (bPeek)
         {
         	onPeek(false);
@@ -369,6 +396,18 @@ implements CommandListener,Runnable
         	// Also allow the unicode equivalent "！" to invoke it.
         	onViewAnimation(true,true);
             setString("");
+        }
+        else if (bCheatOneChar)
+        {
+        	m_bExitThread = true;
+            m_TestControllerThatInvokedThis.cheatOneCharacter();
+            m_TestControllerThatInvokedThis.setVisible();
+        }
+        else if (bCheatQuestion)
+        {
+        	m_bExitThread = true;
+            m_TestControllerThatInvokedThis.cheatQuestion();
+            m_TestControllerThatInvokedThis.setVisible();
         }
         else
         {

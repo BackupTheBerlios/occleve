@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -50,9 +50,6 @@ implements CommandListener,Runnable
 
     protected Alert m_ProgressAlertCache;
     protected ListOfTestsEntry m_EntryCache;
-    //protected String m_sFilenameCache;
-    //protected Integer m_iRecordStoreIDCache;
-    //protected String m_sLocalFilesystemURLCache;
 
     /**0.9.6: The recordstore which stores quizzes.*/
     protected VocabRecordStoreManager m_QuizRecordStoreManager;
@@ -90,20 +87,6 @@ implements CommandListener,Runnable
 		// 0.9.7 - initialize display for LWUIT
 		//////com.sun.lwuit.Displaỵ.init(this);
 	}
-
-        // Not sure if this really works...
-        /*
-        private void getDirListing() throws IOException
-        {
-            FileConnection fc = (FileConnection) Connector.open("file:///");
-            Enumeration dirListing = fc.list("*",true);
-            while (dirListing.hasMoreElements())
-            {
-                String sFile = (String)dirListing.nextElement();
-                System.out.println(sFile);
-            }
-        }
-        */
 
 	public void startApp()
 	{
@@ -181,10 +164,10 @@ implements CommandListener,Runnable
     	m_FileChooserForm.displayTestOptions(theTest);
     }
     
-    public void onError(Exception e)
+    public void onError(Throwable t)
     {
-        onError(e.toString());
-        e.printStackTrace();
+        onError(t.toString());
+        t.printStackTrace();
     }
 
     /*Helper method for other parts of the software to display an error.*/
@@ -212,9 +195,6 @@ implements CommandListener,Runnable
 
         m_EntryCache = entry;
         m_ProgressAlertCache = alt;
-        //m_sFilenameCache = sFilename;
-        //m_iRecordStoreIDCache = iRecordStoreID;
-        //m_sLocalFilesystemURLCache = sLocalFilesystemURL;
         new Thread(this).start();
     }
 
@@ -289,30 +269,40 @@ implements CommandListener,Runnable
     	
     	return m_QuizRecordStoreManager;
     }
-    
-    /**Introduced 0.9.7 - now using separate recordstores for quizzes and media files.*/
+
     public VocabRecordStoreManager getMediaRecordStoreManager()
+    throws Exception
+    {
+    	return getMediaRecordStoreManager(null);
+    }
+
+    /**Introduced 0.9.7 - now using separate recordstores for quizzes and media files.*/
+    public VocabRecordStoreManager getMediaRecordStoreManager(Alert existingAlert)
+    throws Exception
     {
     	if (m_MediaRecordStoreManager==null)
     	{
-    		try
-    		{
-    			// This could be time consuming if there are lots of them, so
-    			// display a progress alert.
-    			Displayable currentDisp = getCurrentDisplayable();
-    	        Alert progress = new Alert(null,"Indexing media files...",null,AlertType.INFO);
+			// This could be time consuming if there are lots of them, so
+			// display a progress alert.
+			Displayable currentDisp = getCurrentDisplayable();
+
+			Alert progress;
+			if (existingAlert!=null)
+				progress = existingAlert;
+			else
+			{
+    			progress = new Alert(null,"",null,AlertType.INFO);
     	        displayAlert(progress,currentDisp);
-    			
-    			m_MediaRecordStoreManager =
-    				new VocabRecordStoreManager(VocabRecordStoreManager.MEDIA_RECORDSTORE_NAME);
-    			
-    			setCurrentForm(currentDisp);
-    		}
-    		catch (Exception e) {onError(e);}
-    	}
+			}
+			progress.setString("Indexing media files...");
+			
+			m_MediaRecordStoreManager =
+				new VocabRecordStoreManager(VocabRecordStoreManager.MEDIA_RECORDSTORE_NAME);
+			
+			if (existingAlert==null) setCurrentForm(currentDisp);
+		}
     	
     	return m_MediaRecordStoreManager;
     }
-
 }
 

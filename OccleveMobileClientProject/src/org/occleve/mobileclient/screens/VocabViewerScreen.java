@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens;
@@ -43,6 +43,9 @@ implements CommandListener,ItemCommandListener
     protected Command m_ScrollToStartCommand;
     protected Command m_ScrollToMiddleCommand;
     protected Command m_ScrollToEndCommand;
+    
+    // 0.9.7 - allow invocation of quiz directly from this screen
+    protected Command m_RunTestCommand;
 
     // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
     //protected Command m_EditCommand;
@@ -86,6 +89,9 @@ implements CommandListener,ItemCommandListener
 
         m_ScrollToEndCommand = new Command("Scroll to end", Command.ITEM, 0);
         addCommand(m_ScrollToEndCommand);
+
+        m_RunTestCommand = new Command("Run test", Command.ITEM, 0);
+        addCommand(m_RunTestCommand);
 
         // Disabled in 0.9.6 - see earlier comment
         //m_EditCommand = new Command("Edit", Command.ITEM, 0);
@@ -181,6 +187,17 @@ implements CommandListener,ItemCommandListener
             int iLastItemIndex = size()-1;
             Item qaItem = get(iLastItemIndex);
             StaticHelpers.safeSetCurrentItem(qaItem);
+        }
+        else if (c==m_RunTestCommand)
+        {
+        	try
+        	{
+        		OccleveMobileMidlet.getInstance().displayTestOptions(m_Test);
+        	}
+        	catch (Exception e)
+        	{
+        		OccleveMobileMidlet.getInstance().onError(e);
+        	}
         }
         // Disabled in 0.9.6 - see earlier comment
         /*

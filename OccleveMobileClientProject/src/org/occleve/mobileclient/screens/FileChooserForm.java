@@ -145,7 +145,9 @@ implements CommandListener,Runnable
     public void populateWithFilenames() throws Exception
     {
     	Image logoImage = StaticHelpers.loadOccleveLogo();
-    	Alert alt = new Alert(null, "Loading list of quizzes...", logoImage, null);
+    	String sMsg = "occleve.berlios.de/pocketchinese\n" +
+    					"©2007-9 Joe Gittings & contributors";
+    	Alert alt = new Alert(null,sMsg,logoImage,null);
         alt.setTimeout(Alert.FOREVER);
         StaticHelpers.safeAddGaugeToAlert(alt);
         OccleveMobileMidlet.getInstance().setCurrentForm(alt);
