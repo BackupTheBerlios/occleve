@@ -27,7 +27,6 @@ import java.util.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.*;
-import javax.microedition.media.*;
 import javax.microedition.rms.*;
 
 import org.occleve.mobileclient.*;
@@ -37,9 +36,16 @@ import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 import org.occleve.mobileclient.excludable.translation.*;
 
+/**Stuff for devs and power users.*/
 public class DevStuffScreen extends javax.microedition.lcdui.List
 implements CommandListener,Excludable,Runnable
 {
+	/**Will the list of quizzes need rebuilding when the user quits this screen?*/
+	protected boolean m_bQuizListNeedsRefreshing = false;
+
+	/**Accessor.*/
+	public void setQuizListNeedsRefreshing() {m_bQuizListNeedsRefreshing=true;}
+	
 	protected ListOfTestsEntry m_SelectedListOfTestsEntry;
 
     ////////////// Implementation of Excludable ////////////////////////////////
@@ -86,6 +92,8 @@ implements CommandListener,Excludable,Runnable
     protected final String COUNT_RS_RECORDS = "Count records in recordstores";
     protected final String LIST_RECORDSTORES = "List recordstores";
     protected final String SHOW_DEFAULT_ENCODING = "Show default encoding";
+    protected final String ENCODING_TESTER = "Encoding tester";
+    protected final String TRACE_ON = "Trace on";
     
     //protected final String MOVE_MEDIA_FILES_TO_MEDIA_RS = "Move media files to media RS";
     //protected final String FIX_FOULED_MEDIA_FILES = "Fix fouled media files";
@@ -131,6 +139,8 @@ implements CommandListener,Excludable,Runnable
         append(COUNT_RS_RECORDS,null);
         append(LIST_RECORDSTORES,null);
         append(SHOW_DEFAULT_ENCODING,null);
+        append(ENCODING_TESTER,null);
+        append(TRACE_ON,null);
 
         //append(MOVE_MEDIA_FILES_TO_MEDIA_RS,null);
         //append(FIX_FOULED_MEDIA_FILES,null);
@@ -143,13 +153,11 @@ implements CommandListener,Excludable,Runnable
     /**Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable s)
     {
-        System.out.println("Entering commandAction(Command,Displayable)");
-
         try
         {
             if (c==m_BackCommand)
             {
-                OccleveMobileMidlet.getInstance().displayFileChooser();
+                OccleveMobileMidlet.getInstance().displayFileChooser(m_bQuizListNeedsRefreshing);
             }
             else if (c==javax.microedition.lcdui.List.SELECT_COMMAND)
             {
@@ -191,14 +199,16 @@ implements CommandListener,Excludable,Runnable
             createBackupOfSelectedQuiz();
         }
         else if (sSelectedPrompt.equals(DELETE_TEST))
-        {
-            deleteSelectedTest();
-        }
+		{
+		    deleteSelectedTest();
+		    m_bQuizListNeedsRefreshing = true;
+		}
         else if (sSelectedPrompt.equals(COPY_TO_RECORDSTORE))
         {
         	VocabRecordStoreManager mgr =
         		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
             mgr.copyFileFromJarToRecordStore(m_SelectedListOfTestsEntry.getFilename());
+		    m_bQuizListNeedsRefreshing = true;
         }
         else if (sSelectedPrompt.equals(PRINT_TO_FILE))
         {
@@ -214,14 +224,14 @@ implements CommandListener,Excludable,Runnable
         {
         	VocabRecordStoreManager quizRsMgr =
         		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
-        	FileManager fmgr = new FileManager(quizRsMgr);
+        	FileManager fmgr = new FileManager(quizRsMgr,this);
             OccleveMobileMidlet.getInstance().setCurrentForm(fmgr);        	
         }
         else if (sOption.equals(MEDIA_FILE_MANAGER))
         {
         	VocabRecordStoreManager mediaRsMgr =
         		OccleveMobileMidlet.getInstance().getMediaRecordStoreManager();
-        	FileManager fmgr = new FileManager(mediaRsMgr);
+        	FileManager fmgr = new FileManager(mediaRsMgr,this);
             OccleveMobileMidlet.getInstance().setCurrentForm(fmgr);        	
         }
         else if (sOption.equals(DELETE_ALL_XML))
@@ -230,8 +240,7 @@ implements CommandListener,Excludable,Runnable
         		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
             mgr.deleteAllXmlPrefixedFiles();
 
-            boolean bRefreshList = true;
-            OccleveMobileMidlet.getInstance().displayFileChooser(bRefreshList);
+		    m_bQuizListNeedsRefreshing = true;
         }
         else if (sOption.equals(TESTBED_CANVAS))
         {
@@ -240,12 +249,12 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sOption.equals(TESTBED_FORM))
         {
-            TestbedForm tbf = new TestbedForm();
+            TestbedForm tbf = new TestbedForm(this);
             OccleveMobileMidlet.getInstance().setCurrentForm(tbf);
         }
         else if (sOption.equals(TESTBED_TEXTBOX))
         {
-            TestbedTextBox ttb = new TestbedTextBox();
+            TestbedTextBox ttb = new TestbedTextBox(this);
             OccleveMobileMidlet.getInstance().setCurrentForm(ttb);
         }
         else if (sOption.equals(TEST_LWUIT))
@@ -293,7 +302,7 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sOption.equals(CREATE_NEW_TEST))
         {
-            VocabRecordFilenameTextBox tb = new VocabRecordFilenameTextBox();
+            VocabRecordFilenameTextBox tb = new VocabRecordFilenameTextBox(this);
             OccleveMobileMidlet.getInstance().setCurrentForm(tb);
         }
         else if (sOption.equals(TEST_BABELFISH))
@@ -317,12 +326,23 @@ implements CommandListener,Excludable,Runnable
         }
         else if (sOption.equals(LIST_RECORDSTORES))
         {
-        	RecordStoreExplorer rse = new RecordStoreExplorer();
+        	RecordStoreExplorer rse = new RecordStoreExplorer(this);
             OccleveMobileMidlet.getInstance().setCurrentForm(rse);        	
         }
         else if (sOption.equals(SHOW_DEFAULT_ENCODING))
         {
         	displayPropertyValue("microedition.encoding");
+        }
+        else if (sOption.equals(ENCODING_TESTER))
+        {
+            EncodingTester et = new EncodingTester(this);
+            OccleveMobileMidlet.getInstance().setCurrentForm(et);
+        }
+        else if (sOption.equals(TRACE_ON))
+        {
+        	OccleveTrace.setTraceOn();
+            Alert alert = new Alert(null,"Tracing enabled",null,null);
+            OccleveMobileMidlet.getInstance().displayAlert(alert,this);    	
         }
         
         /*
@@ -564,14 +584,7 @@ implements CommandListener,Excludable,Runnable
     // From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/
     private void showFilesystemRoots() throws Exception
     {
-        ///////Manager.playTone(69, 1000, 100);
-        System.out.println("About to call listRoots...");
-
         Enumeration drives = FileSystemRegistry.listRoots();
-
-        System.out.println("Called listRoots...");
-        ///////Manager.playTone(90, 1000, 100);
-
 
         String sMsg = "The valid roots found are:" + Constants.NEWLINE;
         while (drives.hasMoreElements())
@@ -705,8 +718,9 @@ implements CommandListener,Excludable,Runnable
         }
 
         Vector vContents = StaticHelpers.stringToVector(sTestContents);
-        TestSourceViewer viewer = new TestSourceViewer(m_SelectedListOfTestsEntry.getFilename(),
-                                                       vContents);
+        TestSourceViewer viewer =
+        	new TestSourceViewer(m_SelectedListOfTestsEntry.getFilename(),
+                                   vContents,this);
         OccleveMobileMidlet.getInstance().setCurrentForm(viewer);
     }
 

@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,18 +30,20 @@ import org.occleve.mobileclient.recordstore.*;
 public class VocabRecordFilenameTextBox extends TextBox
 implements CommandListener
 {
+	protected DevStuffScreen m_DevStuffScreen;
+	protected DevStuffChildScreenHelper m_Helper;
     protected Command m_OKCommand;
-    protected Command m_CancelCommand;
 
-    public VocabRecordFilenameTextBox() throws Exception
+    public VocabRecordFilenameTextBox(DevStuffScreen dvs)
+    throws Exception
     {
         super("Name of new test:","",100,TextField.ANY);
 
+        m_DevStuffScreen = dvs;
+        m_Helper = new DevStuffChildScreenHelper(this,dvs);
+
         m_OKCommand = new Command("OK",Command.OK,0);
         addCommand(m_OKCommand);
-
-        m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
-        addCommand(m_CancelCommand);
 
         setCommandListener(this);
     }
@@ -56,13 +58,15 @@ implements CommandListener
             	VocabRecordStoreManager mgr =
             		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
                 mgr.createEmptyTest(getString());
-                OccleveMobileMidlet.getInstance().displayFileChooser(true);
+                
+                m_DevStuffScreen.setQuizListNeedsRefreshing();
+                OccleveMobileMidlet.getInstance().setCurrentForm(m_DevStuffScreen);
             }
             catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
         }
         else
         {
-            OccleveMobileMidlet.getInstance().onUnknownCommand( this.getClass() );
+        	m_Helper.commandAction(c, s);
         }
     }
 }

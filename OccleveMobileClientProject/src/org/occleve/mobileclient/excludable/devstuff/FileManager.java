@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2008  Joe Gittings
+Copyright (C) 2008-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,26 +37,29 @@ import com.exploringxml.xml.Xparse;
 public class FileManager extends List
 implements CommandListener
 {
+	protected DevStuffScreen m_DevStuffScreen;
+	protected DevStuffChildScreenHelper m_Helper;
+	
 	/**0.9.7*/
 	protected VocabRecordStoreManager m_RecordStoreManager;
 	
-    protected Command m_BackCommand;
     protected Command m_DeleteCommand;
     protected Command m_DetailsCommand;
 
     protected Hashtable m_RecordIndicesKeyedByFilenames;
 
-    public FileManager(VocabRecordStoreManager rsMgr)
+    public FileManager(VocabRecordStoreManager rsMgr,DevStuffScreen dvs)
     throws Exception
     {
         super(Constants.PRODUCT_NAME,List.IMPLICIT);
 
+        m_DevStuffScreen = dvs;
+        m_Helper = new DevStuffChildScreenHelper(this,dvs);
+
         m_RecordStoreManager = rsMgr;
-        m_BackCommand = new Command("Back", Command.ITEM, 0);
         m_DeleteCommand = new Command("Delete", Command.ITEM, 1);
         m_DetailsCommand = new Command("Details", Command.ITEM, 1);
 
-        addCommand(m_BackCommand);
         addCommand(m_DeleteCommand);
         addCommand(m_DetailsCommand);
 
@@ -102,20 +105,12 @@ implements CommandListener
     {
         int iSelIndex = getSelectedIndex();
 
-        if (c==m_BackCommand)
+        if (c==m_DeleteCommand)
         {
-        	OccleveMobileMidlet.getInstance().displayFileChooser(true);
-        }
-        else if (c==m_DeleteCommand)
-        {
-        	// Delete the select record from the recordstore.
+        	// Delete the selected record from the record store.
         	String sFilename = getString(iSelIndex);
         	Integer iRecordID =
         		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
-
-            //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
-        	/////VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-            
             m_RecordStoreManager.deleteTest(iRecordID.intValue(),sFilename);
             
             // Need to update the contents of this screen, now.
@@ -124,6 +119,10 @@ implements CommandListener
             // which looks a bit confusing (although is perfectly correct).
             delete(iSelIndex);
             m_RecordIndicesKeyedByFilenames.remove(sFilename);
+
+            // Once we exit the dev stuff screen, the main list of quizzes
+            // will need refreshing.
+            m_DevStuffScreen.setQuizListNeedsRefreshing();
         }
         else if (c==m_DetailsCommand)
         {
@@ -132,7 +131,7 @@ implements CommandListener
         }
         else
         {
-        	OccleveMobileMidlet.getInstance().onError("Unknown Command in FileManager");
+        	m_Helper.commandAction(c, d);
         }
     }
 
@@ -141,9 +140,6 @@ implements CommandListener
     {
     	System.out.println("Filename = " + sFilename);
     	
-    	///VocabRecordStoreManager mgr =
-    	///	OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
-
     	Integer iRecordID =
     		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
         byte[] recordData = m_RecordStoreManager.getRecordBytes(iRecordID.intValue());

@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -28,12 +28,14 @@ import org.occleve.mobileclient.*;
 
 public class TestSourceViewer extends Form implements CommandListener
 {
-    protected Command m_NewTestCommand;
-    protected Command m_ExitCommand;
+	protected DevStuffChildScreenHelper m_Helper;
 
-    public TestSourceViewer(String sHeading,Vector vTestSource)
+    public TestSourceViewer(String sHeading,Vector vTestSource,
+    		Displayable parentDisplayable)
     {
         super(sHeading);
+
+        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
 
         // DOESN'T WORK ON K300 (BUT DOES ON EMULATOR)
         // Passing in null removes title and saves screen space.
@@ -48,12 +50,6 @@ public class TestSourceViewer extends Form implements CommandListener
             // On Sony Ericsson phones, this is thrown if you try to append
             // more than 256 Items to a Form.
         }
-
-        m_NewTestCommand = new Command("New test", Command.BACK, 0);
-        addCommand(m_NewTestCommand);
-
-        m_ExitCommand = new Command("Exit", Command.EXIT, 0);
-        addCommand(m_ExitCommand);
 
         setCommandListener(this);
     }
@@ -75,17 +71,6 @@ public class TestSourceViewer extends Form implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c, Displayable s)
     {
-        if (c==m_NewTestCommand)
-        {
-            OccleveMobileMidlet.getInstance().displayFileChooser();
-        }
-        else if (c==m_ExitCommand)
-        {
-            OccleveMobileMidlet.getInstance().notifyDestroyed();
-        }
-        else
-        {
-            OccleveMobileMidlet.getInstance().onError("Unknown command in TestSourceViewer.commandAction");
-        }
+    	m_Helper.commandAction(c, s);
     }
 }

@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,28 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
 
 import javax.microedition.lcdui.*;
-import javax.microedition.lcdui.game.*;
-import java.util.*;
 
 import org.occleve.mobileclient.*;
 
 public class TestbedForm extends Form implements CommandListener
 {
-    protected Command m_NewTestCommand;
+	protected DevStuffChildScreenHelper m_Helper;
 
-    public TestbedForm() throws Exception
+    public TestbedForm(Displayable parentDisplayable) throws Exception
     {
         super(null);
 
-        m_NewTestCommand = new Command("New test",Command.BACK,0);
-        addCommand(m_NewTestCommand);
-
+        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
+                
         setCommandListener(this);
 
         TestbedCustomItem tci = new TestbedCustomItem();
@@ -46,6 +43,12 @@ public class TestbedForm extends Form implements CommandListener
 
         TextField tf = new TextField(null,"hello",6,TextField.ANY);
         append(tf);
+
+        TextField tfMax = new TextField(null,"abc",6000,TextField.ANY);
+                
+        String sMsg = "Textfield max size = " + tfMax.getMaxSize();
+        StringItem si = new StringItem(null,sMsg);
+        append(si);
 
         TestbedForm_TestFonts();
     }
@@ -57,46 +60,39 @@ public class TestbedForm extends Form implements CommandListener
         String text;
         StringItem si;
 
-      si = new StringItem(null, "Monospace Small Plain" + Constants.NEWLINE);
-      StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN,Font.SIZE_SMALL));
-      append(si);
-
-       si = new StringItem(null,"System Small Plain" + Constants.NEWLINE);
-       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL));
-       append(si);
-
-       si = new StringItem(null,"System Large Plain" + Constants.NEWLINE);
-       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
-       append(si);
-
-       si = new StringItem(null,"System Med Plain" + Constants.NEWLINE);
-       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
-       append(si);
-
-       si = new StringItem(null,"System Med Bold" + Constants.NEWLINE);
-       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
-       append(si);
-
-       si = new StringItem(null,"System Med Italic" + Constants.NEWLINE);
-       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
-       append(si);
-
-       si = new StringItem(null,"System Med Underlined" + Constants.NEWLINE);
-       StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_UNDERLINED, Font.SIZE_MEDIUM));
-       append(si);
+	  si = new StringItem(null, "Monospace Small Plain" + Constants.NEWLINE);
+	  StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_MONOSPACE, Font.STYLE_PLAIN,Font.SIZE_SMALL));
+	  append(si);
+	
+	   si = new StringItem(null,"System Small Plain" + Constants.NEWLINE);
+	   StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_SMALL));
+	   append(si);
+	
+	   si = new StringItem(null,"System Large Plain" + Constants.NEWLINE);
+	   StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_LARGE));
+	   append(si);
+	
+	   si = new StringItem(null,"System Med Plain" + Constants.NEWLINE);
+	   StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_PLAIN, Font.SIZE_MEDIUM));
+	   append(si);
+	
+	   si = new StringItem(null,"System Med Bold" + Constants.NEWLINE);
+	   StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_BOLD, Font.SIZE_MEDIUM));
+	   append(si);
+	
+	   si = new StringItem(null,"System Med Italic" + Constants.NEWLINE);
+	   StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_ITALIC, Font.SIZE_MEDIUM));
+	   append(si);
+	
+	   si = new StringItem(null,"System Med Underlined" + Constants.NEWLINE);
+	   StaticHelpers.safeSetFont(si,Font.getFont(Font.FACE_SYSTEM, Font.STYLE_UNDERLINED, Font.SIZE_MEDIUM));
+	   append(si);
    }
 
     /**Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable s)
     {
-        if (c==m_NewTestCommand)
-        {
-            OccleveMobileMidlet.getInstance().displayFileChooser();
-        }
-        else
-        {
-            OccleveMobileMidlet.getInstance().onError("Unknown command type in TestbedForm.commandAction");
-        }
+    	m_Helper.commandAction(c,s);
     }
 }
 

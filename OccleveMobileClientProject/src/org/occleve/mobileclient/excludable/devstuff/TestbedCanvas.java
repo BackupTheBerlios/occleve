@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,31 +17,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
 
 import javax.microedition.lcdui.*;
-import javax.microedition.lcdui.game.*;
-
 import org.occleve.mobileclient.*;
 
 public class TestbedCanvas extends Canvas implements CommandListener
 {
     private static final int MARGIN = 5;
+	protected DevStuffChildScreenHelper m_Helper;
 
-    protected DevStuffScreen m_DevStuffScreen;
-    protected Command m_BackCommand;
-
-    public TestbedCanvas(DevStuffScreen dvs)
+    public TestbedCanvas(Displayable parentDisplayable)
     throws Exception
     {
-        ////super(false);
-        m_DevStuffScreen = dvs;
-
-        m_BackCommand = new Command("Back",Command.BACK,0);
-        addCommand(m_BackCommand);
+        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
         setCommandListener(this);
 
         ////paintOffscreenBuffer();
@@ -157,14 +149,7 @@ public class TestbedCanvas extends Canvas implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable s)
     {
-        if (c==m_BackCommand)
-        {
-            OccleveMobileMidlet.getInstance().setCurrentForm(m_DevStuffScreen);
-        }
-        else
-        {
-            OccleveMobileMidlet.getInstance().onError("Unknown command type in TestbedCanvas.commandAction");
-        }
+    	m_Helper.commandAction(c, s);
     }
 }
 

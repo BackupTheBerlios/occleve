@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2008  Joe Gittings
+Copyright (C) 2008-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,23 +32,25 @@ import org.occleve.mobileclient.*;
 public class RecordStoreExplorer extends List
 implements CommandListener
 {	
-    protected Command m_BackCommand;
-    protected Command m_DeleteCommand;
+	protected DevStuffScreen m_DevStuffScreen;
+	protected DevStuffChildScreenHelper m_Helper;
+
+	protected Command m_DeleteCommand;
     protected Command m_DetailsCommand;
 
     protected String[] m_RecordStoreNames;
     protected Hashtable m_RecordIndicesKeyedByFilenames;
 
-    public RecordStoreExplorer()
+    public RecordStoreExplorer(DevStuffScreen dvs)
     throws Exception
     {
         super(Constants.PRODUCT_NAME,List.IMPLICIT);
 
-        m_BackCommand = new Command("Back", Command.ITEM, 0);
+        m_DevStuffScreen = dvs;
+        m_Helper = new DevStuffChildScreenHelper(this,dvs);
+
         m_DeleteCommand = new Command("Delete", Command.ITEM, 1);
         m_DetailsCommand = new Command("Details", Command.ITEM, 1);
-
-        addCommand(m_BackCommand);
         addCommand(m_DeleteCommand);
         addCommand(m_DetailsCommand);
         setSelectCommand(m_DetailsCommand);
@@ -99,15 +101,12 @@ implements CommandListener
     {
         int iSelIndex = getSelectedIndex();
 
-        if (c==m_BackCommand)
-        {
-        	OccleveMobileMidlet.getInstance().displayFileChooser(true);
-        }
-        else if (c==m_DeleteCommand)
+        if (c==m_DeleteCommand)
         {
         	String sRSName = m_RecordStoreNames[iSelIndex];
         	RecordStore.deleteRecordStore(sRSName);
         	populate();
+        	m_DevStuffScreen.setQuizListNeedsRefreshing();
         }
         else if (c==m_DetailsCommand)
         {
@@ -116,7 +115,7 @@ implements CommandListener
         }
         else
         {
-        	OccleveMobileMidlet.getInstance().onError("Unknown Command in FileManager");
+        	m_Helper.commandAction(c, d);
         }
     }
 

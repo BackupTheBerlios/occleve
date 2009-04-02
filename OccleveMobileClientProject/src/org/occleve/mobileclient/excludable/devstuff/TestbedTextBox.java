@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -29,16 +29,14 @@ import org.occleve.mobileclient.*;
 public class TestbedTextBox extends TextBox implements CommandListener
 {
     private static final int MARGIN = 5;
-
-    protected Command m_NewTestCommand;
+	protected DevStuffChildScreenHelper m_Helper;
     protected Command m_InsertTextCommand;
 
-    public TestbedTextBox() throws Exception
+    public TestbedTextBox(Displayable parentDisplayable) throws Exception
     {
         super("Title","initial text",100,TextField.ANY);
 
-        m_NewTestCommand = new Command("New test",Command.BACK,0);
-        addCommand(m_NewTestCommand);
+        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
 
         m_InsertTextCommand = new Command("Insert text",Command.BACK,0);
         addCommand(m_InsertTextCommand);
@@ -61,17 +59,13 @@ public class TestbedTextBox extends TextBox implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable s)
     {
-        if (c==m_NewTestCommand)
-        {
-            OccleveMobileMidlet.getInstance().displayFileChooser();
-        }
-        else if (c==m_InsertTextCommand)
+        if (c==m_InsertTextCommand)
         {
             this.insert("12",0);
         }
         else
         {
-            OccleveMobileMidlet.getInstance().onError("Unknown command type in TestbedTextBox.commandAction");
+            m_Helper.commandAction(c, s);
         }
     }
 }
