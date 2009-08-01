@@ -22,7 +22,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens.options;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.plaf.*;
+import com.sun.lwuit.util.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
@@ -30,21 +34,20 @@ import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class TestOptionsScreen extends Form
-implements CommandListener,ItemCommandListener ////,ItemStateListener
+implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
 {
     protected Test m_Test;
 
-    protected StringItem m_StartTestItem =
-            new StringItem(null,"Start test",Item.BUTTON);
+    protected Button m_StartTestItem = new Button("Start test");
 
     protected String SEQUENTIAL = "In sequence";
     protected String RANDOM = "Random";
-    protected ChoiceGroup m_SequentialOrRandomChoiceGroup;
+    protected ComboBox m_SequentialOrRandomChoiceGroup;
 
     // 0.9.6 - add a Start From Question No field for sequential mode
-    protected TextField m_FirstQuestionTextField;
-    protected TextField m_LastQuestionTextField;
-    protected TextField m_RestartOnPercentageBelowTextField;
+    protected TextField m_FirstQuestionTextField = new TextField();
+    protected TextField m_LastQuestionTextField = new TextField();
+    protected TextField m_RestartOnPercentageBelowTextField = new TextField();
     
     //// Took this out in 0.9.3 as it was just confusing users.
     //protected String CANVAS = "Canvas view";
@@ -62,11 +65,19 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     {
         super(Constants.PRODUCT_NAME);
 
-        m_CommonCommands = new CommonCommands();
-        m_CommonCommands.addToDisplayable(this);
+        setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
-        m_OKCommand = new Command("OK",Command.OK,0);
-        m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
+        Font smallFont =
+        	Font.createSystemFont(Font.FACE_PROPORTIONAL,
+        			Font.STYLE_PLAIN, Font.SIZE_SMALL);
+        getStyle().setFont(smallFont);
+
+        // LWUIT-TO-DO - reenable once CommonCommands is LWUIT friendly 
+//        m_CommonCommands = new CommonCommands();
+//        m_CommonCommands.addToDisplayable(this);
+
+        m_OKCommand = new Command("OK",0);
+        m_CancelCommand = new Command("Cancel",0);
 
         addCommand(m_OKCommand);
         addCommand(m_CancelCommand);
@@ -74,33 +85,44 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
 
         // Append items to this form.
 
-        append(m_StartTestItem);
-        m_StartTestItem.setItemCommandListener(this);
-        m_StartTestItem.setDefaultCommand(m_OKCommand);
+        addComponent(m_StartTestItem);
+        //m_StartTestItem.setItemCommandListener(this);
+        //m_StartTestItem.setDefaultCommand(m_OKCommand);
+        m_StartTestItem.addActionListener(this);
 
         String[] orderChoices = {SEQUENTIAL,RANDOM};
         m_SequentialOrRandomChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,orderChoices,null);
-        append(m_SequentialOrRandomChoiceGroup);
+            new ComboBox(orderChoices);
+        addComponent(m_SequentialOrRandomChoiceGroup);
+        m_SequentialOrRandomChoiceGroup.getStyle().setFont(smallFont);
 
         // Give the derived class a chance to add other controls.
         addSubclassControls();
+
+        addPromptAndField("Question to start from:",
+        		m_FirstQuestionTextField,"1");
+
+        addPromptAndField("Question to end at:",
+        		m_LastQuestionTextField,"1");
+
+        addPromptAndField("Restart if score below:",
+        		m_RestartOnPercentageBelowTextField,"0");
         
-        m_FirstQuestionTextField =
-        	new TextField("Question to start from:","1",10,TextField.NUMERIC);
-        append(m_FirstQuestionTextField);
-
-        m_LastQuestionTextField =
-        	new TextField("Question to end at:","1",10,TextField.NUMERIC);
-        append(m_LastQuestionTextField);
-
-        m_RestartOnPercentageBelowTextField =
-        	new TextField("Restart if score below:","0",10,TextField.NUMERIC);
-        append(m_RestartOnPercentageBelowTextField);        
+		///Display.init(OccleveMobileMidlet.getInstance());
+		///show();
     }
 
-    /**Implementation of CommandListener.*/
-    public void commandAction(Command c, Displayable s)
+    private void addPromptAndField(String sPrompt,TextField field,String sInitialValue)
+    {
+        Label prompt = new Label(sPrompt);
+        Container promptAndField = new Container(new BoxLayout(BoxLayout.X_AXIS));
+        promptAndField.addComponent(prompt);
+        promptAndField.addComponent(field);
+        addComponent(promptAndField);
+        field.setText(sInitialValue);
+    }
+    
+    protected void actionCommand(Command c)
     {
         if (c==m_OKCommand)
         {
@@ -116,19 +138,20 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
         }
         else
         {
-        	m_CommonCommands.commandAction(c,this);
+        	/// TODO
+        	//////m_CommonCommands.commandAction(c,this);
         }
     }
 
     protected void runTest() throws Exception
     {
-        int i = m_SequentialOrRandomChoiceGroup.getSelectedIndex();
-        String sChoice = m_SequentialOrRandomChoiceGroup.getString(i);
+        ////int i = m_SequentialOrRandomChoiceGroup.getSelectedIndex();
+        String sChoice = (String)m_SequentialOrRandomChoiceGroup.getSelectedItem();
         boolean bRandom = (sChoice.equals(RANDOM));
 
         QADirection direction = getQADirection();
 
-    	String sFirstQuestion = m_FirstQuestionTextField.getString();
+    	String sFirstQuestion = m_FirstQuestionTextField.getText();
     	int iFirstQuestion;
     	try
     	{
@@ -140,7 +163,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     		iFirstQuestion = 1;
     	}
 
-    	String sLastQuestion = m_LastQuestionTextField.getString();
+    	String sLastQuestion = m_LastQuestionTextField.getText();
     	int iLastQuestion;
     	try
     	{
@@ -152,7 +175,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     		iLastQuestion = m_Test.getQACount();
     	}
 
-    	String sMinScore = m_RestartOnPercentageBelowTextField.getString();
+    	String sMinScore = m_RestartOnPercentageBelowTextField.getText();
     	int iMinScore;
     	try
     	{
@@ -181,6 +204,8 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
 
     public void makeVisible(Test test)
     {
+    	setTitle(test.getFilename());
+    	
     	// If the user is running a NEW test, reset the first and last
     	// question text fields to 1 and the max value respectively.
     	boolean bResetFields = true;
@@ -193,20 +218,34 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     	{
     		System.out.println("Resetting first and last question fields");
     		m_Test = test;
-    		m_FirstQuestionTextField.setString("1");    		
+    		m_FirstQuestionTextField.setText("1");    		
     		String sValue = new Integer(m_Test.getQACount()).toString();
-    		m_LastQuestionTextField.setString(sValue);    		
+    		m_LastQuestionTextField.setText(sValue);    		
     	}
     	
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);
+        //////OccleveMobileMidlet.getInstance().setCurrentForm(this);
+		Display.init(OccleveMobileMidlet.getInstance());
+		show();
+		
+        try
+        {
+        	  Resources r = Resources.open("/javaTheme.res");
+        	  UIManager.getInstance().setThemeProps(r.getTheme("javaTheme"));
+              Display.getInstance().getCurrent().refreshTheme();
+    	}
+        catch (Exception e)
+        {
+        	System.out.println("Couldn't load theme.");
+        	OccleveMobileMidlet.getInstance().onError(e);
+    	}
     }
 
-    /*Implementation of ItemCommandListener.*/
-    public void commandAction(Command c, Item item)
+    /**Implementation of ActionListener.*/
+    public void actionPerformed(ActionEvent ae)
     {
         try
         {
-            if (item==m_StartTestItem)
+            if (ae.getSource()==m_StartTestItem)
             {
                 ///////OccleveMobileMidlet.getInstance().beep();
                 runTest();
@@ -231,6 +270,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
     }
     */
 
+    /*
    protected void setFirstQuestionTextFieldVisibility(boolean bVisible)
    {
 	   for (int i=0; i<size(); i++)
@@ -249,6 +289,7 @@ implements CommandListener,ItemCommandListener ////,ItemStateListener
 	       append(m_FirstQuestionTextField);
 	   }
    }
+   */
     
    protected QADirection getQADirection() throws Exception
    {

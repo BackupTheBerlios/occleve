@@ -23,7 +23,6 @@ OccleveMobileMidlet.java
 
 package org.occleve.mobileclient;
 
-///////import com.sun.lwuit.Display;
 import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.*;
@@ -32,6 +31,9 @@ import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
+
+import com.sun.lwuit.plaf.UIManager;
+import com.sun.lwuit.util.Resources;
 
 public class OccleveMobileMidlet extends MIDlet
 implements CommandListener,Runnable
@@ -45,7 +47,11 @@ implements CommandListener,Runnable
         return m_SingleInstance;
     }
 
-    protected Displayable m_CurrentForm;
+    // Currently can be either an LWUIT Form or MIDP Displayable until switch from
+    // MIDP to LWUIT is complete.
+    // LWUIT-TO-DO eventually make this an LWUIT Form only.
+    protected Object m_CurrentForm;
+    
     protected FileChooserForm m_FileChooserForm;
 
     protected Alert m_ProgressAlertCache;
@@ -81,16 +87,33 @@ implements CommandListener,Runnable
 	private void OccleveMobileMidlet_Inner() throws Exception
 	{
 		System.out.println("Entering OccleveMobileMidlet_Inner()");
-		m_FileChooserForm = new FileChooserForm(true);
-		m_CurrentForm = m_FileChooserForm;
-		
+
 		// 0.9.7 - initialize display for LWUIT
-		//////com.sun.lwuit.Displaỵ.init(this);
+    	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
+
+    	/*
+		try
+		{
+			Resources r = Resources.open("/javaTheme.res");
+			UIManager.getInstance().setThemeProps(r.getTheme("javaTheme"));
+			com.sun.lwuit.Display.getInstance().getCurrent().refreshTheme();
+		}
+		catch (Exception e)
+		{
+			System.out.println("Couldn't load theme.");
+			onError(e);
+		}
+		*/
+
+		m_FileChooserForm = new FileChooserForm(true);
+		System.out.println("Constructed FileChooserForm");
+		
+		m_CurrentForm = m_FileChooserForm;
 	}
 
 	public void startApp()
 	{
-        Display.getDisplay(this).setCurrent(m_CurrentForm);
+        setCurrentForm(m_CurrentForm);
 	}
 
     public Displayable getCurrentDisplayable()
@@ -98,10 +121,20 @@ implements CommandListener,Runnable
         return Display.getDisplay(this).getCurrent();
     }
 
-    public void setCurrentForm(Displayable form)
+    public void setCurrentForm(Object form) // LWUIT-TO-DO - switch to Form
     {
         m_CurrentForm = form;
-        Display.getDisplay(this).setCurrent(form);
+        if (form instanceof Displayable)
+        {
+        	com.sun.lwuit.Display.init(null);
+        	Display.getDisplay(this).setCurrent((Displayable)form);
+        }
+        else
+        {
+        	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
+    		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)form;
+    		lwuitForm.show();
+        }
     }
 
 	public void displayAlert(Alert alert,Displayable nextScreen)
@@ -111,7 +144,9 @@ implements CommandListener,Runnable
 
     public void displayAlertThenFileChooser(Alert alert)
     {
-        Display.getDisplay(this).setCurrent(alert,m_FileChooserForm);
+    	// LWUIT TODO
+    	displayFileChooser(false);
+        Display.getDisplay(this).setCurrent(alert);
     }
 
 	public void pauseApp() {}
@@ -151,7 +186,9 @@ implements CommandListener,Runnable
             catch (Exception e) {onError(e);}
         }
 
-        setCurrentForm(m_FileChooserForm);
+        com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
+		m_FileChooserForm.show();
+        ///// MIDP code: setCurrentForm(m_FileChooserForm);
     }
 
     public void repopulateFileChooser() throws Exception

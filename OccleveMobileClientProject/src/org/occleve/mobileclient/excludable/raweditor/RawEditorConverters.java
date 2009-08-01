@@ -65,7 +65,10 @@ public class RawEditorConverters extends RawEditorExtraOptions
         {
             String sMsg = "Not a PlainQA";
             Alert alert = new Alert(null,sMsg,null,null);
-            OccleveMobileMidlet.getInstance().displayAlert(alert,m_Notepad);
+            
+            // TODO
+            OccleveMobileMidlet.getInstance().displayAlert(alert,null); /// m_Notepad);
+            
             return;
         }
 

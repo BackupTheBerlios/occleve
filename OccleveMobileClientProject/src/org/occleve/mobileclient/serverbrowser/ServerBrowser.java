@@ -51,7 +51,7 @@ implements CommandListener,Runnable
     protected final int DOWNLOAD_TEST = 1;
 
     protected String m_sPageNameToDownload;
-    protected Displayable m_DisplayableAfterDownload;
+    protected Object m_DisplayableAfterDownload;
 
     protected String m_sListOfTestsURL;
     protected String m_sQuizURLStub;
@@ -99,7 +99,7 @@ implements CommandListener,Runnable
     }
 
     public void startDownloadingTest(String sPageName,
-                                     Displayable displayableAfterDownload)
+                                     Object displayableAfterDownload)
     {
         try
         {

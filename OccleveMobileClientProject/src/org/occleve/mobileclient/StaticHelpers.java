@@ -314,14 +314,14 @@ public class StaticHelpers
 	    return sHexString;
     }
 
-    public static Image loadOccleveLogo() throws Exception
+    public static com.sun.lwuit.Image loadOccleveLogo() throws Exception
     {
         // Reading the file from the OccleveMobileClient jar,
         // therefore call getResourceAsStream() on the midlet class
         // in order to ensure that the correct JAR is read from.
         Class c = OccleveMobileMidlet.getInstance().getClass();
         InputStream is =
-        	c.getResourceAsStream("/monopocket_thumbnail.jpg");
+    		c.getResourceAsStream("/monopocket_thumbnail.jpg");
         if (is == null)
         {
             throw new Exception("Can't find Occleve logo file in JAR");
@@ -335,7 +335,8 @@ public class StaticHelpers
 		dis.close();
 		is.close();
 
-		Image image = Image.createImage(imageData, 0, imageData.length);
+		com.sun.lwuit.Image image =
+			com.sun.lwuit.Image.createImage(imageData, 0, imageData.length);
 		return image;
     }        
 }

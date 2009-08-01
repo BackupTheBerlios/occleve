@@ -22,7 +22,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.list.*;
+import com.sun.lwuit.plaf.*;
+import com.sun.lwuit.util.*;
+
+/////import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.dictionary.*;
@@ -37,23 +44,30 @@ import org.occleve.mobileclient.testing.test.*;
 
 /**The main screen of the application: lists the quizzes currently stored in the
 phone, and allows the user to select a quiz for testing or viewing.*/
-public class FileChooserForm extends List
-implements CommandListener,Runnable
+public class FileChooserForm extends Form
+implements Runnable //,CommandListener
 {
-    protected ListOfTests m_ListOfTests;
+	protected List m_List = new List();
+	
+	protected ListOfTests m_ListOfTests;
 
-    protected Alert m_ProgressAlertCache;
+    protected Dialog m_ProgressAlertCache;
     protected ListOfTestsEntry m_EntryCache;
 
     protected static final String NO_TESTS_IN_PHONE_MSG =
             "Please download some tests either " +
             "from Wikiversity or Occleve";
 
-    protected CommandListener m_ExternalCommandListener;
+    // LWUIT-TODO - reenable
+    //protected CommandListener m_ExternalCommandListener;
+    
+    // LWUIT-TODO - reenable
+    /*
     public void setExternalCommandListener(CommandListener cl)
     {
         m_ExternalCommandListener = cl;
     }
+    */
 
     /**Stored as a member so that the options are remembered between
     invoking tests.*/
@@ -89,28 +103,35 @@ implements CommandListener,Runnable
     public FileChooserForm(boolean bAddCommands)
     throws Exception
     {
-        super(Constants.PRODUCT_NAME,List.IMPLICIT);
+        //super(Constants.PRODUCT_NAME,List.IMPLICIT);
+        super(Constants.PRODUCT_NAME);
 
+    	Image logoImage = StaticHelpers.loadOccleveLogo();
+    	setBgImage(logoImage);
+
+        addComponent(m_List);
+        
         // 0.9.6 - try to make the phone wrap long test names
-        setFitPolicy(Choice.TEXT_WRAP_ON);
+        // NOT SUPPORTED IN LWUIT
+        /////setFitPolicy(Choice.TEXT_WRAP_ON);
         
         if (bAddCommands)
         {
-        	m_DownloadQuizzesCommand = new Command("Download quizzes",Command.ITEM,1);
+        	m_DownloadQuizzesCommand = new Command("Download quizzes");
 
         	m_ConnectionTroubleshooterCommand =
-        		new Command("Test connection",Command.ITEM,2); // 0.9.7
-            m_DictionaryCommand = new Command("Dictionary",Command.ITEM,2); // 0.9.7
-            m_TestCommand = new Command("Test", Command.ITEM, 2);
-            m_ViewCommand = new Command("View", Command.ITEM, 2);
-            m_RedownloadCommand = new Command("Redownload", Command.ITEM, 2);
-            m_SearchAllTestsCommand = new Command("Search all tests", Command.ITEM, 2);
-            m_DevStuffScreenCommand = new Command("Dev stuff", Command.ITEM, 2);
-            m_ShowLicenseCommand = new Command("Show license", Command.ITEM, 2);
+        		new Command("Test connection"); // 0.9.7
+            m_DictionaryCommand = new Command("Dictionary"); // 0.9.7
+            m_TestCommand = new Command("Test");
+            m_ViewCommand = new Command("View");
+            m_RedownloadCommand = new Command("Redownload");
+            m_SearchAllTestsCommand = new Command("Search all tests");
+            m_DevStuffScreenCommand = new Command("Dev stuff");
+            m_ShowLicenseCommand = new Command("Show license");
 
             // Disabled in 0.9.6 - see earlier comment
-            //m_EditCommand = new Command("Edit", Command.ITEM, 2);
-            //m_RapidAddCommand = new Command("Rapid add", Command.ITEM, 2);
+            //m_EditCommand = new Command("Edit");
+            //m_RapidAddCommand = new Command("Rapid add");
 
             m_CommonCommands = new CommonCommands();
 
@@ -123,14 +144,16 @@ implements CommandListener,Runnable
             addCommand(m_SearchAllTestsCommand);
             addCommand(m_DevStuffScreenCommand);
             addCommand(m_ShowLicenseCommand);
-            m_CommonCommands.addToDisplayable(this);
+            
+            // LWUIT-TO-DO - reenable
+            //m_CommonCommands.addToDisplayable(this);
 
             // Disabled in 0.9.6 - see earlier comment
             //addCommand(m_EditCommand);
             //addCommand(m_RapidAddCommand);
             
             // 0.9.6 - "Test" is the default select command.
-            setSelectCommand(m_TestCommand);
+            // LWUIT-TO-DO is this still relevant? setSelectCommand(m_TestCommand);
         }
 
         populateWithFilenames();
@@ -139,31 +162,41 @@ implements CommandListener,Runnable
         m_SimpleTestOptionsScreen = new SimpleTestOptionsScreen();
         m_ChineseTestOptionsScreen = new ChineseTestOptionsScreen();
 
-        setCommandListener(this);
+        ////setCommandListener(this);
     }
 
     public void populateWithFilenames() throws Exception
     {
-    	Image logoImage = StaticHelpers.loadOccleveLogo();
+    	System.out.println("Entering populateWithFilenames");
+    	
+    	// LWUIT-TO-DO Image logoImage = StaticHelpers.loadOccleveLogo();
+    	
     	String sMsg = "occleve.berlios.de/pocketchinese\n" +
     					"©2007-9 Joe Gittings & contributors";
-    	Alert alt = new Alert(null,sMsg,logoImage,null);
-        alt.setTimeout(Alert.FOREVER);
-        StaticHelpers.safeAddGaugeToAlert(alt);
-        OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+    	Dialog alt = new Dialog(sMsg);
+        //////alt.setTimeout(Alert.FOREVER);
+    	
+    	//TO-DO-LWUIT - reenable
+        ///////StaticHelpers.safeAddGaugeToAlert(alt);
+        
+        ////OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+        // LWUIT-TO-DO alt.show();
+    	//System.out.println("Showed alt dialog");
     	
     	// Clear out the existing items in this form, if any.
-        deleteAll();
+        DefaultListModel model = new DefaultListModel();
+        m_List.setModel(model);
+        ////removeAll();
 
         // See whether keypresses are supported
         ///FileChooserCustomItem fcciTest = new FileChooserCustomItem(this);
         ///boolean bKeypressesSupported = fcciTest.areKeypressesSupported();
 
-        m_ListOfTests = new ListOfTests(alt);
+        m_ListOfTests = new ListOfTests(null); // LWUIT-TO-DO alt);
 
         if (m_ListOfTests.getSize()==0)
         {
-            append(NO_TESTS_IN_PHONE_MSG,null);
+            m_List.addItem(NO_TESTS_IN_PHONE_MSG);
             return;
         }
 
@@ -190,21 +223,24 @@ implements CommandListener,Runnable
             //    append(fcci);
             //}
 
-            append(sDisplayText,null);
+            m_List.addItem(sDisplayText);
         }
     }
 
     /*Implementation of CommandListener.*/
-    public void commandAction(Command c,Displayable d)
+    public void actionCommand(Command c)
     {
         try
         {
+        	// LWUIT-TO-DO - reenable later
+        	/*
             if (m_ExternalCommandListener!=null)
             {
                 m_ExternalCommandListener.commandAction(c,d);
             }
+            */
 
-            commandAction_Inner(c,d);
+            commandAction_Inner(c);
         }
         catch (Exception e)
         {
@@ -213,7 +249,7 @@ implements CommandListener,Runnable
     }
 
     /*Subfunction for code clarity.*/
-    public void commandAction_Inner(Command c,Displayable d) throws Exception
+    public void commandAction_Inner(Command c) throws Exception
     {
         ListOfTestsEntry entry;
         if (m_ListOfTests.getSize()==0)
@@ -222,20 +258,18 @@ implements CommandListener,Runnable
         }
         else
         {
-	        int iSelIndex = getSelectedIndex();
+	        int iSelIndex = m_List.getSelectedIndex();
 	        entry = m_ListOfTests.getEntry(iSelIndex);
         }
 
         if (c==m_DownloadQuizzesCommand)
         {
-        	// 0.9.6
         	ChooseQuizServerScreen chooser = new ChooseQuizServerScreen();
             OccleveMobileMidlet.getInstance().setCurrentForm(chooser);
         }
         else if (c==m_ShowLicenseCommand)
         {
-            Displayable gplForm = new ShowGPLForm();
-            OccleveMobileMidlet.getInstance().setCurrentForm(gplForm);
+            OccleveMobileMidlet.getInstance().setCurrentForm(new ShowGPLForm());
         }
         else if (c==m_DictionaryCommand)
         {
@@ -252,6 +286,12 @@ implements CommandListener,Runnable
             ExcludableHooks.displayDevStuffScreen(entry);
         }
 
+        try
+        {
+        	Thread.sleep(10000);
+        }
+        catch (Exception e) {}
+        
         // The rest of the commands aren't appropriate if there
         // aren't any tests in the phone.
         if (m_ListOfTests.getSize()==0)
@@ -262,10 +302,11 @@ implements CommandListener,Runnable
         if (c==m_TestCommand)
         {
         	// 0.9.6 - display progress while loading the test.
-            Alert alt = new Alert(null, "Loading " + entry.getFilename(), null, null);
-            alt.setTimeout(Alert.FOREVER);
-            StaticHelpers.safeAddGaugeToAlert(alt);
-            OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+            Dialog alt = new Dialog("Loading " + entry.getFilename());
+            //alt.setTimeout(Alert.FOREVER);
+            /////StaticHelpers.safeAddGaugeToAlert(alt);
+            //OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+            alt.show();
 
             m_EntryCache = entry;
             m_ProgressAlertCache = alt;
@@ -300,7 +341,7 @@ implements CommandListener,Runnable
         */
         else
         {
-        	m_CommonCommands.commandAction(c,this);
+        	m_CommonCommands.actionCommand(c);
 
         	// Could be an external command so don't object if the command
             // is unknown.
@@ -318,10 +359,10 @@ implements CommandListener,Runnable
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
-    protected void displayTestOptions(ListOfTestsEntry entry,Alert progressAlert)
+    protected void displayTestOptions(ListOfTestsEntry entry,Dialog progressAlert)
     throws Exception
     {
-       Test theTest = new Test(entry,progressAlert);
+       Test theTest = new Test(entry,null); // LWUIT-TO-DO progressAlert);
        displayTestOptions(theTest);
     }
 
@@ -334,9 +375,10 @@ implements CommandListener,Runnable
        // this is a definite possibility.
        if (theTest.getQACount()==0)
        {
-           Alert alert = new Alert(null,Constants.EMPTY_QUIZ_MSG, null, null);
-           alert.setTimeout(Alert.FOREVER);
-           OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+           Dialog alert = new Dialog(Constants.EMPTY_QUIZ_MSG);
+           //alert.setTimeout(Alert.FOREVER);
+           //OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+           alert.show();
            return;
        }
 

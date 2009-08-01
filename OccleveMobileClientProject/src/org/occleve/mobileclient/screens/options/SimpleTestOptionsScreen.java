@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-2009  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,12 +17,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.0
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens.options;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.plaf.*;
+import com.sun.lwuit.util.*;
+//////import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
@@ -31,7 +36,7 @@ public class SimpleTestOptionsScreen extends TestOptionsScreen
 {
     protected String DONT_REVERSE = "Don't reverse questions";
     protected String REVERSE = "Reverse questions";
-    protected ChoiceGroup m_QADirectionChoiceGroup;
+    protected ComboBox m_QADirectionChoiceGroup;
 
     public SimpleTestOptionsScreen()
     throws Exception
@@ -39,15 +44,14 @@ public class SimpleTestOptionsScreen extends TestOptionsScreen
         super();
 
         String[] choices = {DONT_REVERSE,REVERSE};
-        m_QADirectionChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,choices,null);
-        append(m_QADirectionChoiceGroup);
+        m_QADirectionChoiceGroup = new ComboBox(choices);
+        addComponent(m_QADirectionChoiceGroup);
     }
 
     protected QADirection getQADirection() throws Exception
     {
-        int i = m_QADirectionChoiceGroup.getSelectedIndex();
-        String sChoice = m_QADirectionChoiceGroup.getString(i);
+        //////int i = m_QADirectionChoiceGroup.getSelectedIndex();
+        String sChoice = (String)m_QADirectionChoiceGroup.getSelectedItem();
         boolean bReverse = (sChoice.equals(REVERSE));
 
         return new SimpleQADirection(bReverse);

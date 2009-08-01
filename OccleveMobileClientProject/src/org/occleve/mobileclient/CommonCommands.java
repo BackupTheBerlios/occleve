@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-9  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,12 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.7
 */
 
 package org.occleve.mobileclient;
 
-import javax.microedition.lcdui.*;
+import javax.microedition.lcdui.Displayable;
+
+import com.sun.lwuit.Command;
 
 /**Encapsulates commands which appear on screens throughout the program, such
 as Pause and Exit.*/
@@ -31,19 +33,30 @@ public class CommonCommands
     protected Command m_PauseCommand;
     protected Command m_ExitCommand;
 
+    protected javax.microedition.lcdui.Command m_PauseCommandMIDP;
+    protected javax.microedition.lcdui.Command m_ExitCommandMIDP;
+
     public CommonCommands()
     {
-        m_PauseCommand = new Command("Pause", Command.ITEM, 0);
-        m_ExitCommand = new Command("Exit " + Constants.PRODUCT_NAME, Command.EXIT, 0);
+        m_PauseCommand = new Command("Pause");
+        m_ExitCommand = new Command("Exit " + Constants.PRODUCT_NAME);
+
+        m_PauseCommandMIDP =
+        	new javax.microedition.lcdui.Command("Pause",
+        			javax.microedition.lcdui.Command.ITEM,0);
+        m_ExitCommandMIDP =
+        	new javax.microedition.lcdui.Command("Exit " + Constants.PRODUCT_NAME,
+        			javax.microedition.lcdui.Command.ITEM,0);
     }
 
     public void addToDisplayable(Displayable d)
     {
-        d.addCommand(m_PauseCommand);
-        d.addCommand(m_ExitCommand);
+        d.addCommand(m_PauseCommandMIDP);
+        d.addCommand(m_ExitCommandMIDP);
     }
-    
-    public void commandAction(Command c, Displayable s)
+
+    /**LWUIT style.*/
+    public void actionCommand(Command c)
     {
         if (c==m_ExitCommand)
         {
@@ -52,7 +65,20 @@ public class CommonCommands
         else if (c==m_PauseCommand)
         {
             OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
+        }    	
+    }
+
+    /**MIDP style.*/
+    public void commandAction(javax.microedition.lcdui.Command c, Displayable s)
+    {
+        if (c==m_ExitCommandMIDP)
+        {
+            OccleveMobileMidlet.getInstance().notifyDestroyed();
         }
+        else if (c==m_PauseCommandMIDP)
+        {
+            OccleveMobileMidlet.getInstance().tryToPlaceinBackground();
+        }    	
     }
 }
 

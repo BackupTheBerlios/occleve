@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-2009  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,18 +17,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.7
 */
 
 package org.occleve.mobileclient.screens.options;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.plaf.*;
+import com.sun.lwuit.util.*;
+
+////import javax.microedition.lcdui.*;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 
 public class ChineseTestOptionsScreen extends TestOptionsScreen
-implements ItemCommandListener
+////implements ItemCommandListener
 {
     protected static String ZI = "\u5B57";
     protected static String TO = "to ";
@@ -41,9 +48,9 @@ implements ItemCommandListener
     protected static String CHARS_PINYIN = ZI + " & Pinyin";
     protected static String ENGLISH_PINYIN = "English & Pinyin";
 
-    protected ChoiceGroup m_FromChoiceGroup;
-    protected ChoiceGroup m_ToChoiceGroup;
-    protected ChoiceGroup m_MeasureWordsRadioButton;
+    protected ComboBox m_FromChoiceGroup;
+    protected ComboBox m_ToChoiceGroup;
+    protected RadioButton m_MeasureWordsRadioButton;
 
     /*
     protected final String MEASURE_WORDS_ON = "Measure words";
@@ -62,14 +69,12 @@ implements ItemCommandListener
     {
         String[] fromChoices =
         {PINYIN,ENGLISH,CHARS,CHARS_ENGLISH,CHARS_PINYIN,ENGLISH_PINYIN};
-	    m_FromChoiceGroup =
-	        new ChoiceGroup(null,ChoiceGroup.POPUP,fromChoices,null);
+	    m_FromChoiceGroup = new ComboBox(fromChoices);
 	
 	    String[] toChoices =
 	        {TO+PINYIN,TO+ENGLISH,TO+CHARS,
 	        TO+CHARS_ENGLISH,TO+CHARS_PINYIN,TO+ENGLISH_PINYIN};
-	    m_ToChoiceGroup =
-	        new ChoiceGroup(null,ChoiceGroup.POPUP,toChoices,null);
+	    m_ToChoiceGroup = new ComboBox(toChoices);
 	
 	    /*
 	    m_MeasureWordsItem = new StringItem(null,MEASURE_WORDS_ON);
@@ -77,18 +82,16 @@ implements ItemCommandListener
 	    m_MeasureWordsItem.setDefaultCommand(m_ToggleMWCommand);
 	    */
 	
-	    String[] oneChoice = {"Measure words"};
-	    m_MeasureWordsRadioButton =
-	        new ChoiceGroup(null,ChoiceGroup.MULTIPLE,oneChoice,null);
-	    m_MeasureWordsRadioButton.setSelectedIndex(0,true);
+	    m_MeasureWordsRadioButton = new RadioButton("Measure words");
+	    m_MeasureWordsRadioButton.setSelected(true);
 	
-	    append(m_FromChoiceGroup);
-	    append(m_ToChoiceGroup);
-	    append(m_MeasureWordsRadioButton);
+	    addComponent(m_FromChoiceGroup);
+	    addComponent(m_ToChoiceGroup);
+	    addComponent(m_MeasureWordsRadioButton);
 	
 	    // Initial settings are english to pinyin with measure words enabled.
-	    m_FromChoiceGroup.setSelectedIndex(1,true);
-	    m_ToChoiceGroup.setSelectedIndex(0,true);    	
+	    m_FromChoiceGroup.setSelectedIndex(1);
+	    m_ToChoiceGroup.setSelectedIndex(0);    	
     }
     
     protected QADirection getQADirection() throws Exception
@@ -97,15 +100,15 @@ implements ItemCommandListener
         int iTo = getLanguageCode(m_ToChoiceGroup);
 
         //boolean bIncludeMW = m_MeasureWordsItem.getText().equals(MEASURE_WORDS_ON);
-        boolean bIncludeMW = m_MeasureWordsRadioButton.isSelected(0);
+        boolean bIncludeMW = m_MeasureWordsRadioButton.isSelected();
 
         return new LanguageQADirection(iFrom,iTo,bIncludeMW);
     }
 
-    protected int getLanguageCode(ChoiceGroup choiceGroup) throws Exception
+    protected int getLanguageCode(ComboBox choiceGroup) throws Exception
     {
-        int i = choiceGroup.getSelectedIndex();
-        String sChoice = choiceGroup.getString(i);
+        ////int i = choiceGroup.getSelectedIndex();
+        String sChoice = (String)choiceGroup.getSelectedItem();
 
         // If the choice starts with "to ", strip it.
         if (sChoice.startsWith(TO))

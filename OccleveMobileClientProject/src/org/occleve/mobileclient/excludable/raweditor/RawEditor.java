@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-8  Joe Gittings
+Copyright (C) 2007-2009  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,8 +22,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.excludable.raweditor;
 
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.list.*;
+import com.sun.lwuit.plaf.*;
+import com.sun.lwuit.util.*;
+
 import java.util.*;
-import javax.microedition.lcdui.*;
+//import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
@@ -32,20 +39,23 @@ import org.occleve.mobileclient.testing.*;
 /**Class for editing the raw source of a quiz.
 Format of a record is the filename (as a UTF-encoded string), followed
 by the UTF-encoded file data.*/
-public class RawEditor extends TextBox
-implements CommandListener,Excludable,ItemCommandListener
+public class RawEditor extends Form
+//LWUIT-TO-DO implements Excludable
+//,CommandListener,ItemCommandListener
 {
+	private TextArea m_TextArea = new TextArea();
+	
     private static String INITIAL_TEXT = "abc";
 
     protected ListOfTestsEntry m_Entry;
     //protected int m_iRecordID;
     //protected String m_sFilename;
-    protected Displayable m_ScreenToReturnTo;
+    protected Container m_ScreenToReturnTo;
     protected Integer m_iQAIndex;
 
     ////////////// Implementation of Excludable /////////////////////
     public void setQAIndex(Integer i) {m_iQAIndex=i;}
-    public void setScreenToReturnTo(Displayable d) {m_ScreenToReturnTo=d;}
+    public void setScreenToReturnTo(Container d) {m_ScreenToReturnTo=d;}
     //public void setTestFilename(String s) {m_sFilename=s;}
     //public void setTestRecordStoreID(Integer i) {m_iRecordID=i.intValue();}
     public void setListOfTestsEntry(ListOfTestsEntry e) {m_Entry = e;}
@@ -84,13 +94,14 @@ implements CommandListener,Excludable,ItemCommandListener
 
     public RawEditor() throws Exception
     {
-        super(null,INITIAL_TEXT,INITIAL_TEXT.length(),TextField.ANY);
+        super();
+        m_TextArea.setText(INITIAL_TEXT);
     }
 
     public void initialize() throws Exception
     {
         addAllCommands();
-        setCommandListener(this);
+        ////setCommandListener(this);
 
         m_InsertersScreen = new RawEditorInserters(this);
         m_ConvertersScreen = new RawEditorConverters(this);
@@ -102,7 +113,7 @@ implements CommandListener,Excludable,ItemCommandListener
         m_StringChunks = breakContentsIntoChunks(sContents);
 
         int iMaxSize = 5000;
-        setMaxSize(iMaxSize);
+        // LWUIT-TO-DO setMaxSize(iMaxSize);
 
         int iInitialChunkIndex =
             initialize_DetermineInitialChunkIndex(m_iQAIndex);
@@ -142,20 +153,20 @@ implements CommandListener,Excludable,ItemCommandListener
 
     protected Command addItemCommand(String sTitle)
     {
-        Command cmd = new Command(sTitle,Command.ITEM,0);
+        Command cmd = new Command(sTitle);
         addCommand(cmd);
         return cmd;
     }
 
     protected void addAllCommands()
     {
-        m_SaveAndExitCommand = new Command("Save and exit",Command.BACK,0);
+        m_SaveAndExitCommand = new Command("Save and exit");
         addCommand(m_SaveAndExitCommand);
 
-        m_SaveCommand = new Command("Save",Command.BACK,0);
+        m_SaveCommand = new Command("Save");
         addCommand(m_SaveCommand);
 
-        m_CancelCommand = new Command("Cancel",Command.BACK,0);
+        m_CancelCommand = new Command("Cancel");
         addCommand(m_CancelCommand);
 
         m_HomeCommand = addItemCommand("Home");
@@ -191,14 +202,14 @@ implements CommandListener,Excludable,ItemCommandListener
         if (bSaveCurrentChunkFirst)
         {
             // Save the current chunk back into the Vector.
-            String sSaveThis = getString();
+            String sSaveThis = m_TextArea.getText();
             m_StringChunks.setElementAt(sSaveThis, m_iCurrentChunkIndex);
         }
 
         // Now move to the new index.
         m_iCurrentChunkIndex = iChunkIndexToMoveTo;
         String sNewContents = (String)m_StringChunks.elementAt(m_iCurrentChunkIndex);
-        setString(sNewContents);
+        // LWUIT-TO-DO setString(sNewContents);
 
         // Get the time.
         String sTime = StaticHelpers.getDisplayableTime();
@@ -209,8 +220,7 @@ implements CommandListener,Excludable,ItemCommandListener
         setTitle(sTitle);
     }
 
-    /**Implementation of CommandListener.*/
-    public void commandAction(Command c,Displayable screen)
+    protected void actionCommand(Command c)
     {
         //if (screen==m_FileChooserForMovingChunks)
         //{
@@ -222,7 +232,9 @@ implements CommandListener,Excludable,ItemCommandListener
         {
             onSaveCommand();
             bookmarkCurrentChunk();
-            OccleveMobileMidlet.getInstance().setCurrentForm(m_ScreenToReturnTo);
+            
+            // LWUIT TODO
+            /////OccleveMobileMidlet.getInstance().setCurrentForm(m_ScreenToReturnTo);
         }
         else if (c==m_SaveCommand)
         {
@@ -231,7 +243,9 @@ implements CommandListener,Excludable,ItemCommandListener
         else if (c==m_CancelCommand)
         {
             bookmarkCurrentChunk();
-            OccleveMobileMidlet.getInstance().setCurrentForm(m_ScreenToReturnTo);
+            
+            // LWUIT TODO
+            ///OccleveMobileMidlet.getInstance().setCurrentForm(m_ScreenToReturnTo);
         }
         else if (c==m_HomeCommand)
         {
@@ -269,7 +283,7 @@ implements CommandListener,Excludable,ItemCommandListener
         }
         else if (c==m_MoveChunkToOtherTestCommand)
         {
-            onMoveChunkToOtherTestCommand();
+            // LWUIT-TO-DO onMoveChunkToOtherTestCommand();
         }
         else
         {
@@ -279,16 +293,19 @@ implements CommandListener,Excludable,ItemCommandListener
 
     /**Implementation of ItemCommandListener. For handling events on the
     special FileChooser form owned by this notepad.*/
+    // LWUIT-TO-DO - reenable
+    /*
     public void commandAction(Command c,Item itm)
     {
          try
          {
              onFileSelectedToWhichToMoveCurrentChunk(itm);
          }
-         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}     
      }
+     */
 
-     protected void onFileSelectedToWhichToMoveCurrentChunk(Item itm)
+     protected void onFileSelectedToWhichToMoveCurrentChunk(Object itm)
      throws Exception
      {
          FilenameItem fi = (FilenameItem) itm;
@@ -299,21 +316,24 @@ implements CommandListener,Excludable,ItemCommandListener
 			OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();
 
          // Append the current chunk to the selected test.
-         String sCurrentChunk = getString();
+         String sCurrentChunk = m_TextArea.getText();
          ListOfTestsEntry entry = new ListOfTestsEntry(sFilename,new Integer(iRecordID),null);
          mgr.appendToTest(entry,sCurrentChunk);
 
          // Now wipe out the current chunk, both in the array
          // and on the screen.
          m_StringChunks.setElementAt("", m_iCurrentChunkIndex);
-         setString("");
+         // LWUIT-TO-DO setString("");
 
          // Display confirmation
          String sMsg = "Current chunk moved to test " + sFilename;
-         Alert alert = new Alert(null,sMsg,null,null);
-         OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+         Dialog alert = new Dialog(sMsg);
+         alert.show();
+         //OccleveMobileMidlet.getInstance().displayAlert(alert,this);
      }
 
+    // LWUIT-TO-DO
+    /*
     protected void onMoveChunkToOtherTestCommand()
     {
         try
@@ -324,7 +344,7 @@ implements CommandListener,Excludable,ItemCommandListener
                         new FileChooserForm( false);
                 m_FileChooserForMovingChunks.setExternalCommandListener(this);
 
-                Command moveTo = new Command("Move to",Command.OK,0);
+                Command moveTo = new Command("Move to");
                 m_FileChooserForMovingChunks.addCommand(moveTo);
             }
 
@@ -332,6 +352,7 @@ implements CommandListener,Excludable,ItemCommandListener
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
+    */
 
     protected void onSaveCommand()
     {
@@ -346,7 +367,7 @@ implements CommandListener,Excludable,ItemCommandListener
     {
         // Save the current chunk back into the Vector.
 
-        String sSaveThis = getString();
+        String sSaveThis = m_TextArea.getText();
         m_StringChunks.setElementAt(sSaveThis,m_iCurrentChunkIndex);
 
         // Now write the chunks to the record store.
@@ -385,9 +406,13 @@ implements CommandListener,Excludable,ItemCommandListener
 
     protected void insertLF()
     {
+    	// TODO
+
+    	/*
         final String LF = "\n";
         int iCaretPos = getCaretPosition();
         insert(LF,iCaretPos);
+        */
     }
 
     /**Used by eg the RawEditorInserters class to insert text.*/
@@ -395,7 +420,7 @@ implements CommandListener,Excludable,ItemCommandListener
     {
         if (bClearFirst)
         {
-            setString("");
+        	m_TextArea.setText("");
         }
         else
         {
@@ -407,17 +432,17 @@ implements CommandListener,Excludable,ItemCommandListener
         // insert(s,i) doesn't seem to work very well: on the K300 it always
         // prepends the text, on KToolbar it always appends.
 
-        String sNewText = getString() + sText;
+        String sNewText = m_TextArea.getText() + sText;
         // insert(sText,getCaretPosition());
-        setString(sNewText);
+        m_TextArea.setText(sNewText);
 
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);
+        // LWUIT-TO-DO OccleveMobileMidlet.getInstance().setCurrentForm(this);
     }
 
     public void getPlainQAFromCurrentChunk(StringBuffer question,
                                            StringBuffer answer)
     {
-        String s = getString();
+        String s = m_TextArea.getText();
         Vector v = StaticHelpers.stringToVector(s);
         Enumeration e = v.elements();
         while (e.hasMoreElements())

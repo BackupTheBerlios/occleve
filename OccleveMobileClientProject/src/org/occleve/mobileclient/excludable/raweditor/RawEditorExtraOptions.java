@@ -64,7 +64,7 @@ implements CommandListener
         {
             if (c==m_BackCommand)
             {
-                OccleveMobileMidlet.getInstance().setCurrentForm(m_Notepad);
+                // LWUIT-TO-DO OccleveMobileMidlet.getInstance().setCurrentForm(m_Notepad);
             }
             else if (c==List.SELECT_COMMAND)
             {
