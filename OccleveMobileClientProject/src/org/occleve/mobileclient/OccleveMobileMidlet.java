@@ -91,6 +91,8 @@ implements CommandListener,Runnable
 		// 0.9.7 - initialize display for LWUIT
     	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
 
+    	showSplashScreen();
+    	
 		try
 		{
 			Resources r = Resources.open("/javaTheme.res");
@@ -111,11 +113,13 @@ implements CommandListener,Runnable
 
 	public void showSplashScreen() throws Exception
 	{
-    	// LWUIT-TO-DO Image logoImage = StaticHelpers.loadOccleveLogo();
+	  	Image logoImage = StaticHelpers.loadOccleveLogo();
     	String sMsg = "occleve.berlios.de/pocketchinese\n" +
     					"©2007-9 Joe Gittings & contributors";
-    	ProgressAlert splashScreen = new ProgressAlert("",sMsg);
-    	//////setCurrentForm(splashScreen);
+    	Alert splash = new Alert(null,sMsg,logoImage,null);
+        splash.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(splash);
+        setCurrentForm(splash);
     	System.out.println("Showed splash screen");
 	}
 	
@@ -135,12 +139,10 @@ implements CommandListener,Runnable
         m_CurrentForm = form;
         if (form instanceof Displayable)
         {
-        	////////com.sun.lwuit.Display.init(null);
         	Display.getDisplay(this).setCurrent((Displayable)form);
         }
         else
         {
-        	/////////////com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
     		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)form;
     		lwuitForm.show();
         }

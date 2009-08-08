@@ -39,8 +39,7 @@ import org.occleve.mobileclient.testing.test.*;
 
 /**The main screen of the application: lists the quizzes currently stored in the
 phone, and allows the user to select a quiz for testing or viewing.*/
-public class FileChooserForm extends Form
-implements Runnable //,CommandListener
+public class FileChooserForm extends Form implements Runnable
 {
 	protected List m_List = new InnerList();
 	
@@ -85,32 +84,20 @@ implements Runnable //,CommandListener
     // working anyway, and they're confusing users.
     //protected Command m_EditCommand;
     //protected Command m_RapidAddCommand;
-
-    /////public boolean isScrollableX() {return true;}
     
     private class InnerList extends List
     {
-        public boolean isScrollableX() {return true;}
+        public boolean isScrollableX() {return false;}
         public boolean isScrollableY() {return true;}
 
-        /*        
-        public int getPreferredH()
-        {
-        	System.out.println("Setting List preferredH to " + getParent().getHeight());
-        	return getParent().getHeight();
-        }
-        
-        public int getPreferredW()
-        {
-        	System.out.println("Setting List preferredW to " + getParent().getWidth());
-        	return getParent().getWidth();
-        }*/
+        //public int getPreferredH() {return getParent().getHeight();}        
+        //public int getPreferredW() {return getParent().getWidth();}
     }
     
     public FileChooserForm(boolean bAddCommands) throws Exception
     {
         super();
-        setScrollable(false); // Otherwise the List won't be scrollable.
+        setScrollable(false); // Otherwise the List won't scroll.
         
     	//Image logoImage = StaticHelpers.loadOccleveLogo();
     	//setBgImage(logoImage);
@@ -176,17 +163,7 @@ implements Runnable //,CommandListener
     public void populateWithFilenames() throws Exception
     {
     	System.out.println("Entering populateWithFilenames");
-    	
-    	// LWUIT-TO-DO Image logoImage = StaticHelpers.loadOccleveLogo();    	
-    	//String sMsg = "occleve.berlios.de/pocketchinese\n" +
-    	//				"©2007-9 Joe Gittings & contributors";
-    	//ProgressAlert alt = new ProgressAlert("",sMsg);
-        //////alt.setTimeout(Alert.FOREVER);
-        ///////StaticHelpers.safeAddGaugeToAlert(alt);
-    	//        OccleveMobileMidlet.getInstance().setCurrentForm(alt);
-    	//       alt.show();
-    	//    	System.out.println("Showed alt dialog");
-    	
+    	    	
     	// Clear out the existing items in this form, if any.
         DefaultListModel model = new DefaultListModel();
         m_List.setModel(model);
@@ -358,13 +335,13 @@ implements Runnable //,CommandListener
     protected void displayTestOptions(ListOfTestsEntry entry,ProgressAlert progressAlert)
     throws Exception
     {
-    	System.out.println("Trying to load Test");
-       Test theTest = new Test(entry,null); // LWUIT-TO-DO progressAlert);
-   	System.out.println("Loaded Test ok");
-   	System.out.println("Trying to displayTestOptions");
-       displayTestOptions(theTest);
-      	System.out.println("Called displayTestOptions ok");
-     	System.out.println("Disposed progressAlert");
+		System.out.println("Trying to load Test");
+		Test theTest = new Test(entry,null); // LWUIT-TO-DO progressAlert);
+		System.out.println("Loaded Test ok");
+		System.out.println("Trying to displayTestOptions");
+		displayTestOptions(theTest);
+		System.out.println("Called displayTestOptions ok");
+		System.out.println("Disposed progressAlert");
     }
 
    /**Public so it can be invoked when the user restarts a test from the test
