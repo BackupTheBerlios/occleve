@@ -223,10 +223,11 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
     		m_LastQuestionTextField.setText(sValue);    		
     	}
     	
-        //////OccleveMobileMidlet.getInstance().setCurrentForm(this);
-		Display.init(OccleveMobileMidlet.getInstance());
+        OccleveMobileMidlet.getInstance().setCurrentForm(this);
+		/////Display.init(OccleveMobileMidlet.getInstance());
 		show();
-		
+
+		/*
         try
         {
         	  Resources r = Resources.open("/javaTheme.res");
@@ -238,6 +239,7 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
         	System.out.println("Couldn't load theme.");
         	OccleveMobileMidlet.getInstance().onError(e);
     	}
+    	*/
     }
 
     /**Implementation of ActionListener.*/

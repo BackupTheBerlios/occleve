@@ -24,7 +24,6 @@ package org.occleve.mobileclient;
 
 import java.io.*;
 import java.util.*;
-/////import javax.microedition.io.*;
 import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.util.*;

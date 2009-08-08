@@ -91,26 +91,34 @@ implements CommandListener,Runnable
 		// 0.9.7 - initialize display for LWUIT
     	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
 
-    	/*
 		try
 		{
 			Resources r = Resources.open("/javaTheme.res");
 			UIManager.getInstance().setThemeProps(r.getTheme("javaTheme"));
-			com.sun.lwuit.Display.getInstance().getCurrent().refreshTheme();
+			///////com.sun.lwuit.Display.getInstance().getCurrent().refreshTheme();
 		}
 		catch (Exception e)
 		{
 			System.out.println("Couldn't load theme.");
 			onError(e);
 		}
-		*/
 
 		m_FileChooserForm = new FileChooserForm(true);
 		System.out.println("Constructed FileChooserForm");
 		
-		m_CurrentForm = m_FileChooserForm;
+		setCurrentForm(m_FileChooserForm);
 	}
 
+	public void showSplashScreen() throws Exception
+	{
+    	// LWUIT-TO-DO Image logoImage = StaticHelpers.loadOccleveLogo();
+    	String sMsg = "occleve.berlios.de/pocketchinese\n" +
+    					"©2007-9 Joe Gittings & contributors";
+    	ProgressAlert splashScreen = new ProgressAlert("",sMsg);
+    	//////setCurrentForm(splashScreen);
+    	System.out.println("Showed splash screen");
+	}
+	
 	public void startApp()
 	{
         setCurrentForm(m_CurrentForm);
@@ -121,17 +129,18 @@ implements CommandListener,Runnable
         return Display.getDisplay(this).getCurrent();
     }
 
-    public void setCurrentForm(Object form) // LWUIT-TO-DO - switch to Form
+    /**'form' can either be an LWUIT Form, or an MIDP2 Displayable.*/
+    public void setCurrentForm(Object form)
     {
         m_CurrentForm = form;
         if (form instanceof Displayable)
         {
-        	com.sun.lwuit.Display.init(null);
+        	////////com.sun.lwuit.Display.init(null);
         	Display.getDisplay(this).setCurrent((Displayable)form);
         }
         else
         {
-        	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
+        	/////////////com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
     		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)form;
     		lwuitForm.show();
         }

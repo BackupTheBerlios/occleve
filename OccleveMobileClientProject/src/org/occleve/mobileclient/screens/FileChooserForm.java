@@ -23,13 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.screens;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.events.*;
 import com.sun.lwuit.layouts.*;
 import com.sun.lwuit.list.*;
-import com.sun.lwuit.plaf.*;
-import com.sun.lwuit.util.*;
-
-/////import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.dictionary.*;
@@ -47,11 +42,11 @@ phone, and allows the user to select a quiz for testing or viewing.*/
 public class FileChooserForm extends Form
 implements Runnable //,CommandListener
 {
-	protected List m_List = new List();
+	protected List m_List = new InnerList();
 	
 	protected ListOfTests m_ListOfTests;
 
-    protected Dialog m_ProgressAlertCache;
+    protected ProgressAlert m_ProgressAlertCache;
     protected ListOfTestsEntry m_EntryCache;
 
     protected static final String NO_TESTS_IN_PHONE_MSG =
@@ -60,28 +55,19 @@ implements Runnable //,CommandListener
 
     // LWUIT-TODO - reenable
     //protected CommandListener m_ExternalCommandListener;
-    
-    // LWUIT-TODO - reenable
-    /*
-    public void setExternalCommandListener(CommandListener cl)
-    {
-        m_ExternalCommandListener = cl;
-    }
-    */
+    // public void setExternalCommandListener(CommandListener cl) {m_ExternalCommandListener = cl;}
 
-    /**Stored as a member so that the options are remembered between
-    invoking tests.*/
+    /**Stored as a member so options are remembered between invoking tests.*/
     protected TestOptionsScreen m_TestOptionsScreen;
 
-    /**Stored as a member so that the options are remembered between
-    invoking tests.*/
+    /**Stored as a member so options are remembered between invoking tests.*/
     protected SimpleTestOptionsScreen m_SimpleTestOptionsScreen;
 
     /**Stored as a member so that the options are remembered between
     invoking tests.*/
     protected ChineseTestOptionsScreen m_ChineseTestOptionsScreen;
 
-    /**0.9.6 - introduce an intermediate screen on which the user chooses
+    /**An intermediate screen on which the user chooses
     which source to download quizzes from.*/
     protected Command m_DownloadQuizzesCommand;
     
@@ -100,21 +86,45 @@ implements Runnable //,CommandListener
     //protected Command m_EditCommand;
     //protected Command m_RapidAddCommand;
 
-    public FileChooserForm(boolean bAddCommands)
-    throws Exception
+    /////public boolean isScrollableX() {return true;}
+    
+    private class InnerList extends List
     {
-        //super(Constants.PRODUCT_NAME,List.IMPLICIT);
-        super(Constants.PRODUCT_NAME);
+        public boolean isScrollableX() {return true;}
+        public boolean isScrollableY() {return true;}
 
-    	Image logoImage = StaticHelpers.loadOccleveLogo();
-    	setBgImage(logoImage);
+        /*        
+        public int getPreferredH()
+        {
+        	System.out.println("Setting List preferredH to " + getParent().getHeight());
+        	return getParent().getHeight();
+        }
+        
+        public int getPreferredW()
+        {
+        	System.out.println("Setting List preferredW to " + getParent().getWidth());
+        	return getParent().getWidth();
+        }*/
+    }
+    
+    public FileChooserForm(boolean bAddCommands) throws Exception
+    {
+        super();
+        setScrollable(false); // Otherwise the List won't be scrollable.
+        
+    	//Image logoImage = StaticHelpers.loadOccleveLogo();
+    	//setBgImage(logoImage);
 
-        addComponent(m_List);
+        setLayout(new BorderLayout());
+        addComponent(BorderLayout.CENTER,m_List);
         
-        // 0.9.6 - try to make the phone wrap long test names
-        // NOT SUPPORTED IN LWUIT
-        /////setFitPolicy(Choice.TEXT_WRAP_ON);
-        
+        // Don't display a number next to each item in the list.
+        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        renderer.setShowNumbers(false);
+        m_List.setListCellRenderer(renderer);
+
+        m_List.setItemGap(0);
+
         if (bAddCommands)
         {
         	m_DownloadQuizzesCommand = new Command("Download quizzes");
@@ -135,65 +145,56 @@ implements Runnable //,CommandListener
 
             m_CommonCommands = new CommonCommands();
 
-            addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
-            ///////addCommand(m_DictionaryCommand); // 0.9.7
-            addCommand(m_DownloadQuizzesCommand); // 0.9.6
             addCommand(m_TestCommand);
-            addCommand(m_ViewCommand);
-            addCommand(m_RedownloadCommand);
-            addCommand(m_SearchAllTestsCommand);
+
             addCommand(m_DevStuffScreenCommand);
             addCommand(m_ShowLicenseCommand);
-            
-            // LWUIT-TO-DO - reenable
-            //m_CommonCommands.addToDisplayable(this);
+            ///////addCommand(m_DictionaryCommand); // 0.9.7
+            addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
+
+            m_CommonCommands.addToForm(this);
+            addCommand(m_SearchAllTestsCommand);
+            addCommand(m_RedownloadCommand);
+            addCommand(m_DownloadQuizzesCommand); // 0.9.6
+            addCommand(m_ViewCommand);            
 
             // Disabled in 0.9.6 - see earlier comment
             //addCommand(m_EditCommand);
             //addCommand(m_RapidAddCommand);
-            
-            // 0.9.6 - "Test" is the default select command.
-            // LWUIT-TO-DO is this still relevant? setSelectCommand(m_TestCommand);
         }
 
         populateWithFilenames();
+        System.out.println("Finished populating with filenames");
 
         m_TestOptionsScreen = new TestOptionsScreen();
         m_SimpleTestOptionsScreen = new SimpleTestOptionsScreen();
         m_ChineseTestOptionsScreen = new ChineseTestOptionsScreen();
-
-        ////setCommandListener(this);
+        
+        OccleveMobileMidlet.getInstance().setCurrentForm(this);
     }
 
     public void populateWithFilenames() throws Exception
     {
     	System.out.println("Entering populateWithFilenames");
     	
-    	// LWUIT-TO-DO Image logoImage = StaticHelpers.loadOccleveLogo();
-    	
-    	String sMsg = "occleve.berlios.de/pocketchinese\n" +
-    					"©2007-9 Joe Gittings & contributors";
-    	Dialog alt = new Dialog(sMsg);
+    	// LWUIT-TO-DO Image logoImage = StaticHelpers.loadOccleveLogo();    	
+    	//String sMsg = "occleve.berlios.de/pocketchinese\n" +
+    	//				"©2007-9 Joe Gittings & contributors";
+    	//ProgressAlert alt = new ProgressAlert("",sMsg);
         //////alt.setTimeout(Alert.FOREVER);
-    	
-    	//TO-DO-LWUIT - reenable
         ///////StaticHelpers.safeAddGaugeToAlert(alt);
-        
-        ////OccleveMobileMidlet.getInstance().setCurrentForm(alt);
-        // LWUIT-TO-DO alt.show();
-    	//System.out.println("Showed alt dialog");
+    	//        OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+    	//       alt.show();
+    	//    	System.out.println("Showed alt dialog");
     	
     	// Clear out the existing items in this form, if any.
         DefaultListModel model = new DefaultListModel();
         m_List.setModel(model);
-        ////removeAll();
-
-        // See whether keypresses are supported
-        ///FileChooserCustomItem fcciTest = new FileChooserCustomItem(this);
-        ///boolean bKeypressesSupported = fcciTest.areKeypressesSupported();
 
         m_ListOfTests = new ListOfTests(null); // LWUIT-TO-DO alt);
 
+        OccleveMobileMidlet.getInstance().showSplashScreen();
+        
         if (m_ListOfTests.getSize()==0)
         {
             m_List.addItem(NO_TESTS_IN_PHONE_MSG);
@@ -208,20 +209,13 @@ implements Runnable //,CommandListener
             String sDisplayText = StaticHelpers.stripEnding(sFilename,".txt");
             sDisplayText = StaticHelpers.stripEnding(sDisplayText,".xml");
 
-            // 0.9.6 - reverse this so that now the asterisk indicates a quiz that's
-            // NOT stored in the recordstore (since the released software no longer
-            // bundles any quizzes in the JAR, as of 0.9.6).
+            if (sDisplayText.startsWith("EN-ZH"))
+            {
+            	sDisplayText = sDisplayText.substring(5);
+            }
+            
+            // The asterisk indicates a quiz that's NOT stored in the recordstore
             if (recordStoreID==null) sDisplayText = "* " + sDisplayText;
-
-            // THIS WON'T WORK BECAUSE KEYPRESSES ONLY CAUGHT WHEN THE CustomITEM
-            // HAS FOCUS...
-            // If CustomItem supports keypresses on this phone, add an invisible
-            // custom item before the filename which will catch keypresses.
-            //if (bKeypressesSupported)
-            //{
-            //    FileChooserCustomItem fcci = new FileChooserCustomItem(this);
-            //    append(fcci);
-            //}
 
             m_List.addItem(sDisplayText);
         }
@@ -301,16 +295,18 @@ implements Runnable //,CommandListener
 
         if (c==m_TestCommand)
         {
-        	// 0.9.6 - display progress while loading the test.
-            Dialog alt = new Dialog("Loading " + entry.getFilename());
-            //alt.setTimeout(Alert.FOREVER);
-            /////StaticHelpers.safeAddGaugeToAlert(alt);
-            //OccleveMobileMidlet.getInstance().setCurrentForm(alt);
-            alt.show();
+        	// Display progress while loading the test.
+            ProgressAlert alt =
+            	new ProgressAlert("","Loading \n" + entry.getFilename());
+            System.out.println("Showing ProgressAlert");
+            OccleveMobileMidlet.getInstance().setCurrentForm(alt);
+            System.out.println("Showed ProgressAlert");
 
+            System.out.println("Starting thread");
             m_EntryCache = entry;
             m_ProgressAlertCache = alt;
             new Thread(this).start();
+            System.out.println("Started thread");
 
         	///////displayTestOptions(entry);
         }
@@ -359,11 +355,16 @@ implements Runnable //,CommandListener
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
 
-    protected void displayTestOptions(ListOfTestsEntry entry,Dialog progressAlert)
+    protected void displayTestOptions(ListOfTestsEntry entry,ProgressAlert progressAlert)
     throws Exception
     {
+    	System.out.println("Trying to load Test");
        Test theTest = new Test(entry,null); // LWUIT-TO-DO progressAlert);
+   	System.out.println("Loaded Test ok");
+   	System.out.println("Trying to displayTestOptions");
        displayTestOptions(theTest);
+      	System.out.println("Called displayTestOptions ok");
+     	System.out.println("Disposed progressAlert");
     }
 
    /**Public so it can be invoked when the user restarts a test from the test

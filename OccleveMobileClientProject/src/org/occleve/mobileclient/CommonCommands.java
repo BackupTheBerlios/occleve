@@ -55,6 +55,12 @@ public class CommonCommands
         d.addCommand(m_ExitCommandMIDP);
     }
 
+    public void addToForm(com.sun.lwuit.Form f)
+    {
+        f.addCommand(m_PauseCommand);
+        f.addCommand(m_ExitCommand);
+    }
+
     /**LWUIT style.*/
     public void actionCommand(Command c)
     {
