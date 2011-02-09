@@ -53,7 +53,7 @@ public class ExcludableHooks
         //dvs.setTestFilename(sSelectedFilename);
         //dvs.setTestRecordStoreID(iSelectedRecordStoreID);
 
-        OccleveMobileMidlet.getInstance().setCurrentForm((Displayable)dvs);
+        OccleveMobileMidlet.getInstance().setCurrentForm((Displayable)dvs,true);
     }
 
     public static void displayRapidAdd(ListOfTestsEntry entry)

@@ -166,8 +166,43 @@ public class StaticHelpers
         return sTime;
     }
 
+    /**Strip any accent if there is one.*/
+    public static char removeAccent(char c)
+    {
+    	if ((c=='à') || (c=='â') || (c=='ä'))
+    		return 'a';
+    	else if ((c=='À') || (c=='Â') || (c=='Ä'))
+    		return 'A';
+    	else if ((c=='ê') || (c=='é') || (c=='è') || (c=='ë'))
+    		return 'e';
+    	else if ((c=='Ê') || (c=='É') || (c=='È') || (c=='Ë'))
+    		return 'E';
+    	else if (c=='ħ')
+    		return 'h';
+    	else if (c=='ω')
+    		return 'w';
+    	else if (c=='∑')
+    		return 'S';
+    	else if (c=='√')
+    		return 'r';
+    	else if (c=='∏')
+    		return 'p';
+    	else if (c=='∫')
+    		return 'i';
+    	else if (c=='λ')
+    		return 'l';
+    	else if (c=='ρ')
+    		return 'r';
+    	else if (c=='Δ')
+    		return 'D';
+    	else
+    		return c;
+    }
+
     public static boolean isPunctuation(char c)
     {
+    	c = removeAccent(c);
+    	
         boolean bIsLowercaseLetter = (c>='a') && (c<='z');
         boolean bIsUppercaseLetter = (c>='A') && (c<='Z');
 

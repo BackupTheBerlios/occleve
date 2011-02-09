@@ -24,6 +24,12 @@ package org.occleve.mobileclient;
 
 public class XML
 {
+	public static String openTag(String tagText) {return "<" + tagText + ">";}
+	public static String closeTag(String tagText) {return "</" + tagText + ">";}
+
+	public static String lowerOpenTag(String tagText) {return openTag(tagText).toLowerCase();}
+	public static String lowerCloseTag(String tagText) {return closeTag(tagText).toLowerCase();}
+
 	// 0.9.4: Tolerate presence of this as by necessity it's contained in Occleve wiki pages.
 	public static final String PRE = "pre";
 	

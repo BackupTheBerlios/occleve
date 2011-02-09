@@ -63,13 +63,18 @@ implements CommandListener,Runnable
     /**0.9.7: The recordstore which stores audio clips, images, etc.*/
     protected VocabRecordStoreManager m_MediaRecordStoreManager;
 
+    protected boolean m_bLWUITDisplayInitialized = false;
+    
 	public OccleveMobileMidlet()
 	{
         m_SingleInstance = this;
-
+	}
+	
+	public void startApp()
+	{
 		try
 		{
-			OccleveMobileMidlet_Inner();
+			startApp_Inner();
 		}
 		catch (Exception e)
 		{
@@ -84,16 +89,85 @@ implements CommandListener,Runnable
 	    }
 	}
 
-	private void OccleveMobileMidlet_Inner() throws Exception
+	private void startApp_Inner() throws Exception
 	{
-		System.out.println("Entering OccleveMobileMidlet_Inner()");
+		System.out.println("Entering startApp_Inner()");
 
+		// showSplashScreen();
+
+		initializeLWUITDisplay();
+		//com.sun.lwuit.Dialog.show("Occleve", "Welcome to Occleve", "OK", null);
+
+		m_FileChooserForm = new FileChooserForm(true);
+		System.out.println("Constructed FileChooserForm");		
+		setCurrentForm(m_FileChooserForm);
+	}
+
+	public void showSplashScreen() throws Exception
+	{
+		/*
+	  	Image logoImage = StaticHelpers.loadOccleveLogo();
+    	String sMsg = "occleve.berlios.de/pocketchinese\n" +
+    					"©2007-9 Joe Gittings & contributors";
+    	Alert splash = new Alert(null,sMsg,logoImage,null);
+        splash.setTimeout(Alert.FOREVER);
+        StaticHelpers.safeAddGaugeToAlert(splash);
+        setCurrentForm(splash);
+    	System.out.println("Showed splash screen");
+    	*/
+	}
+	
+	// public void startApp()
+	// {
+    //    setCurrentForm(m_CurrentForm);
+	// }
+
+    public Displayable getCurrentDisplayable()
+    {
+        return Display.getDisplay(this).getCurrent();
+    }
+
+    public void setCurrentForm(Object form)
+    {
+    	setCurrentForm(form,false);
+    }
+
+    /**'form' can either be an LWUIT Form, or an MIDP2 Displayable.*/
+    public void setCurrentForm(Object form,boolean separateThreadForMIDP)
+    {
+        m_CurrentForm = form;
+        if (form instanceof Displayable)
+        {
+    		m_FileChooserForm.setVisible(false);
+    		
+    		if (separateThreadForMIDP)
+    		{
+    			m_ThreadAction = DISPLAY_MIDP_FORM;
+    	        new Thread(this).start();
+    			Display.getDisplay(this).setCurrent((Displayable)form);
+    		}
+    		else
+    			Display.getDisplay(this).setCurrent((Displayable)form);
+    		
+    		m_FileChooserForm.setVisible(false);
+        }
+        else
+        {
+        	if (!m_bLWUITDisplayInitialized) initializeLWUITDisplay();
+        	
+    		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)form;
+    		lwuitForm.show();
+        }
+    }
+
+    protected void initializeLWUITDisplay()
+    {
+    	m_bLWUITDisplayInitialized = true;
+    	
 		// 0.9.7 - initialize display for LWUIT
     	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
 
-    	showSplashScreen();
-    	
-		try
+    	try
 		{
 			Resources r = Resources.open("/javaTheme.res");
 			UIManager.getInstance().setThemeProps(r.getTheme("javaTheme"));
@@ -104,50 +178,8 @@ implements CommandListener,Runnable
 			System.out.println("Couldn't load theme.");
 			onError(e);
 		}
-
-		m_FileChooserForm = new FileChooserForm(true);
-		System.out.println("Constructed FileChooserForm");
-		
-		setCurrentForm(m_FileChooserForm);
-	}
-
-	public void showSplashScreen() throws Exception
-	{
-	  	Image logoImage = StaticHelpers.loadOccleveLogo();
-    	String sMsg = "occleve.berlios.de/pocketchinese\n" +
-    					"©2007-9 Joe Gittings & contributors";
-    	Alert splash = new Alert(null,sMsg,logoImage,null);
-        splash.setTimeout(Alert.FOREVER);
-        StaticHelpers.safeAddGaugeToAlert(splash);
-        setCurrentForm(splash);
-    	System.out.println("Showed splash screen");
-	}
-	
-	public void startApp()
-	{
-        setCurrentForm(m_CurrentForm);
-	}
-
-    public Displayable getCurrentDisplayable()
-    {
-        return Display.getDisplay(this).getCurrent();
     }
-
-    /**'form' can either be an LWUIT Form, or an MIDP2 Displayable.*/
-    public void setCurrentForm(Object form)
-    {
-        m_CurrentForm = form;
-        if (form instanceof Displayable)
-        {
-        	Display.getDisplay(this).setCurrent((Displayable)form);
-        }
-        else
-        {
-    		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)form;
-    		lwuitForm.show();
-        }
-    }
-
+    
 	public void displayAlert(Alert alert,Displayable nextScreen)
 	{
 	    Display.getDisplay(this).setCurrent(alert,nextScreen);
@@ -197,9 +229,7 @@ implements CommandListener,Runnable
             catch (Exception e) {onError(e);}
         }
 
-        com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
-		m_FileChooserForm.show();
-        ///// MIDP code: setCurrentForm(m_FileChooserForm);
+        setCurrentForm(m_FileChooserForm);
     }
 
     public void repopulateFileChooser() throws Exception
@@ -243,14 +273,31 @@ implements CommandListener,Runnable
 
         m_EntryCache = entry;
         m_ProgressAlertCache = alt;
+        m_ThreadAction = VIEW_TEST;
         new Thread(this).start();
     }
-
+    
+	protected int m_ThreadAction;
+	protected final int DISPLAY_MIDP_FORM = 100;
+	protected final int VIEW_TEST = 200;
+    
     public void run()
     {
         try
         {
-            displayTest_Thread(m_EntryCache,m_ProgressAlertCache);
+        	if (m_ThreadAction==VIEW_TEST)
+        		displayTest_Thread(m_EntryCache,m_ProgressAlertCache);
+        	else if (m_ThreadAction==DISPLAY_MIDP_FORM)
+        	{
+        		for (int i=0; i<(10*4); i++)
+        		{
+        			m_FileChooserForm.setVisible(false);
+        			Display.getDisplay(this).setCurrent((Displayable)m_CurrentForm);
+        	        Thread.sleep(250);
+        		}
+        	}
+        	else
+        		onError("Unknown thread action in OccleveMobileMidlet.run");
         }
         catch (Exception e) {onError(e);}
     }
