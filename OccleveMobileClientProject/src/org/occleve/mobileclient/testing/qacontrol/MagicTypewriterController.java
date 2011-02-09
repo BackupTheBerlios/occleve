@@ -297,6 +297,10 @@ public class MagicTypewriterController extends QAController
         trace("Entering keypressEqualsChar()");
 
         char lowercaseChar = Character.toLowerCase(theChar);
+        lowercaseChar = StaticHelpers.removeAccent(lowercaseChar);
+
+        trace("Testing keypress against char: " + theChar);
+        trace("In lowercase and minus accent: " + lowercaseChar);
 
         if (iKeycode==Canvas.KEY_NUM0)
             return (lowercaseChar=='0');
@@ -332,7 +336,7 @@ public class MagicTypewriterController extends QAController
     /**So that trace output from this class can be easily switched on/off.*/
     protected void trace(Object o)
     {
-        //System.out.println(o);
+        System.out.println(o);
     }
 }
 

@@ -22,6 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.testing;
 
+import org.occleve.mobileclient.StaticHelpers;
+
 public class ListOfTestsEntry
 {
 	private String m_sFilename;
@@ -37,7 +39,17 @@ public class ListOfTestsEntry
 	}
 
 	public String getFilename() {return m_sFilename;}
-	
+
+	public String getDisplayName() {
+        String sDisplayText = StaticHelpers.stripEnding(m_sFilename,".txt");
+        sDisplayText = StaticHelpers.stripEnding(sDisplayText,".xml");
+
+        if (sDisplayText.toUpperCase().startsWith("EN-ZH"))
+        	return sDisplayText.substring(5);
+        else
+        	return sDisplayText;
+	}
+
 	public Integer getRecordStoreID() {return m_iRecordStoreID;}
 	
 	public String getLocalFilesystemURL() {return m_sLocalFilesystemURL;}

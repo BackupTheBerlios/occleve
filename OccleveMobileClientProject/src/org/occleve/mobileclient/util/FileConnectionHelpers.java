@@ -39,7 +39,8 @@ public class FileConnectionHelpers
 	public static InputStream openFileInputStream(String sFilename)
 	throws Exception
 	{
-        FileConnection fc = (FileConnection)Connector.open(sFilename);
+        FileConnection fc =
+        	(FileConnection)Connector.open(sFilename,Connector.READ);
         if(!fc.exists())
         {
         	throw new IOException("File does not exist");
@@ -51,14 +52,21 @@ public class FileConnectionHelpers
 	public static Hashtable getAllFilenamesInRootDirs(String sFilter) throws Exception
 	{
 		Hashtable htResults = new Hashtable();
-		
+				
 		Enumeration drives = FileSystemRegistry.listRoots();
 		while (drives.hasMoreElements())
 		{
-			String root = (String) drives.nextElement();
-			FileConnection fc = (FileConnection)Connector.open("file:///" + root);			
+			String root = (String)drives.nextElement();
+			String rootURL = "file:///" + root;
+			System.out.println("Root URL=" + rootURL);
+			
+			// Setting the mode to READ reduces the number of
+			// security challenge prompts when the midlet is not signed
+			FileConnection fc = (FileConnection)Connector.open(rootURL,Connector.READ);
 
-			Enumeration filelist = fc.list(sFilter, true);
+			System.out.println("Getting filelist");
+			Enumeration filelist = fc.list(sFilter,true);
+			System.out.println("Got filelist");
 			while(filelist.hasMoreElements())
 			{
 			    String sFilename = (String) filelist.nextElement();
@@ -67,7 +75,8 @@ public class FileConnectionHelpers
 			}   
 			fc.close();
 		}
-		
+
+		System.out.println("Found " + htResults.size() + " files in root dirs");
 		return htResults;
 	}
 }

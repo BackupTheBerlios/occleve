@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.testing.test;
@@ -128,76 +128,110 @@ public class Test
     	
         int iFirstHyphenIndex = sTestFilename.indexOf('-');
         int iSecondHyphenIndex = sTestFilename.indexOf('-',iFirstHyphenIndex+1);
+                
+        m_sFirsteseISOCode =
+        	sTestFilename.toUpperCase().substring(0,iFirstHyphenIndex);
+        m_sSecondeseISOCode =
+        	sTestFilename.toUpperCase().substring(iFirstHyphenIndex+1,
+				                                   iSecondHyphenIndex);
 
-        m_sFirsteseISOCode = sTestFilename.substring(0,iFirstHyphenIndex);
-        m_sSecondeseISOCode = sTestFilename.substring(iFirstHyphenIndex+1,
-                                                           iSecondHyphenIndex);
-
-		System.out.println("Free memory before parsing = " + Runtime.getRuntime().freeMemory());
-        
+		/* if (progressAlert!=null) progressAlert.setString(
+				progressAlert.getString() + "\r\n\r\n" +
+				"Free memory before parsing = \r\n\r\n" + Runtime.getRuntime().freeMemory() );
         Xparse parser = new Xparse();
         Node root = parser.parse(sTestSource);
 
-		System.out.println("Free memory after parsing = " + Runtime.getRuntime().freeMemory());
-        
-        int[] first = {1};
-        Node test = root.find(XML.TEST,first);
-        if (test==null)
-    	{
-        	Node pre = root.find(XML.PRE,first);
-            if (pre==null)
-        	{        	
-            	throw new Exception("Couldn't find Test node or pre node");
-        	}
+        if (progressAlert!=null) progressAlert.setString(
+				progressAlert.getString() + "\r\n\r\n" +
+				"Free memory after parsing = \r\n\r\n" + Runtime.getRuntime().freeMemory());
+		*/
 
-        	test = pre.find(XML.TEST,first);
-        	if (test==null)
-        	{        	
-            	throw new Exception("Couldn't find Test node");
-        	}
+        Xparse parser = new Xparse();
+        String sLowerTestSource = sTestSource.toLowerCase();
+        int iTestTagIndex = sLowerTestSource.indexOf(XML.lowerOpenTag(XML.TEST));
+        int iPreTagIndex = sLowerTestSource.indexOf(XML.lowerOpenTag(XML.PRE));
+
+        if (iPreTagIndex==-1 && iTestTagIndex==-1)
+    	{        	
+        	throw new Exception("Couldn't find Test node or pre node");
     	}
 
-        Node[] allQANodes = test.findAllChildElements(test,XML.QA);
-        if (allQANodes.length==0)
+    	if (iTestTagIndex==-1)
+    	{        	
+        	throw new Exception("Couldn't find Test node");
+    	}
+
+		int lqaIndex = sLowerTestSource.indexOf("<lqa>");
+		int mqaIndex = sLowerTestSource.indexOf("<mqa>");
+        if (lqaIndex==-1 && mqaIndex==-1)
         {
-        	throw new Exception("Couldn't find any LQA nodes in the test");        	
+        	throw new Exception("Couldn't find any QA nodes in the test");        	
         }
 
-		System.out.println("Free memory after populating allQANodes[] = " + Runtime.getRuntime().freeMemory());
+		String qaType = (lqaIndex!=-1) ? "lqa":"mqa";
+    	String openQATag = XML.lowerOpenTag(qaType);
+    	String closeQATag = XML.lowerCloseTag(qaType);
 
-		// 0.9.6 - don't need root anymore - free it and run GC to save memory.
-		// Xparse really eats memory and this has been significantly slowing
-		// down test loading on real mobile phones.
-		root = null;
-    	Runtime.getRuntime().gc();
-		System.out.println("Free memory after nulling root = " + Runtime.getRuntime().freeMemory());
-				
-        for (int i=0; i<allQANodes.length; i++)
-        {
-        	LanguageQA lqa = new LanguageQA(allQANodes[i],m_sFirsteseISOCode,
-                                                m_sSecondeseISOCode);
-            m_QAs.addElement(lqa);
-
-            if ((m_QAs.size()%10) == 0)
+		int startIndex = iTestTagIndex;
+		int openQAIndex;
+    	do {
+    		openQAIndex = sLowerTestSource.indexOf(openQATag,startIndex);
+    		if (openQAIndex!=-1)
     		{
-            	System.out.println("Forcing garbage collection...");
-            	Runtime.getRuntime().gc();
+        		int closeQAIndex = sLowerTestSource.indexOf(closeQATag,openQAIndex);
+        		if (closeQAIndex!=-1) 
+        		{
+        			String qaText =
+        				sTestSource.substring(openQAIndex, closeQAIndex + closeQATag.length());
+        	        Node root = parser.parse(qaText);
+        	        Node qaNode = root.findFirst(qaType.toUpperCase());
+
+        	        xmlLoadQuestions_OneQA(qaType,qaText,qaNode,sOriginalProgressPrompt,progressAlert);        	        
+        	        
+        	        root = null;
+        	        qaNode = null;
+        		}
+        		startIndex = closeQAIndex; 
     		}
-            
-            if (((m_QAs.size()%10) == 0) && (progressAlert!=null))
-            {
-            	String sMsg = sOriginalProgressPrompt +
-            					" - loaded " + m_QAs.size() + " questions. " +
-            					"Free memory in bytes = " +
-            					Runtime.getRuntime().freeMemory();
-            	progressAlert.setString(sMsg);
-            }
-    	}
-    
+    	} while (openQAIndex!=-1);
+    	
+    	Runtime.getRuntime().gc();
+
         if (m_QAs.size()==0)
         {
             throw new Exception("Test appears to contain zero questions");
         }
+    }
+
+    private void xmlLoadQuestions_OneQA(String qaType,String qaText,Node qaNode,
+		String sOriginalProgressPrompt,Alert progressAlert) throws Exception
+    {
+    	// System.out.println("qaText=" + qaText);
+    	
+    	QA qa;
+    	if (qaType.equals("lqa"))
+    		qa = new LanguageQA(qaNode,m_sFirsteseISOCode,m_sSecondeseISOCode);
+    	else
+    		qa = new MathQA(qaNode);
+    	
+        m_QAs.addElement(qa);
+
+        if ((m_QAs.size()%10) == 0)
+		{
+			System.out.println("Free memory / bytes = " +
+				Runtime.getRuntime().freeMemory());
+        	System.out.println("Forcing garbage collection...");
+        	Runtime.getRuntime().gc();
+		}
+        
+        if (((m_QAs.size()%10) == 0) && (progressAlert!=null))
+        {
+        	String sMsg = sOriginalProgressPrompt +
+        					" - loaded " + m_QAs.size() + " questions. " +
+        					"Free memory in bytes = " +
+        					Runtime.getRuntime().freeMemory();
+        	progressAlert.setString(sMsg);
+        }    	
     }
 
     /**Load a wikiversity quiz.*/

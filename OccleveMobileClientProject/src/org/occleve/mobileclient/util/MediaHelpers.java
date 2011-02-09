@@ -56,7 +56,8 @@ public class MediaHelpers
 		}
 		catch (Throwable t)
 		{
-			throw new Exception(t.getMessage());
+			throw new Exception("Filename: " + sImageFilename + "  " +
+				t.getMessage());
 		}
     }
 
@@ -79,7 +80,16 @@ public class MediaHelpers
         Class c = OccleveMobileMidlet.getInstance().getClass();
         OccleveTrace.trace(progressAlert,"Got OccleveMobileMidlet.class ok");
 
-        InputStream is = c.getResourceAsStream(sImageFilename);
+    	InputStream is;
+        if (sImageFilename.startsWith("file:"))
+        {
+        	// Read the file from the local filesystem.
+        	is = FileConnectionHelpers.openFileInputStream(sImageFilename);        	
+        }
+        else
+        {
+        	is = c.getResourceAsStream(sImageFilename);
+        }
         
         // It seems like on the Z558c, tracing out the InputStream this way
         // actually crashes the VM!

@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-2010  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.screens;
@@ -110,6 +110,9 @@ public class FileChooserForm extends Form implements Runnable
         renderer.setShowNumbers(false);
         m_List.setListCellRenderer(renderer);
 
+        // June 2010 - this is just annoying on slow phones
+        m_List.setSmoothScrolling(false);
+        
         m_List.setItemGap(0);
 
         if (bAddCommands)
@@ -182,14 +185,7 @@ public class FileChooserForm extends Form implements Runnable
         {
             String sFilename = m_ListOfTests.getFilename(i);
             Integer recordStoreID = m_ListOfTests.getRecordStoreID(sFilename);
-
-            String sDisplayText = StaticHelpers.stripEnding(sFilename,".txt");
-            sDisplayText = StaticHelpers.stripEnding(sDisplayText,".xml");
-
-            if (sDisplayText.startsWith("EN-ZH"))
-            {
-            	sDisplayText = sDisplayText.substring(5);
-            }
+            String sDisplayText = m_ListOfTests.getEntry(i).getDisplayName(); 
             
             // The asterisk indicates a quiz that's NOT stored in the recordstore
             if (recordStoreID==null) sDisplayText = "* " + sDisplayText;
@@ -236,11 +232,11 @@ public class FileChooserForm extends Form implements Runnable
         if (c==m_DownloadQuizzesCommand)
         {
         	ChooseQuizServerScreen chooser = new ChooseQuizServerScreen();
-            OccleveMobileMidlet.getInstance().setCurrentForm(chooser);
+            OccleveMobileMidlet.getInstance().setCurrentForm(chooser,true);
         }
         else if (c==m_ShowLicenseCommand)
         {
-            OccleveMobileMidlet.getInstance().setCurrentForm(new ShowGPLForm());
+            OccleveMobileMidlet.getInstance().setCurrentForm(new ShowGPLForm(),true);
         }
         else if (c==m_DictionaryCommand)
         {
@@ -250,18 +246,18 @@ public class FileChooserForm extends Form implements Runnable
         else if (c==m_ConnectionTroubleshooterCommand)
         {
         	ConnectionTroubleshooter ct = new ConnectionTroubleshooter();
-            OccleveMobileMidlet.getInstance().setCurrentForm(ct);
+            OccleveMobileMidlet.getInstance().setCurrentForm(ct,true);
         }
         else if (c==m_DevStuffScreenCommand)
         {           	
             ExcludableHooks.displayDevStuffScreen(entry);
         }
 
-        try
-        {
-        	Thread.sleep(10000);
-        }
-        catch (Exception e) {}
+        //try
+        //{
+        //	Thread.sleep(10000);
+        //}
+        //catch (Exception e) {}
         
         // The rest of the commands aren't appropriate if there
         // aren't any tests in the phone.
@@ -274,7 +270,7 @@ public class FileChooserForm extends Form implements Runnable
         {
         	// Display progress while loading the test.
             ProgressAlert alt =
-            	new ProgressAlert("","Loading \n" + entry.getFilename());
+            	new ProgressAlert("","Loading \r\n\r\n" + entry.getDisplayName());
             System.out.println("Showing ProgressAlert");
             OccleveMobileMidlet.getInstance().setCurrentForm(alt);
             System.out.println("Showed ProgressAlert");
@@ -284,8 +280,6 @@ public class FileChooserForm extends Form implements Runnable
             m_ProgressAlertCache = alt;
             new Thread(this).start();
             System.out.println("Started thread");
-
-        	///////displayTestOptions(entry);
         }
         else if (c==m_ViewCommand)
         {
@@ -346,8 +340,7 @@ public class FileChooserForm extends Form implements Runnable
 
    /**Public so it can be invoked when the user restarts a test from the test
    results screen.*/
-   public void displayTestOptions(Test theTest)
-   throws Exception
+   public void displayTestOptions(Test theTest) throws Exception
    {
        // Until this software supports all wikiversity question types,
        // this is a definite possibility.

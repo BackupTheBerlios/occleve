@@ -33,20 +33,22 @@ import com.sun.lwuit.util.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
+import org.occleve.mobileclient.testing.test.Test;
 
 public class ChineseTestOptionsScreen extends TestOptionsScreen
-////implements ItemCommandListener
 {
-    protected static String ZI = "\u5B57";
-    protected static String TO = "to ";
+    // protected static String ZI = "\u5B57";
+    protected static final String ZI = "Hanzi";
+    
+    protected static final String TO = "to ";
 
-    protected static String PINYIN = "Pinyin";
-    protected static String ENGLISH = "English";
-    protected static String CHARS = ZI;
+    protected static final String PINYIN = "Pinyin";
+    protected static final String ENGLISH = "English";
+    protected static final String CHARS = ZI;
 
-    protected static String CHARS_ENGLISH = ZI + " & English";
-    protected static String CHARS_PINYIN = ZI + " & Pinyin";
-    protected static String ENGLISH_PINYIN = "English & Pinyin";
+    protected static final String CHARS_ENGLISH = ZI + " & English";
+    protected static final String CHARS_PINYIN = ZI + " & Pinyin";
+    protected static final String ENGLISH_PINYIN = "English & Pinyin";
 
     protected ComboBox m_FromChoiceGroup;
     protected ComboBox m_ToChoiceGroup;
@@ -87,11 +89,7 @@ public class ChineseTestOptionsScreen extends TestOptionsScreen
 	
 	    addComponent(m_FromChoiceGroup);
 	    addComponent(m_ToChoiceGroup);
-	    addComponent(m_MeasureWordsRadioButton);
-	
-	    // Initial settings are english to pinyin with measure words enabled.
-	    m_FromChoiceGroup.setSelectedIndex(1);
-	    m_ToChoiceGroup.setSelectedIndex(0);    	
+	    addComponent(m_MeasureWordsRadioButton);	
     }
     
     protected QADirection getQADirection() throws Exception
@@ -132,9 +130,24 @@ public class ChineseTestOptionsScreen extends TestOptionsScreen
             throw new Exception("Invalid choice in language ChoiceGroup");
     }
 
+    public void makeVisible(Test test)
+    {
+    	super.makeVisible(test);
+
+	    if (test.getFilename().toLowerCase().indexOf("char")!=-1) {
+	    	// For chars quizzes default to English+Pinyin -> Hanzi
+	    	m_FromChoiceGroup.setSelectedItem(ENGLISH_PINYIN);
+	    	m_ToChoiceGroup.setSelectedItem(TO+CHARS);	    	
+	    }
+	    else {
+	    	// Default is english+pinyin with measure words enabled.
+	    	m_FromChoiceGroup.setSelectedIndex(1);
+	    	m_ToChoiceGroup.setSelectedIndex(0);
+	    }
+    }
+    
     /*Implementation of ItemCommandListener.*/
-    /*
-    public void commandAction(Command c, Item item)
+    /* public void commandAction(Command c, Item item)
     {
         if (item==m_MeasureWordsItem)
         {
@@ -150,7 +163,6 @@ public class ChineseTestOptionsScreen extends TestOptionsScreen
         {
             super.commandAction(c,item);
         }
-    }
-    */
+    } */
 }
 

@@ -125,7 +125,6 @@ implements ActionListener,J2MEFileSelectorListener,Runnable
         m_SearchResultsTextArea.setMaxSize(500);
         addComponent(m_SearchResultsTextArea);
 
-		Display.init(OccleveMobileMidlet.getInstance());
 		show();
 
         try

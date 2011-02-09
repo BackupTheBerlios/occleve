@@ -255,6 +255,15 @@ implements CommandListener,Runnable
 
     	String sHexString = StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
     	String sOcratFilename = sHexString + ".gif";
+    	String sOcratFilenameForJar = "/ocrat_stroke/" + sOcratFilename;
+
+    	// Order of preference:
+    	// 1. Locally cached Wikipedia animation (jar or RS)
+    	// 2. Locally cached Ocrat animation (jar or RS)
+    	// 2.5 Wikipedia anim from filesystem
+    	// 2.6 Ocrat anim from filesystem
+    	// 3. Download Wikipedia animation
+    	// 4. Download Ocrat animation
     	
     	if (bWikipediaAnimation)
     	{
@@ -271,7 +280,54 @@ implements CommandListener,Runnable
     	if (bOcratAnimation && (animationData==null))
     	{
         	animationData =
+        		MediaHelpers.loadImageFromJar(sOcratFilenameForJar,progressAlert);
+    	}
+
+    	if (bOcratAnimation && (animationData==null))
+    	{
+        	animationData =
         		MediaHelpers.loadImageFromRecordStore(sOcratFilename,mediaRsMgr);
+    	}
+
+    	if (bWikipediaAnimation && (animationData==null))
+    	{
+    		try
+    		{
+    			String sWikipediaAnimPath = "file:///e:" + sWikipediaFilenameForJar;
+        		progressAlert.setString(sWikipediaAnimPath);
+        		Thread.sleep(3000);
+
+    			animationData =
+    				MediaHelpers.loadImageFromJar(sWikipediaAnimPath,progressAlert);
+
+	    		// Save the image into the recordstore for future use
+	    		mediaRsMgr.createFileInRecordStore(sWikipediaFilenameForRS,
+					animationData,false);
+    		}
+    		// Non-exceptional - there may be no wikipedia anim for this char
+    		catch (Exception e)
+    		{
+    			///// TEMPORARY FOR DEBUGGING
+        		progressAlert.setString(e.toString());
+        		Thread.sleep(1000);
+    		}
+    	}
+
+    	if (bOcratAnimation && (animationData==null))
+    	{
+    		try
+    		{
+    			String sOcratAnimPath = "file:///e:" + sOcratFilenameForJar;
+        		progressAlert.setString(sOcratAnimPath);
+        		Thread.sleep(3000);
+    			animationData =
+    				MediaHelpers.loadImageFromJar(sOcratAnimPath,progressAlert);
+
+	    		// Save the image into the recordstore for future use
+	    		mediaRsMgr.createFileInRecordStore(sOcratFilename,animationData,false);
+    		}
+    		// Non-exceptional - there may be no ocrat anim for this char
+			catch (Exception e) {}
     	}
 
     	// 0.9.7: The index page for these is at

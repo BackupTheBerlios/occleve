@@ -17,11 +17,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
 
+import java.io.*;
 import java.util.*;
 
 import javax.microedition.lcdui.*;
@@ -34,6 +35,7 @@ import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
+import org.occleve.mobileclient.util.*;
 import org.occleve.mobileclient.excludable.translation.*;
 
 /**Stuff for devs and power users.*/
@@ -85,6 +87,8 @@ implements CommandListener,Excludable,Runnable
     protected final String RUN_GARBAGE_COLLECTOR = "Run gc";
     protected final String SHOW_FILESYSTEM_ROOTS = "Show filesystem roots";
     protected final String SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS = "Show all files and dirs in filesystem roots";
+    protected final String SHOW_WIKIPEDIA_STROKE_FILES = "Show first few anims in wikipedia_stroke on e drive";
+    protected final String SHOW_ROOT_FILE_URLS = "Show root file URLs";
     protected final String IS_FILECONNECTION_API_AVAILABLE = "FileConnection API available?";
     protected final String TEST_RECORDSTORE_CAPACITY = "Test RecordStore capacity";
     protected final String CREATE_NEW_TEST = "Create new test";
@@ -132,6 +136,8 @@ implements CommandListener,Excludable,Runnable
         append(RUN_GARBAGE_COLLECTOR,null);
         append(SHOW_FILESYSTEM_ROOTS,null);
         append(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS,null);
+        append(SHOW_WIKIPEDIA_STROKE_FILES,null);        
+        append(SHOW_ROOT_FILE_URLS,null);
         append(IS_FILECONNECTION_API_AVAILABLE,null);
         append(TEST_RECORDSTORE_CAPACITY,null);
         append(CREATE_NEW_TEST,null);
@@ -287,9 +293,19 @@ implements CommandListener,Excludable,Runnable
             m_sThreadAction = SHOW_FILESYSTEM_ROOTS;
             new Thread(this).start();
         }
+        else if (sOption.equals(SHOW_WIKIPEDIA_STROKE_FILES))
+        {
+            m_sThreadAction = SHOW_WIKIPEDIA_STROKE_FILES;
+            new Thread(this).start();
+        }
         else if (sOption.equals(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS))
         {
             m_sThreadAction = SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS;
+            new Thread(this).start();
+        }
+        else if (sOption.equals(SHOW_ROOT_FILE_URLS))
+        {
+            m_sThreadAction = SHOW_ROOT_FILE_URLS;
             new Thread(this).start();
         }
         else if (sOption.equals(IS_FILECONNECTION_API_AVAILABLE))
@@ -626,7 +642,61 @@ implements CommandListener,Excludable,Runnable
 		alert.setTimeout(Alert.FOREVER);
         OccleveMobileMidlet.getInstance().displayAlert(alert,this);
     }
-    
+
+    private void showWikipediaStrokeFiles() throws Exception
+    {
+		final String fileURL = "file:///e:/wikipedia_stroke";
+        String sMsg = "Contents of " + fileURL + Constants.NEWLINE;
+		FileConnection fc = (FileConnection)Connector.open(fileURL);
+		
+		// Include hidden files.
+		System.out.println("List of files and directories under " + fileURL);
+		Enumeration filelist = fc.list("*", true);
+		int iCount = 0;
+		while(filelist.hasMoreElements() && ((iCount++)<3)   )
+		{
+		    String fileName = (String) filelist.nextElement();
+		    System.out.println(fileName);
+		    sMsg += fileName + Constants.NEWLINE;
+		    
+		    try {
+		    	String fullURL = fileURL + "/" + fileName;
+	        	sMsg += fullURL + Constants.NEWLINE;
+	        	InputStream is =
+	        		FileConnectionHelpers.openFileInputStream(fullURL);        	
+	            DataInputStream dis = new DataInputStream(is);
+	        	int b = dis.read();
+	        	dis.close();
+	        	is.close();
+	        	sMsg += "Opened ok" + Constants.NEWLINE;
+		    }
+		    catch (Exception e) {
+		    	sMsg += "Opening: " + e.toString() + Constants.NEWLINE;
+		    }
+		}   
+		fc.close();
+
+		Alert alert = new Alert(null, sMsg, null, null);
+		alert.setTimeout(Alert.FOREVER);
+        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+    }
+
+    private void showRootFileURLs() throws Exception
+    {
+    	Hashtable filenamesToURLs =
+    		FileConnectionHelpers.getAllFilenamesInRootDirs("*");
+    	Enumeration enm = filenamesToURLs.elements();
+    	String sMsg = "";
+    	while (enm.hasMoreElements())
+    	{
+    		String url = (String)enm.nextElement();
+		    sMsg += url + Constants.NEWLINE;
+    	}
+		Alert alert = new Alert(null, sMsg, null, null);
+		alert.setTimeout(Alert.FOREVER);
+        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+    }
+
     /**Since:
     "Warning: To avoid potential deadlock, operations that may block, such as
     networking, should be performed in a different thread than the
@@ -648,6 +718,14 @@ implements CommandListener,Excludable,Runnable
             else if (m_sThreadAction.equals(SHOW_FILES_AND_DIRS_UNDER_FILESYSTEM_ROOTS))
             {
                 showRootFilesAndDirs();
+            }
+            else if (m_sThreadAction.equals(SHOW_WIKIPEDIA_STROKE_FILES))
+            {
+                showWikipediaStrokeFiles();
+            }
+            else if (m_sThreadAction.equals(SHOW_ROOT_FILE_URLS))
+            {
+                showRootFileURLs();
             }
             else if (m_sThreadAction.equals(SAVE_ALL_TESTS_TO_FILESYSTEM))
             {

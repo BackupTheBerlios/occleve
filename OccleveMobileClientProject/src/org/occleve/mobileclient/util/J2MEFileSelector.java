@@ -118,8 +118,9 @@ implements CommandListener,Runnable
     {
     	append(UP_SYMBOL,null);
     	
-		FileConnection fc = (FileConnection)
-		Connector.open("file:///" + m_sCurrentPath);
+		FileConnection fc =
+			(FileConnection)Connector.open("file:///" + m_sCurrentPath,
+				Connector.READ);
 		
 		// Include hidden files.
 		System.out.println("List of files and directories under " + m_sCurrentPath);

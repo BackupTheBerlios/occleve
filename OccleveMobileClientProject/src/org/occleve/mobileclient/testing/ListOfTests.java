@@ -226,7 +226,7 @@ public class ListOfTests
     	
     	// Make sure the progress alert is still visible (the phone's own
     	// security popup for JSR75 access might have displaced it).
-        OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
+        if (progressAlert!=null) OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
     	
 		Enumeration filelist = filenamesToURLs.keys();
 		while(filelist.hasMoreElements())

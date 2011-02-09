@@ -108,7 +108,6 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
         addPromptAndField("Restart if score below:",
         		m_RestartOnPercentageBelowTextField,"0");
         
-		///Display.init(OccleveMobileMidlet.getInstance());
 		///show();
     }
 
@@ -224,7 +223,6 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
     	}
     	
         OccleveMobileMidlet.getInstance().setCurrentForm(this);
-		/////Display.init(OccleveMobileMidlet.getInstance());
 		show();
 
 		/*

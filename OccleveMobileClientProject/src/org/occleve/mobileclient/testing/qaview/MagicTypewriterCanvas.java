@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-10  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.4
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.testing.qaview;
@@ -25,9 +25,7 @@ package org.occleve.mobileclient.testing.qaview;
 import javax.microedition.lcdui.*;
 import javax.microedition.lcdui.game.*;
 import java.util.*;
-
 import org.occleve.mobileclient.*;
-////import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
 
 public class MagicTypewriterCanvas extends GameCanvas
@@ -110,7 +108,13 @@ implements QuestionView
         // If it won't encroach on the QA, display current score along the bottom.
         if (y < iFooterY)
         {
-            String sScoreEtc = mtc.getTestController().getCurrentScore();
+        	// 0.9.10 - also show memory/thread stats
+        	String sScoreEtc = mtc.getTestController().getCurrentScore();
+            Runtime rt = Runtime.getRuntime();
+        	sScoreEtc = "" + (rt.freeMemory()/1000) + "/" +
+        		(rt.totalMemory()/1000) + "k " +
+        		Thread.activeCount() + " " +
+        		sScoreEtc; 
             printString(sScoreEtc, g, iFooterY);
         }
 

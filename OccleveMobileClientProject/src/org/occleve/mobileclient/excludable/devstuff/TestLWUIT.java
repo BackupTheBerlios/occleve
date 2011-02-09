@@ -32,11 +32,11 @@ public class TestLWUIT
 {
 	public void display()
 	{
-		Display.init(OccleveMobileMidlet.getInstance());
 		Form f = new Form();
 		f.setTitle("Hello world");
 		f.setLayout(new BorderLayout());
 		f.addComponent("Center",new Label("I am a label"));
 		f.show();
+		OccleveMobileMidlet.getInstance().setCurrentForm(f);
 	}
 }

@@ -25,12 +25,25 @@ package org.occleve.mobileclient.qa;
 import java.util.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.languageentity.LanguageEntity;
+
+import com.exploringxml.xml.Node;
+
 import javax.microedition.lcdui.*;
 
 public class PlainQA extends QA
 {
     protected String m_sQuestion;
     protected String m_sAnswer;
+
+    public PlainQA(Node qaNode) throws Exception
+    {
+        Node questionNode = qaNode.findFirst("Q");
+        Node answerNode = qaNode.findFirst("A");
+
+        m_sQuestion = qaNode.getCharacters();
+        m_sAnswer = answerNode.getCharacters();
+    }
 
     public PlainQA(String sQuestion,String sAnswer)
     {
@@ -95,7 +108,6 @@ public class PlainQA extends QA
         return v;
     }
 
-    //////public Vector getNextPossibleChars()
     public Vector getMatchingLastLinesUpToNextTestableChars()
     {
         Vector vPRA = getAnswer();

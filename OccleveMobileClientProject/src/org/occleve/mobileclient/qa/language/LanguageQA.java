@@ -505,7 +505,7 @@ public class LanguageQA extends QA
     /**For ease of switching trace output on and off.*/
     private void trace(String s)
     {
-        ////////System.out.println(s);
+    	// System.out.println(s);
     }
 
     /**Tests whether the question and answer fields specified by the QADirection
