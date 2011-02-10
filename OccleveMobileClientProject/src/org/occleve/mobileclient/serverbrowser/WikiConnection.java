@@ -224,7 +224,7 @@ public class WikiConnection
 
             String sMsg = "Loaded " + iOffset + " of " + iBufferSize + " bytes";
             
-            progressAlert.setString(sMsg);
+            if (progressAlert!=null) progressAlert.setString(sMsg);
             
             if (iBufferSize==-1)
             	bContinue = (iBytesRead!=-1);
@@ -259,7 +259,7 @@ public class WikiConnection
         		if (iBytesRead%100 == 0)
         		{
 	                String sMsg = "Loaded " + iBytesRead + " bytes";
-	                progressAlert.setString(sMsg);
+	                if (progressAlert!=null) progressAlert.setString(sMsg);
         		}
         	}
         } while (b!=-1);
