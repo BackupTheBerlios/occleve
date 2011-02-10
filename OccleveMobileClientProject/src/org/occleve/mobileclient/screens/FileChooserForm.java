@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-2010  Joe Gittings
+Copyright (C) 2007-2011  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ import com.sun.lwuit.*; // TO DO - remove this import
 import org.occleve.aml.*;
 
 import org.occleve.mobileclient.*;
-import org.occleve.mobileclient.dictionary.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
@@ -74,7 +73,6 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     protected AMLCommand m_DownloadQuizzesCommand;
     
     protected AMLCommand m_ConnectionTroubleshooterCommand;  // 0.9.7
-    protected AMLCommand m_DictionaryCommand;  // 0.9.7
     protected AMLCommand m_TestCommand;
     protected AMLCommand m_ViewCommand;
     protected AMLCommand m_RedownloadCommand;
@@ -116,7 +114,6 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
 
         	m_ConnectionTroubleshooterCommand =
         		fy.makeCommand("Test connection"); // 0.9.7
-            m_DictionaryCommand = fy.makeCommand("Dictionary"); // 0.9.7
             m_TestCommand = fy.makeCommand("Test");
             m_ViewCommand = fy.makeCommand("View");
             m_RedownloadCommand = fy.makeCommand("Redownload");
@@ -225,11 +222,6 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
         else if (c==m_ShowLicenseCommand)
         {
             OccleveMobileMidlet.getInstance().setCurrentForm(new ShowGPLForm(),true);
-        }
-        else if (c==m_DictionaryCommand)
-        {
-        	DictionaryBrowser dictBrowser = new DictionaryBrowser();
-            /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
         }
         else if (c==m_ConnectionTroubleshooterCommand)
         {
