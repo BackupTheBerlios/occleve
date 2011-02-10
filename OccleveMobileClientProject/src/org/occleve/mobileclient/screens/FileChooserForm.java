@@ -22,9 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
-import com.sun.lwuit.*;
-import com.sun.lwuit.layouts.*;
-import com.sun.lwuit.list.*;
+import com.sun.lwuit.*; // TO DO - remove this import
 
 import org.occleve.aml.*;
 
@@ -84,20 +82,6 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     protected AMLCommand m_DevStuffScreenCommand;
     protected AMLCommand m_ShowLicenseCommand;
     protected CommonCommands m_CommonCommands;
-
-    // 0.9.6 - remove the Edit and Rapid Add commands - those functions aren't
-    // working anyway, and they're confusing users.
-    //protected Command m_EditCommand;
-    //protected Command m_RapidAddCommand;
-    
-    /* private class InnerList extends List
-    {
-        public boolean isScrollableX() {return false;}
-        public boolean isScrollableY() {return true;}
-
-        //public int getPreferredH() {return getParent().getHeight();}        
-        //public int getPreferredW() {return getParent().getWidth();}
-    } */
     
     public FileChooserForm(boolean bAddCommands) throws Exception
     {
@@ -140,7 +124,7 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
             m_DevStuffScreenCommand = fy.makeCommand("Dev stuff");
             m_ShowLicenseCommand = fy.makeCommand("Show license");
 
-            // Disabled in 0.9.6 - see earlier comment
+            // Disabled since 0.9.6
             //m_EditCommand = new Command("Edit");
             //m_RapidAddCommand = new Command("Rapid add");
 
@@ -150,18 +134,13 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
 
             m_Form.addCommand(m_DevStuffScreenCommand);
             m_Form.addCommand(m_ShowLicenseCommand);
-            ///////m_Form.addCommand(m_DictionaryCommand); // 0.9.7
-            m_Form.addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
+            m_Form.addCommand(m_ConnectionTroubleshooterCommand);
 
 /// TO DO TO DO            // m_CommonCommands.addToForm(this);
             m_Form.addCommand(m_SearchAllTestsCommand);
             m_Form.addCommand(m_RedownloadCommand);
-            m_Form.addCommand(m_DownloadQuizzesCommand); // 0.9.6
+            m_Form.addCommand(m_DownloadQuizzesCommand);
             m_Form.addCommand(m_ViewCommand);            
-
-            // Disabled in 0.9.6 - see earlier comment
-            //m_Form.addCommand(m_EditCommand);
-            //m_Form.addCommand(m_RapidAddCommand);
         }
 
         populateWithFilenames();
@@ -303,18 +282,6 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
             SearchAllFilesForm saff = new SearchAllFilesForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(saff);
         }
-        /*
-        // Disabled in 0.9.6 - see earlier comment
-        else if (c==m_EditCommand)
-        {
-            Screen returnTo = this;
-            ExcludableHooks.editQA(entry,null,returnTo);
-        }
-        else if (c==m_RapidAddCommand)
-        {
-            ExcludableHooks.displayRapidAdd(entry);
-        }
-        */
         else
         {
 /// TO DO TO DO        	//// m_CommonCommands.actionCommand(c);
@@ -356,8 +323,6 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
        if (theTest.getQACount()==0)
        {
            Dialog alert = new Dialog(Constants.EMPTY_QUIZ_MSG);
-           //alert.setTimeout(Alert.FOREVER);
-           //OccleveMobileMidlet.getInstance().displayAlert(alert,this);
            alert.show();
            return;
        }
@@ -381,14 +346,12 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     {
         /*
         FilenameItem fi = (FilenameItem)get(0);
-
         final int iItemCount = size();
         for (int i=0; i<iItemCount; i++)
         {
             fi = (FilenameItem)get(i);
             if (fi.getFilename().charAt(0) == cJumpToThis) break;
         }
-
         Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(fi);
         */
     }
