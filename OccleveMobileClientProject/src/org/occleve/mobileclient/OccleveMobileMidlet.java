@@ -27,6 +27,8 @@ import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.*;
 
+import org.occleve.aml.*;
+import org.occleve.aml.lwuit.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
@@ -93,6 +95,7 @@ implements CommandListener,Runnable
 	{
 		System.out.println("Entering startApp_Inner()");
 
+		OccleveAppCore.getInstance().setAMLFactory( new AMLFactoryLWUIT() );
 		// showSplashScreen();
 
 		initializeLWUITDisplay();
@@ -100,7 +103,7 @@ implements CommandListener,Runnable
 
 		m_FileChooserForm = new FileChooserForm(true);
 		System.out.println("Constructed FileChooserForm");		
-		setCurrentForm(m_FileChooserForm);
+		setCurrentForm(m_FileChooserForm.getForm());
 	}
 
 	public void showSplashScreen() throws Exception
@@ -151,12 +154,17 @@ implements CommandListener,Runnable
     		
     		m_FileChooserForm.setVisible(false);
         }
-        else
+        else if (form instanceof com.sun.lwuit.Form)
         {
         	if (!m_bLWUITDisplayInitialized) initializeLWUITDisplay();
         	
     		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)form;
     		lwuitForm.show();
+        }
+        else
+        {
+        	System.err.println("Invalid form type passed to setCurrentForm(): class=" +
+        		form.getClass());
         }
     }
 

@@ -26,6 +26,8 @@ import com.sun.lwuit.*;
 import com.sun.lwuit.layouts.*;
 import com.sun.lwuit.list.*;
 
+import org.occleve.aml.*;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.dictionary.*;
 import org.occleve.mobileclient.qa.*;
@@ -39,9 +41,12 @@ import org.occleve.mobileclient.testing.test.*;
 
 /**The main screen of the application: lists the quizzes currently stored in the
 phone, and allows the user to select a quiz for testing or viewing.*/
-public class FileChooserForm extends Form implements Runnable
+public class FileChooserForm implements AMLCommandHandler,Runnable
 {
-	protected List m_List = new InnerList();
+	protected AMLForm m_Form;
+	public AMLForm getForm() {return m_Form;}
+	
+	protected AMLList m_List;
 	
 	protected ListOfTests m_ListOfTests;
 
@@ -68,16 +73,16 @@ public class FileChooserForm extends Form implements Runnable
 
     /**An intermediate screen on which the user chooses
     which source to download quizzes from.*/
-    protected Command m_DownloadQuizzesCommand;
+    protected AMLCommand m_DownloadQuizzesCommand;
     
-    protected Command m_ConnectionTroubleshooterCommand;  // 0.9.7
-    protected Command m_DictionaryCommand;  // 0.9.7
-    protected Command m_TestCommand;
-    protected Command m_ViewCommand;
-    protected Command m_RedownloadCommand;
-    protected Command m_SearchAllTestsCommand;
-    protected Command m_DevStuffScreenCommand;
-    protected Command m_ShowLicenseCommand;
+    protected AMLCommand m_ConnectionTroubleshooterCommand;  // 0.9.7
+    protected AMLCommand m_DictionaryCommand;  // 0.9.7
+    protected AMLCommand m_TestCommand;
+    protected AMLCommand m_ViewCommand;
+    protected AMLCommand m_RedownloadCommand;
+    protected AMLCommand m_SearchAllTestsCommand;
+    protected AMLCommand m_DevStuffScreenCommand;
+    protected AMLCommand m_ShowLicenseCommand;
     protected CommonCommands m_CommonCommands;
 
     // 0.9.6 - remove the Edit and Rapid Add commands - those functions aren't
@@ -85,49 +90,55 @@ public class FileChooserForm extends Form implements Runnable
     //protected Command m_EditCommand;
     //protected Command m_RapidAddCommand;
     
-    private class InnerList extends List
+    /* private class InnerList extends List
     {
         public boolean isScrollableX() {return false;}
         public boolean isScrollableY() {return true;}
 
         //public int getPreferredH() {return getParent().getHeight();}        
         //public int getPreferredW() {return getParent().getWidth();}
-    }
+    } */
     
     public FileChooserForm(boolean bAddCommands) throws Exception
     {
         super();
-        setScrollable(false); // Otherwise the List won't scroll.
+        
+        m_Form = OccleveAppCore.getInstance().getAMLFactory().makeForm();
+        m_Form.setCommandHandler(this);
+        m_List = OccleveAppCore.getInstance().getAMLFactory().makeList();
+        
+        m_Form.setScrollable(false); // Otherwise the List won't scroll.
         
     	//Image logoImage = StaticHelpers.loadOccleveLogo();
     	//setBgImage(logoImage);
 
-        setLayout(new BorderLayout());
-        addComponent(BorderLayout.CENTER,m_List);
+        //setLayout(new BorderLayout());
+        //addComponent(BorderLayout.CENTER,(List)m_List);
+        m_Form.addComponent((List)m_List);
         
         // Don't display a number next to each item in the list.
-        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
-        renderer.setShowNumbers(false);
-        m_List.setListCellRenderer(renderer);
-
+        // DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        // renderer.setShowNumbers(false);
+        // m_List.setListCellRenderer(renderer);
         // June 2010 - this is just annoying on slow phones
-        m_List.setSmoothScrolling(false);
-        
-        m_List.setItemGap(0);
+        // m_List.setSmoothScrolling(false);        
+        // m_List.setItemGap(0);
 
         if (bAddCommands)
         {
-        	m_DownloadQuizzesCommand = new Command("Download quizzes");
+        	AMLFactory fy = OccleveAppCore.getInstance().getAMLFactory();
+        	
+        	m_DownloadQuizzesCommand = fy.makeCommand("Download quizzes");
 
         	m_ConnectionTroubleshooterCommand =
-        		new Command("Test connection"); // 0.9.7
-            m_DictionaryCommand = new Command("Dictionary"); // 0.9.7
-            m_TestCommand = new Command("Test");
-            m_ViewCommand = new Command("View");
-            m_RedownloadCommand = new Command("Redownload");
-            m_SearchAllTestsCommand = new Command("Search all tests");
-            m_DevStuffScreenCommand = new Command("Dev stuff");
-            m_ShowLicenseCommand = new Command("Show license");
+        		fy.makeCommand("Test connection"); // 0.9.7
+            m_DictionaryCommand = fy.makeCommand("Dictionary"); // 0.9.7
+            m_TestCommand = fy.makeCommand("Test");
+            m_ViewCommand = fy.makeCommand("View");
+            m_RedownloadCommand = fy.makeCommand("Redownload");
+            m_SearchAllTestsCommand = fy.makeCommand("Search all tests");
+            m_DevStuffScreenCommand = fy.makeCommand("Dev stuff");
+            m_ShowLicenseCommand = fy.makeCommand("Show license");
 
             // Disabled in 0.9.6 - see earlier comment
             //m_EditCommand = new Command("Edit");
@@ -135,22 +146,22 @@ public class FileChooserForm extends Form implements Runnable
 
             m_CommonCommands = new CommonCommands();
 
-            addCommand(m_TestCommand);
+            m_Form.addCommand(m_TestCommand);
 
-            addCommand(m_DevStuffScreenCommand);
-            addCommand(m_ShowLicenseCommand);
-            ///////addCommand(m_DictionaryCommand); // 0.9.7
-            addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
+            m_Form.addCommand(m_DevStuffScreenCommand);
+            m_Form.addCommand(m_ShowLicenseCommand);
+            ///////m_Form.addCommand(m_DictionaryCommand); // 0.9.7
+            m_Form.addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
 
-            m_CommonCommands.addToForm(this);
-            addCommand(m_SearchAllTestsCommand);
-            addCommand(m_RedownloadCommand);
-            addCommand(m_DownloadQuizzesCommand); // 0.9.6
-            addCommand(m_ViewCommand);            
+/// TO DO TO DO            // m_CommonCommands.addToForm(this);
+            m_Form.addCommand(m_SearchAllTestsCommand);
+            m_Form.addCommand(m_RedownloadCommand);
+            m_Form.addCommand(m_DownloadQuizzesCommand); // 0.9.6
+            m_Form.addCommand(m_ViewCommand);            
 
             // Disabled in 0.9.6 - see earlier comment
-            //addCommand(m_EditCommand);
-            //addCommand(m_RapidAddCommand);
+            //m_Form.addCommand(m_EditCommand);
+            //m_Form.addCommand(m_RapidAddCommand);
         }
 
         populateWithFilenames();
@@ -160,7 +171,7 @@ public class FileChooserForm extends Form implements Runnable
         m_SimpleTestOptionsScreen = new SimpleTestOptionsScreen();
         m_ChineseTestOptionsScreen = new ChineseTestOptionsScreen();
         
-        OccleveMobileMidlet.getInstance().setCurrentForm(this);
+        OccleveMobileMidlet.getInstance().setCurrentForm(m_Form);
     }
 
     public void populateWithFilenames() throws Exception
@@ -168,8 +179,9 @@ public class FileChooserForm extends Form implements Runnable
     	System.out.println("Entering populateWithFilenames");
     	    	
     	// Clear out the existing items in this form, if any.
-        DefaultListModel model = new DefaultListModel();
-        m_List.setModel(model);
+    	m_List.clear();
+        // DefaultListModel model = new DefaultListModel();
+        // m_List.setModel(model);
 
         m_ListOfTests = new ListOfTests(null); // LWUIT-TO-DO alt);
 
@@ -195,19 +207,16 @@ public class FileChooserForm extends Form implements Runnable
     }
 
     /*Implementation of CommandListener.*/
-    public void actionCommand(Command c)
+    public void actionCommand(AMLCommand c)
     {
+    	System.out.println("ACTION COMMAND");
+    	
         try
         {
-        	// LWUIT-TO-DO - reenable later
-        	/*
-            if (m_ExternalCommandListener!=null)
-            {
-                m_ExternalCommandListener.commandAction(c,d);
-            }
-            */
+        	// TO-DO - reenable
+            // if (m_ExternalCommandListener!=null) m_ExternalCommandListener.commandAction(c,d);
 
-            commandAction_Inner(c);
+            actionCommand_Inner(c);
         }
         catch (Exception e)
         {
@@ -216,7 +225,7 @@ public class FileChooserForm extends Form implements Runnable
     }
 
     /*Subfunction for code clarity.*/
-    public void commandAction_Inner(Command c) throws Exception
+    public void actionCommand_Inner(AMLCommand c) throws Exception
     {
         ListOfTestsEntry entry;
         if (m_ListOfTests.getSize()==0)
@@ -308,7 +317,7 @@ public class FileChooserForm extends Form implements Runnable
         */
         else
         {
-        	m_CommonCommands.actionCommand(c);
+/// TO DO TO DO        	//// m_CommonCommands.actionCommand(c);
 
         	// Could be an external command so don't object if the command
             // is unknown.
@@ -412,5 +421,7 @@ public class FileChooserForm extends Form implements Runnable
 
         browser.startDownloadingTest(entry.getFilename(),this);
     }
+    
+    public void setVisible(boolean bVisible) {m_Form.setVisible(bVisible);}
 }
 
