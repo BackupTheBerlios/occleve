@@ -24,13 +24,23 @@ package org.occleve.mobileclient.qa;
 
 import java.util.*;
 
+import javax.microedition.io.Connector;
+import javax.microedition.io.HttpConnection;
+
 import com.exploringxml.xml.*;
+
+import org.occleve.mobileclient.OccleveMobileMidlet;
+import org.occleve.mobileclient.util.*;
+import org.occleve.mobileclient.serverbrowser.*;
 
 /**QA which can be used to generate many variants on a given type of
 mathematical question.
 The solutions are calculated by a Sage server.*/
-public class SageQA extends QA
+public class SageQA extends QA implements Runnable
 {
+	/**localhost while still under dev.*/
+	public static String SAGE_SERVER_URL = "http://localhost:8000";
+	
 	protected String m_Desc;
 	protected String m_Problem;
 	protected Vector m_Vars = new Vector();
@@ -140,22 +150,65 @@ public class SageQA extends QA
     
     public Vector getAnswer()
     {
-    	return m_Solutions;
-    	
     	// These are not evaluated until the user is asked the question.
     	// Otherwise the quiz would take a long time to load with
-    	// all the trips to the server
-    	/* if (m_EvaluatedSolutions==null)
+    	// all the round trips to the Sage server
+    	if (m_EvaluatedSolutions==null)
     	{
-    		
+    		new Thread(this).run();
+
+    		do
+    		{
+    			try {Thread.sleep(500);} catch (Exception e) {}
+    		} while (m_EvaluatedSolutions==null);
     	}
-    	return m_EvaluatedSolutions; */
+    	return m_EvaluatedSolutions;
+    }
+
+    /**Implementation of Runnable.*/
+    public void run()
+    {
+    	try
+    	{
+    		evaluateSolutions();
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+    }
+
+    protected void evaluateSolutions() throws Exception
+    {
+    	Vector evaluatedSolns = new Vector();
+    	
+    	for (int i=0; i<m_Solutions.size(); i++)
+    	{
+    		String toEval = (String)m_Solutions.elementAt(i);
+        	String encoded = URLEncoder.encode(toEval, "UTF-8");
+        	
+        	// String sURL = this.SAGE_SERVER_URL + "/eval?code=" + encoded;
+        	String sURL = this.SAGE_SERVER_URL + "/eval?code=x^2";
+        	trace("EVALUATING " + sURL);
+        	
+        	WikiConnection wc = new WikiConnection();
+        	byte[] bytes = wc.readAllBytes(sURL, null, true);
+        	wc.close();
+        	String evaluated = new String(bytes);
+        	trace("EVALUATED SOLN=" + evaluated);        	
+    	}
+    	
+    	m_EvaluatedSolutions = evaluatedSolns;
     }
     
     public Vector getMatchingLastLinesUpToNextTestableChars()
     {
         Vector vLastLines = new Vector();
 
+        trace("m_vAnswerFragment=" + m_vAnswerFragment);
+        trace("m_vAnswerFragment.size=" + m_vAnswerFragment.size());
+        trace("m_vUnansweredLines=" + m_vUnansweredLines);
+        trace("m_vUnansweredLines.size=" + m_vUnansweredLines.size());
+
+        if (m_vAnswerFragment.size()==0) return m_vUnansweredLines;
+        
         String sLastLine = (String)m_vAnswerFragment.lastElement();
         Enumeration e = m_vUnansweredLines.elements();
         while (e.hasMoreElements())
