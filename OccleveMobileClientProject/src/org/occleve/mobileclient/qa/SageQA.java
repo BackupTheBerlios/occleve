@@ -169,9 +169,7 @@ public class SageQA extends QA implements Runnable
     		System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
     	}
 
-    	Vector copy = new Vector();
-    	for (int i=0; i<m_EvaluatedSolutions.size(); i++) copy.addElement(m_EvaluatedSolutions.elementAt(i));
-    	return copy;
+    	return m_EvaluatedSolutions;
     }
 
     /**Implementation of Runnable.*/
