@@ -23,7 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
-
 import org.occleve.mobileclient.*;
 
 /**
@@ -64,16 +63,13 @@ public abstract class QA
     }
 
     /**Returns a Vector of Character objects.*/
-    ///////public abstract Vector getNextPossibleChars();
     public abstract Vector getMatchingLastLinesUpToNextTestableChars();
     
     public abstract boolean containsString(String s);
 
     /**Gets this ready for use in testing: clears the answer fragment, and so on.*/
     public void initialize(QADirection dir)
-    {
-    	System.out.println("Entering QA.initialize...");
-    	
+    {    	
         m_QADirection = dir;
 
         m_vAnswerFragment = new Vector();
@@ -95,14 +91,6 @@ public abstract class QA
         return sb.toString();
     }
 
-    /*
-    public String getQuestionAsString()
-    {
-        Vector v = getQuestion();
-        return vectorToString(v);
-    }
-    */
-
     public String getAnswerAsString()
     {
         Vector v = getAnswer();
@@ -112,13 +100,10 @@ public abstract class QA
     /**Returns true if *all* the next possible chars are non-ASCII.*/
     public boolean nextPossibleCharsAreUnicode()
     {
-        ////Vector v = getNextPossibleChars();
         Vector v = getMatchingLastLinesUpToNextTestableChars();
         Enumeration e = v.elements();
         while (e.hasMoreElements())
         {
-            ////Character cObj = (Character)e.nextElement();
-            ////char c = cObj.charValue();
         	String sFragment = (String)e.nextElement();
         	char c = sFragment.charAt(sFragment.length()-1);
         	
@@ -131,53 +116,19 @@ public abstract class QA
     public int getNextPossibleCharsCount()
     {
     	return getMatchingLastLinesUpToNextTestableChars().size();
-        /////return getNextPossibleChars().size();
     }
 
     /**Adds the specified character to the answer fragment.
     If this means the current line has been fully answered, remove it from
     the list of untyped answer lines.*/
-    ////public void appendToAnswerFragment(char cAppendMe)
     public void setAnswerFragmentLastLine(String sSetToThis)
     throws Exception
     {
-        //System.out.println("Entering appendToAnswerFragment with char='" + cAppendMe + "'");
-
         // Sanity check: first make sure that the character being appended
         // is one of the allowed ones.
     	// 0.9.6 - DISABLE THIS SANITY CHECKING FOR NOW........
 
-    	/*
-        Vector v = getNextPossibleChars();
-        Enumeration e = v.elements();
-        boolean bFoundMatch = false;
-        while (e.hasMoreElements())
-        {
-            Character c = (Character)e.nextElement();
-            if (c.charValue()==cAppendMe)
-            {
-                bFoundMatch = true;
-            }
-        }
-        if (bFoundMatch==false)
-        {
-            String sMsg =
-               "QA.appendToAnswerFragment(): supplied character '" + cAppendMe +
-               "' doesn't match any " +
-               "of the possible next characters. These are: ";
-            for (int i=0; i<v.size(); i++)
-            {
-                Character c = (Character)v.elementAt(i);
-                sMsg += " " + c;
-            }
-            throw new Exception(sMsg);
-        }
-        // The supplied character is allowable, so append it to the answer fragment.
-        */
-
         Vector vAnswerFragment = getAnswerFragment();
-        ///String sLastLine = (String)vAnswerFragment.lastElement();
-        ////sLastLine += cAppendMe;
         int iLastIndex = vAnswerFragment.size() - 1;
         vAnswerFragment.setElementAt(sSetToThis,iLastIndex);
 
@@ -230,7 +181,7 @@ public abstract class QA
     	return true;
     }
 
-    /**New in 0.9.6 - returns all the unanswered lines which begin with the current
+    /**Return all the unanswered lines which begin with the current
     last line of the answer fragment.*/
     public Vector getMatchingUnansweredLines()
     {
