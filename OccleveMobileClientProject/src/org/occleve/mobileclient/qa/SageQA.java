@@ -58,13 +58,13 @@ public class SageQA extends QA implements Runnable
 		public Var(Node varNode)
 		{
         	boolean isInt = (varNode.name.equals("RandomInt"));
-        	String m_Name = (String)varNode.attributes.get("Name");
+        	m_Name = (String)varNode.attributes.get("Name");
 
         	String min = (String)varNode.attributes.get("Min");
-        	double m_Min = Double.parseDouble(min);
+        	m_Min = Double.parseDouble(min);
         	
         	String max = (String)varNode.attributes.get("Max");            	
-        	double m_Max = Double.parseDouble(max);
+        	m_Max = Double.parseDouble(max);
 
         	trace("Parsed var " + m_Name + " min=" + m_Min + " max=" + m_Max);
 						
@@ -153,7 +153,11 @@ public class SageQA extends QA implements Runnable
     	// These are not evaluated until the user is asked the question.
     	// Otherwise the quiz would take a long time to load with
     	// all the round trips to the Sage server
-    	if (m_EvaluatedSolutions==null)
+    	if (m_EvaluatedSolutions!=null)
+    	{
+    		System.out.println("Existing evaluated solutions size=" + m_EvaluatedSolutions.size());
+    	}
+    	else
     	{
     		new Thread(this).run();
 
@@ -161,8 +165,13 @@ public class SageQA extends QA implements Runnable
     		{
     			try {Thread.sleep(500);} catch (Exception e) {}
     		} while (m_EvaluatedSolutions==null);
+    		
+    		System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
     	}
-    	return m_EvaluatedSolutions;
+
+    	Vector copy = new Vector();
+    	for (int i=0; i<m_EvaluatedSolutions.size(); i++) copy.addElement(m_EvaluatedSolutions.elementAt(i));
+    	return copy;
     }
 
     /**Implementation of Runnable.*/
@@ -184,15 +193,17 @@ public class SageQA extends QA implements Runnable
     		String toEval = (String)m_Solutions.elementAt(i);
         	String encoded = URLEncoder.encode(toEval, "UTF-8");
         	
-        	// String sURL = this.SAGE_SERVER_URL + "/eval?code=" + encoded;
-        	String sURL = this.SAGE_SERVER_URL + "/eval?code=x^2";
+        	String sURL = this.SAGE_SERVER_URL + "/eval?code=" + encoded;
+        	//// String sURL = this.SAGE_SERVER_URL + "/eval?code=x^2";
         	trace("EVALUATING " + sURL);
         	
         	WikiConnection wc = new WikiConnection();
         	byte[] bytes = wc.readAllBytes(sURL, null, true);
         	wc.close();
         	String evaluated = new String(bytes);
-        	trace("EVALUATED SOLN=" + evaluated);        	
+        	trace("EVALUATED SOLN=" + evaluated);
+        	
+        	evaluatedSolns.addElement(evaluated);
     	}
     	
     	m_EvaluatedSolutions = evaluatedSolns;
@@ -227,7 +238,6 @@ public class SageQA extends QA implements Runnable
 
     private void trace(String s)
     {
-    	System.out.println(s);
+    	//// System.out.println(s);
     }
-
 }

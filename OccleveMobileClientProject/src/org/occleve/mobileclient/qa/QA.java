@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.qa;
@@ -72,6 +72,8 @@ public abstract class QA
     /**Gets this ready for use in testing: clears the answer fragment, and so on.*/
     public void initialize(QADirection dir)
     {
+    	System.out.println("Entering QA.initialize...");
+    	
         m_QADirection = dir;
 
         m_vAnswerFragment = new Vector();
@@ -209,7 +211,7 @@ public abstract class QA
     {
         Vector answer = getAnswer();
         Vector fragment = getAnswerFragment();
-
+        
         if (   fragment.size()!=answer.size()   ) return false;
 
         for (int i=0; i<answer.size(); i++)
@@ -232,21 +234,25 @@ public abstract class QA
     last line of the answer fragment.*/
     public Vector getMatchingUnansweredLines()
     {
-        Vector vMatchingUAL = new Vector();
-
-        String sLastLine = (String)m_vAnswerFragment.lastElement();
-        Enumeration e = m_vUnansweredLines.elements();
-        while (e.hasMoreElements())
-        {
-            String sUnansweredLine = (String)e.nextElement();
-            if (sUnansweredLine.startsWith(sLastLine))
-            {
-                vMatchingUAL.addElement(sUnansweredLine);
-            }
-        }
-
-        return vMatchingUAL;
+		if (m_vAnswerFragment.size()==0)
+		{
+			return m_vUnansweredLines;
+		}
+		else
+		{
+	        Vector vMatchingUAL = new Vector();
+	        String sLastLine = (String)m_vAnswerFragment.lastElement();
+	        Enumeration e = m_vUnansweredLines.elements();
+	        while (e.hasMoreElements())
+	        {
+	            String sUnansweredLine = (String)e.nextElement();
+	            if (sUnansweredLine.startsWith(sLastLine))
+	            {
+	                vMatchingUAL.addElement(sUnansweredLine);
+	            }
+	        }
+	        return vMatchingUAL;
+		}
     }
-
 }
 
