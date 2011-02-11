@@ -75,7 +75,12 @@ public abstract class QA
         m_vAnswerFragment = new Vector();
         m_vAnswerFragment.addElement( new String() );
 
-        m_vUnansweredLines = getAnswer();
+        final Vector ans = getAnswer();
+        m_vUnansweredLines = new Vector();
+        for (int i=0; i<ans.size(); i++)
+        {
+        	m_vUnansweredLines.addElement(  ans.elementAt(i)  );
+        }
     }
 
     /**Internal helper function.*/
