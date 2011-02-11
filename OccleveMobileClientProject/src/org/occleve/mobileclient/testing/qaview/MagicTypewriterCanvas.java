@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-10  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -158,6 +158,8 @@ implements QuestionView
 
     protected int printString(String sPrintMe,Graphics g,int iStartY)
     {
+    	if (sPrintMe.length()==0) return iStartY; // Nothing to do
+    	
         int iOffset = 0;
         int iPrintMeLastIndex = sPrintMe.length() - 1;
         int iLineLength;
@@ -172,7 +174,8 @@ implements QuestionView
                 iLineLength++;
 
                 trace("==========================================");
-                trace(sPrintMe);
+                trace("sPrintMe=" + sPrintMe);
+                trace("sPrintMe.length()=" + sPrintMe.length());
                 trace("Calculating width with");
                 trace("iOffset = " + iOffset);
                 trace("iLineLength = " + iLineLength);
@@ -188,7 +191,8 @@ implements QuestionView
                     && bNextIterationWithinStringLength);
 
             trace("==========================================");
-            trace(sPrintMe);
+            trace("sPrintMe=" + sPrintMe);
+            trace("sPrintMe.length()=" + sPrintMe.length());
             trace("Drawing substring with");
             trace("iOffset = " + iOffset);
             trace("iLineLength = " + iLineLength);
@@ -216,7 +220,7 @@ implements QuestionView
 
     private void trace(String s)
     {
-        ///////System.out.println(s);
+        //// System.out.println(s);
     }
 
     /**No need to clone itself.*/
