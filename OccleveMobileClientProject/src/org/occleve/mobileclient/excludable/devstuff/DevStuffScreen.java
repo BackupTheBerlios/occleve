@@ -251,13 +251,20 @@ implements ActionListener,Excludable,Runnable
     public class SageServerTextBox extends Form
     {
     	protected Container m_Parent;
-    	protected TextArea m_TextArea = new TextArea(SageQA.SAGE_SERVER);
+    	protected TextArea m_TextArea = new TextField(SageQA.SAGE_SERVER);
 
         public SageServerTextBox(Container parent) throws Exception
         {
             super("Sage server");
             m_Parent = parent;
             addCommand(new Command("OK"));
+            setLayout(new BorderLayout());
+            addComponent(BorderLayout.CENTER,m_TextArea);
+            m_TextArea.setEditable(true);
+            m_TextArea.setEnabled(true);
+            m_TextArea.requestFocus();
+            m_TextArea.setMaxSize(100);
+            this.setEnabled(true);
         }
 
         public void actionCommand(Command c)
