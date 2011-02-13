@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<pre>
+  <Test>
+
+    <MQA>
+	<Desc>What is the solution x of the following quadratic?</Desc>
+	<Problem>ax^2+bx+c=0</Problem>
+	<RandomInt Name="a" Min="1" Max="200" />
+	<RandomInt Name="b" Min="1" Max="200" />
+	<RandomInt Name="c" Min="1" Max="200" />
+
+	<Solution>N( (-b + sqrt((b^2)-(4*a*c))  ) / (2*a) , digits=4)</Solution>
+	<Solution>N( (-b - sqrt((b^2)-(4*a*c))  ) / (2*a) , digits=4)</Solution>
+    </MQA>
+
+  </Test>
+</pre>
+
