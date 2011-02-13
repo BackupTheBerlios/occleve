@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,6 +31,7 @@ import javax.microedition.io.file.*;
 import javax.microedition.rms.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
@@ -62,6 +63,7 @@ implements CommandListener,Excludable,Runnable
     /**Should be one of the prompt values.*/
     protected String m_sThreadAction;
 
+    protected final String SET_SAGE_SERVER = "Set Sage server address";
     protected final String COUNT_NEWLINES = "Count LFs and CRLFs";
     protected final String CREATE_BACKUP = "Create backup";
     protected final String DELETE_TEST = "Delete test";
@@ -118,6 +120,7 @@ implements CommandListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
+        append(SET_SAGE_SERVER,null);
         append(QUIZ_FILE_MANAGER,null);
         append(MEDIA_FILE_MANAGER,null);
         append(SAVE_ALL_TESTS_TO_FILESYSTEM,null);
@@ -223,10 +226,34 @@ implements CommandListener,Excludable,Runnable
         }
     }
 
+    public class SageServerTextBox extends TextBox implements CommandListener
+    {
+    	protected Displayable m_Parent;
+
+        public SageServerTextBox(Displayable parent) throws Exception
+        {
+            super("Sage server",SageQA.SAGE_SERVER,100,TextField.ANY);
+            m_Parent = parent;
+            addCommand(new Command("OK",Command.OK,0));
+            setCommandListener(this);
+        }
+
+        public void commandAction(Command c,Displayable s)
+        {
+        	SageQA.SAGE_SERVER = this.getString();
+            OccleveMobileMidlet.getInstance().setCurrentForm(m_Parent);        	        	
+        }
+    }
+    
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {        
-        if (sOption.equals(QUIZ_FILE_MANAGER))
+        if (sOption.equals(SET_SAGE_SERVER))
+        {
+        	SageServerTextBox tb = new SageServerTextBox(this);
+            OccleveMobileMidlet.getInstance().setCurrentForm(tb);        	
+        }
+        else if (sOption.equals(QUIZ_FILE_MANAGER))
         {
         	VocabRecordStoreManager quizRsMgr =
         		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();

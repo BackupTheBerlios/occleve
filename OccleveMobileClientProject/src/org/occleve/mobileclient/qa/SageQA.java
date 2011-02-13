@@ -39,7 +39,9 @@ The solutions are calculated by a Sage server.*/
 public class SageQA extends QA implements Runnable
 {
 	/**localhost while still under dev.*/
-	public static String SAGE_SERVER_URL = "http://localhost:8000";
+	public static String SAGE_SERVER = "localhost:8000";
+
+	private static Random gen = new Random(System.currentTimeMillis());
 	
 	protected String m_Desc;
 	protected String m_Problem;
@@ -65,11 +67,8 @@ public class SageQA extends QA implements Runnable
         	
         	String max = (String)varNode.attributes.get("Max");            	
         	m_Max = Double.parseDouble(max);
-
-        	trace("Parsed var " + m_Name + " min=" + m_Min + " max=" + m_Max);
 						
 			double diff = m_Max - m_Min;
-			Random gen = new Random();
 			if (isInt)
 			{
 				m_Value = m_Min + (gen.nextDouble() * diff);
@@ -77,6 +76,10 @@ public class SageQA extends QA implements Runnable
 			}
 			else
 				m_Value = m_Min + (gen.nextDouble() * diff);
+			
+			trace("Parsed var " + m_Name + " min=" + m_Min +
+					" max=" + m_Max + " value=" + m_Value);
+			
 		}
 		
 		public String toString()
@@ -185,21 +188,32 @@ public class SageQA extends QA implements Runnable
     protected void evaluateSolutions() throws Exception
     {
     	Vector evaluatedSolns = new Vector();
-    	
+
+    	for (int i=0; i<m_Vars.size(); i++)
+    	{
+    		Var var = (Var)m_Vars.elementAt(i);
+    		String assign = var.m_Name + "=" + var.m_Value;
+        	String encoded = URLEncoder.encode(assign, "UTF-8");        	
+        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
+        	WikiConnection wc = new WikiConnection();
+        	byte[] bytes = wc.readAllBytes(sURL, null, true);
+        	wc.close();
+        	System.out.println("ASSIGNED VAR: " + var);    		
+    	}
+
     	for (int i=0; i<m_Solutions.size(); i++)
     	{
     		String toEval = (String)m_Solutions.elementAt(i);
         	String encoded = URLEncoder.encode(toEval, "UTF-8");
         	
-        	String sURL = this.SAGE_SERVER_URL + "/eval?code=" + encoded;
-        	//// String sURL = this.SAGE_SERVER_URL + "/eval?code=x^2";
+        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
         	trace("EVALUATING " + sURL);
         	
         	WikiConnection wc = new WikiConnection();
         	byte[] bytes = wc.readAllBytes(sURL, null, true);
         	wc.close();
         	String evaluated = new String(bytes);
-        	trace("EVALUATED SOLN=" + evaluated);
+        	System.out.println("EVALUATED SOLN: " + evaluated);
         	
         	evaluatedSolns.addElement(evaluated);
     	}
