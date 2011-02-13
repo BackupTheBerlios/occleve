@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-2011  Joe Gittings
+Copyright (C) 2007-2010  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,11 +22,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
-import com.sun.lwuit.*; // TO DO - remove this import
-
-import org.occleve.aml.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.list.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.dictionary.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
@@ -38,12 +39,9 @@ import org.occleve.mobileclient.testing.test.*;
 
 /**The main screen of the application: lists the quizzes currently stored in the
 phone, and allows the user to select a quiz for testing or viewing.*/
-public class FileChooserForm implements AMLCommandHandler,Runnable
+public class FileChooserForm extends Form implements Runnable
 {
-	protected AMLForm m_Form;
-	public AMLForm getForm() {return m_Form;}
-	
-	protected AMLList m_List;
+	protected List m_List = new InnerList();
 	
 	protected ListOfTests m_ListOfTests;
 
@@ -70,74 +68,89 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
 
     /**An intermediate screen on which the user chooses
     which source to download quizzes from.*/
-    protected AMLCommand m_DownloadQuizzesCommand;
+    protected Command m_DownloadQuizzesCommand;
     
-    protected AMLCommand m_ConnectionTroubleshooterCommand;  // 0.9.7
-    protected AMLCommand m_TestCommand;
-    protected AMLCommand m_ViewCommand;
-    protected AMLCommand m_RedownloadCommand;
-    protected AMLCommand m_SearchAllTestsCommand;
-    protected AMLCommand m_DevStuffScreenCommand;
-    protected AMLCommand m_ShowLicenseCommand;
+    protected Command m_ConnectionTroubleshooterCommand;  // 0.9.7
+    protected Command m_DictionaryCommand;  // 0.9.7
+    protected Command m_TestCommand;
+    protected Command m_ViewCommand;
+    protected Command m_RedownloadCommand;
+    protected Command m_SearchAllTestsCommand;
+    protected Command m_DevStuffScreenCommand;
+    protected Command m_ShowLicenseCommand;
     protected CommonCommands m_CommonCommands;
+
+    // 0.9.6 - remove the Edit and Rapid Add commands - those functions aren't
+    // working anyway, and they're confusing users.
+    //protected Command m_EditCommand;
+    //protected Command m_RapidAddCommand;
+    
+    private class InnerList extends List
+    {
+        public boolean isScrollableX() {return false;}
+        public boolean isScrollableY() {return true;}
+
+        //public int getPreferredH() {return getParent().getHeight();}        
+        //public int getPreferredW() {return getParent().getWidth();}
+    }
     
     public FileChooserForm(boolean bAddCommands) throws Exception
     {
         super();
-        
-        m_Form = OccleveAppCore.getInstance().getAMLFactory().makeForm();
-        m_Form.setCommandHandler(this);
-        m_List = OccleveAppCore.getInstance().getAMLFactory().makeList();
-        
-        m_Form.setScrollable(false); // Otherwise the List won't scroll.
+        setScrollable(false); // Otherwise the List won't scroll.
         
     	//Image logoImage = StaticHelpers.loadOccleveLogo();
     	//setBgImage(logoImage);
 
-        //setLayout(new BorderLayout());
-        //addComponent(BorderLayout.CENTER,(List)m_List);
-        m_Form.addComponent((List)m_List);
+        setLayout(new BorderLayout());
+        addComponent(BorderLayout.CENTER,m_List);
         
         // Don't display a number next to each item in the list.
-        // DefaultListCellRenderer renderer = new DefaultListCellRenderer();
-        // renderer.setShowNumbers(false);
-        // m_List.setListCellRenderer(renderer);
+        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        renderer.setShowNumbers(false);
+        m_List.setListCellRenderer(renderer);
+
         // June 2010 - this is just annoying on slow phones
-        // m_List.setSmoothScrolling(false);        
-        // m_List.setItemGap(0);
+        m_List.setSmoothScrolling(false);
+        
+        m_List.setItemGap(0);
 
         if (bAddCommands)
         {
-        	AMLFactory fy = OccleveAppCore.getInstance().getAMLFactory();
-        	
-        	m_DownloadQuizzesCommand = fy.makeCommand("Download quizzes");
+        	m_DownloadQuizzesCommand = new Command("Download quizzes");
 
         	m_ConnectionTroubleshooterCommand =
-        		fy.makeCommand("Test connection"); // 0.9.7
-            m_TestCommand = fy.makeCommand("Test");
-            m_ViewCommand = fy.makeCommand("View");
-            m_RedownloadCommand = fy.makeCommand("Redownload");
-            m_SearchAllTestsCommand = fy.makeCommand("Search all tests");
-            m_DevStuffScreenCommand = fy.makeCommand("Dev stuff");
-            m_ShowLicenseCommand = fy.makeCommand("Show license");
+        		new Command("Test connection"); // 0.9.7
+            m_DictionaryCommand = new Command("Dictionary"); // 0.9.7
+            m_TestCommand = new Command("Test");
+            m_ViewCommand = new Command("View");
+            m_RedownloadCommand = new Command("Redownload");
+            m_SearchAllTestsCommand = new Command("Search all tests");
+            m_DevStuffScreenCommand = new Command("Dev stuff");
+            m_ShowLicenseCommand = new Command("Show license");
 
-            // Disabled since 0.9.6
+            // Disabled in 0.9.6 - see earlier comment
             //m_EditCommand = new Command("Edit");
             //m_RapidAddCommand = new Command("Rapid add");
 
             m_CommonCommands = new CommonCommands();
 
-            m_Form.addCommand(m_TestCommand);
+            addCommand(m_TestCommand);
 
-            m_Form.addCommand(m_DevStuffScreenCommand);
-            m_Form.addCommand(m_ShowLicenseCommand);
-            m_Form.addCommand(m_ConnectionTroubleshooterCommand);
+            addCommand(m_DevStuffScreenCommand);
+            addCommand(m_ShowLicenseCommand);
+            ///////addCommand(m_DictionaryCommand); // 0.9.7
+            addCommand(m_ConnectionTroubleshooterCommand); // 0.9.7
 
-/// TO DO TO DO            // m_CommonCommands.addToForm(this);
-            m_Form.addCommand(m_SearchAllTestsCommand);
-            m_Form.addCommand(m_RedownloadCommand);
-            m_Form.addCommand(m_DownloadQuizzesCommand);
-            m_Form.addCommand(m_ViewCommand);            
+            m_CommonCommands.addToForm(this);
+            addCommand(m_SearchAllTestsCommand);
+            addCommand(m_RedownloadCommand);
+            addCommand(m_DownloadQuizzesCommand); // 0.9.6
+            addCommand(m_ViewCommand);            
+
+            // Disabled in 0.9.6 - see earlier comment
+            //addCommand(m_EditCommand);
+            //addCommand(m_RapidAddCommand);
         }
 
         populateWithFilenames();
@@ -147,7 +160,7 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
         m_SimpleTestOptionsScreen = new SimpleTestOptionsScreen();
         m_ChineseTestOptionsScreen = new ChineseTestOptionsScreen();
         
-        OccleveMobileMidlet.getInstance().setCurrentForm(m_Form);
+        OccleveMobileMidlet.getInstance().setCurrentForm(this);
     }
 
     public void populateWithFilenames() throws Exception
@@ -155,9 +168,8 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     	System.out.println("Entering populateWithFilenames");
     	    	
     	// Clear out the existing items in this form, if any.
-    	m_List.clear();
-        // DefaultListModel model = new DefaultListModel();
-        // m_List.setModel(model);
+        DefaultListModel model = new DefaultListModel();
+        m_List.setModel(model);
 
         m_ListOfTests = new ListOfTests(null); // LWUIT-TO-DO alt);
 
@@ -183,16 +195,19 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     }
 
     /*Implementation of CommandListener.*/
-    public void actionCommand(AMLCommand c)
+    public void actionCommand(Command c)
     {
-    	System.out.println("ACTION COMMAND");
-    	
         try
         {
-        	// TO-DO - reenable
-            // if (m_ExternalCommandListener!=null) m_ExternalCommandListener.commandAction(c,d);
+        	// LWUIT-TO-DO - reenable later
+        	/*
+            if (m_ExternalCommandListener!=null)
+            {
+                m_ExternalCommandListener.commandAction(c,d);
+            }
+            */
 
-            actionCommand_Inner(c);
+            commandAction_Inner(c);
         }
         catch (Exception e)
         {
@@ -201,7 +216,7 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     }
 
     /*Subfunction for code clarity.*/
-    public void actionCommand_Inner(AMLCommand c) throws Exception
+    public void commandAction_Inner(Command c) throws Exception
     {
         ListOfTestsEntry entry;
         if (m_ListOfTests.getSize()==0)
@@ -222,6 +237,11 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
         else if (c==m_ShowLicenseCommand)
         {
             OccleveMobileMidlet.getInstance().setCurrentForm(new ShowGPLForm(),true);
+        }
+        else if (c==m_DictionaryCommand)
+        {
+        	DictionaryBrowser dictBrowser = new DictionaryBrowser();
+            /////OccleveMobileMidlet.getInstance().setCurrentForm(dictBrowser);
         }
         else if (c==m_ConnectionTroubleshooterCommand)
         {
@@ -274,9 +294,21 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
             SearchAllFilesForm saff = new SearchAllFilesForm();
             OccleveMobileMidlet.getInstance().setCurrentForm(saff);
         }
+        /*
+        // Disabled in 0.9.6 - see earlier comment
+        else if (c==m_EditCommand)
+        {
+            Screen returnTo = this;
+            ExcludableHooks.editQA(entry,null,returnTo);
+        }
+        else if (c==m_RapidAddCommand)
+        {
+            ExcludableHooks.displayRapidAdd(entry);
+        }
+        */
         else
         {
-/// TO DO TO DO        	//// m_CommonCommands.actionCommand(c);
+        	m_CommonCommands.actionCommand(c);
 
         	// Could be an external command so don't object if the command
             // is unknown.
@@ -315,6 +347,8 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
        if (theTest.getQACount()==0)
        {
            Dialog alert = new Dialog(Constants.EMPTY_QUIZ_MSG);
+           //alert.setTimeout(Alert.FOREVER);
+           //OccleveMobileMidlet.getInstance().displayAlert(alert,this);
            alert.show();
            return;
        }
@@ -338,12 +372,14 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
     {
         /*
         FilenameItem fi = (FilenameItem)get(0);
+
         final int iItemCount = size();
         for (int i=0; i<iItemCount; i++)
         {
             fi = (FilenameItem)get(i);
             if (fi.getFilename().charAt(0) == cJumpToThis) break;
         }
+
         Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(fi);
         */
     }
@@ -376,7 +412,5 @@ public class FileChooserForm implements AMLCommandHandler,Runnable
 
         browser.startDownloadingTest(entry.getFilename(),this);
     }
-    
-    public void setVisible(boolean bVisible) {m_Form.setVisible(bVisible);}
 }
 

@@ -103,7 +103,7 @@ implements CommandListener,Runnable
 
 		m_FileChooserForm = new FileChooserForm(true);
 		System.out.println("Constructed FileChooserForm");		
-		setCurrentForm(m_FileChooserForm.getForm());
+		setCurrentForm(m_FileChooserForm);
 	}
 
 	public void showSplashScreen() throws Exception
