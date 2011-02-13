@@ -30,10 +30,10 @@ public class TestbedCanvas extends Canvas implements CommandListener
     private static final int MARGIN = 5;
 	protected DevStuffChildScreenHelper m_Helper;
 
-    public TestbedCanvas(Displayable parentDisplayable)
+    public TestbedCanvas(Object parentDisplayable)
     throws Exception
     {
-        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
+        //m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
         setCommandListener(this);
 
         ////paintOffscreenBuffer();
@@ -149,7 +149,7 @@ public class TestbedCanvas extends Canvas implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable s)
     {
-    	m_Helper.commandAction(c, s);
+    	//m_Helper.commandAction(c, s);
     }
 }
 

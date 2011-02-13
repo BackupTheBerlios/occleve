@@ -42,7 +42,7 @@ implements CommandListener,Excludable
 
     // Not relevant to this class:
     public void setQAIndex(Integer i) {}
-    public void setScreenToReturnTo(Displayable d) {}
+    public void setScreenToReturnTo(Object d) {}
     /////////////////////////////////////////////////////////////////
 
     protected Command m_OKCommand;

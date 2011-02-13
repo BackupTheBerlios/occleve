@@ -194,7 +194,6 @@ public class FileChooserForm extends Form implements Runnable
         }
     }
 
-    /*Implementation of CommandListener.*/
     public void actionCommand(Command c)
     {
         try
@@ -207,7 +206,7 @@ public class FileChooserForm extends Form implements Runnable
             }
             */
 
-            commandAction_Inner(c);
+            actionCommand_Inner(c);
         }
         catch (Exception e)
         {
@@ -216,7 +215,7 @@ public class FileChooserForm extends Form implements Runnable
     }
 
     /*Subfunction for code clarity.*/
-    public void commandAction_Inner(Command c) throws Exception
+    public void actionCommand_Inner(Command c) throws Exception
     {
         ListOfTestsEntry entry;
         if (m_ListOfTests.getSize()==0)

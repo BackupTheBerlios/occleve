@@ -20,33 +20,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 @version 0.9.10
 */
 
-package org.occleve.mobileclient.excludable.devstuff;
+package org.occleve.mobileclient.components;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.events.*;
 import com.sun.lwuit.layouts.*;
 import com.sun.lwuit.list.*;
-import org.occleve.mobileclient.*;
 
-public class DevStuffChildScreenHelper
+public class OccleveList extends List
 {
-    protected Command m_BackCommand;
-    protected Object m_Parent;
+	public OccleveList()
+	{
+        DefaultListModel model = new DefaultListModel();
+        setModel(model);
+        
+		// Don't display a number next to each item in the list.
+        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        renderer.setShowNumbers(false);
+        setListCellRenderer(renderer);
 
-    public DevStuffChildScreenHelper(Form form,
-    		Object parent)
-    {
-        m_Parent = parent;
+        // June 2010 - this is just annoying on slow phones
+        setSmoothScrolling(false);
+        
+        setItemGap(0);
+	}
 
-        m_BackCommand = new Command("Back");
-        form.addCommand(m_BackCommand);
-    }
-    
-    public void actionCommand(Command c)
-    {
-        if (c==m_BackCommand)
-        {
-            OccleveMobileMidlet.getInstance().setCurrentForm(m_Parent);
-        }
-    }
+    public boolean isScrollableX() {return false;}
+    public boolean isScrollableY() {return true;}
+
+	public void clear()
+	{
+        DefaultListModel model = new DefaultListModel();
+        setModel(model);		
+	}
+
 }

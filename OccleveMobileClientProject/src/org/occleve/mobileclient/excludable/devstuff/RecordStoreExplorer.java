@@ -47,7 +47,7 @@ implements CommandListener
         super(Constants.PRODUCT_NAME,List.IMPLICIT);
 
         m_DevStuffScreen = dvs;
-        m_Helper = new DevStuffChildScreenHelper(this,dvs);
+        //m_Helper = new DevStuffChildScreenHelper(this,dvs);
 
         m_DeleteCommand = new Command("Delete", Command.ITEM, 1);
         m_DetailsCommand = new Command("Details", Command.ITEM, 1);
@@ -115,7 +115,7 @@ implements CommandListener
         }
         else
         {
-        	m_Helper.commandAction(c, d);
+        	//m_Helper.commandAction(c, d);
         }
     }
 

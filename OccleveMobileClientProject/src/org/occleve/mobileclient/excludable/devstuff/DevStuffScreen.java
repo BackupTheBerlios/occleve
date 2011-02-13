@@ -25,12 +25,18 @@ package org.occleve.mobileclient.excludable.devstuff;
 import java.io.*;
 import java.util.*;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+import com.sun.lwuit.list.*;
+
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.*;
+import javax.microedition.lcdui.Alert;
 import javax.microedition.rms.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.components.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
@@ -40,9 +46,12 @@ import org.occleve.mobileclient.util.*;
 import org.occleve.mobileclient.excludable.translation.*;
 
 /**Stuff for devs and power users.*/
-public class DevStuffScreen extends javax.microedition.lcdui.List
-implements CommandListener,Excludable,Runnable
+public class DevStuffScreen extends Form
+implements ActionListener,Excludable,Runnable
 {
+	protected OccleveList m_List = new OccleveList();
+	protected Command m_SelectCommand = new Command("Select");
+
 	/**Will the list of quizzes need rebuilding when the user quits this screen?*/
 	protected boolean m_bQuizListNeedsRefreshing = false;
 
@@ -57,7 +66,7 @@ implements CommandListener,Excludable,Runnable
     // Not relevant in this class:
     public void initialize() {}
     public void setQAIndex(Integer i) {}
-    public void setScreenToReturnTo(Displayable d) {}
+    public void setScreenToReturnTo(Object screen) {}
     ////////////////////////////////////////////////////////////////////////////
 
     /**Should be one of the prompt values.*/
@@ -109,8 +118,13 @@ implements CommandListener,Excludable,Runnable
     /**sSelectedFilename is the file selected when this screen was invoked.*/
     public DevStuffScreen() throws Exception
     {
-        super("Dev stuff",javax.microedition.lcdui.List.IMPLICIT);
-        
+        super("Dev stuff");
+
+        setLayout(new BorderLayout());
+        addComponent(BorderLayout.CENTER,m_List);
+        m_List.addActionListener(this);
+        addCommand(m_SelectCommand);
+
         append("For selected file:",null);
         append(VIEW_SOURCE,null);
         append(COUNT_NEWLINES,null);
@@ -154,13 +168,23 @@ implements CommandListener,Excludable,Runnable
         //append(MOVE_MEDIA_FILES_TO_MEDIA_RS,null);
         //append(FIX_FOULED_MEDIA_FILES,null);
         
-        m_BackCommand = new Command("Back",Command.ITEM,0);
+        m_BackCommand = new Command("Back");
         addCommand(m_BackCommand);
         setCommandListener(this);
     }
 
-    /**Implementation of CommandListener.*/
-    public void commandAction(Command c,Displayable s)
+    protected void append(String item,Object ignored)
+    {
+    	m_List.addItem(item);
+    }
+    
+    /**Implementation of ActionListener.*/
+    public void actionPerformed(ActionEvent evt)
+    {
+    	
+    }
+    
+    public void actionCommand(Command c)
     {
         try
         {
@@ -168,7 +192,7 @@ implements CommandListener,Excludable,Runnable
             {
                 OccleveMobileMidlet.getInstance().displayFileChooser(m_bQuizListNeedsRefreshing);
             }
-            else if (c==javax.microedition.lcdui.List.SELECT_COMMAND)
+            else if (c==m_SelectCommand)
             {
                 onSelectCommand();
             }
@@ -185,11 +209,9 @@ implements CommandListener,Excludable,Runnable
 
     protected void onSelectCommand() throws Exception
     {
-        int iIndex = getSelectedIndex();
-        String sSelectedPrompt = getString(iIndex);
-
-        onSelectCommand_PerFileOptions(sSelectedPrompt);
-        onSelectCommand_GlobalOptions(sSelectedPrompt);
+        String prompt = (String)m_List.getSelectedItem();
+        onSelectCommand_PerFileOptions(prompt);
+        onSelectCommand_GlobalOptions(prompt);
     }
 
     protected void onSelectCommand_PerFileOptions(String sSelectedPrompt)
@@ -226,22 +248,22 @@ implements CommandListener,Excludable,Runnable
         }
     }
 
-    public class SageServerTextBox extends TextBox implements CommandListener
+    public class SageServerTextBox extends Form
     {
-    	protected Displayable m_Parent;
+    	protected Container m_Parent;
+    	protected TextArea m_TextArea = new TextArea(SageQA.SAGE_SERVER);
 
-        public SageServerTextBox(Displayable parent) throws Exception
+        public SageServerTextBox(Container parent) throws Exception
         {
-            super("Sage server",SageQA.SAGE_SERVER,100,TextField.ANY);
+            super("Sage server");
             m_Parent = parent;
-            addCommand(new Command("OK",Command.OK,0));
-            setCommandListener(this);
+            addCommand(new Command("OK"));
         }
 
-        public void commandAction(Command c,Displayable s)
+        public void actionCommand(Command c)
         {
-        	SageQA.SAGE_SERVER = this.getString();
-            OccleveMobileMidlet.getInstance().setCurrentForm(m_Parent);        	        	
+        	SageQA.SAGE_SERVER = m_TextArea.getText();
+            OccleveMobileMidlet.getInstance().setCurrentForm(m_Parent);
         }
     }
     
@@ -384,8 +406,8 @@ implements CommandListener,Excludable,Runnable
         else if (sOption.equals(TRACE_ON))
         {
         	OccleveTrace.setTraceOn();
-            Alert alert = new Alert(null,"Tracing enabled",null,null);
-            OccleveMobileMidlet.getInstance().displayAlert(alert,this);    	
+            String msg = "Tracing enabled";
+        	new Dialog(msg).show();
         }
         
         /*
@@ -414,8 +436,8 @@ implements CommandListener,Excludable,Runnable
         	quizRsMgr.getRecordIndicesKeyedByFilenames();
         Enumeration filenames = recordIndicesKeyedByFilenames.keys();
 
-        Alert progress = new Alert(null,"Moving...",null,AlertType.INFO);
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+        //Alert progress = new Alert(null,"Moving...",null,AlertType.INFO);
+        //OccleveMobileMidlet.getInstance().displayAlert(progress,this);
 
         int iFilesMoved = 0;
 
@@ -438,15 +460,14 @@ implements CommandListener,Excludable,Runnable
             	{
             		String sErr =
             			"Filenames don't match: " + sFilename + " vs " + sFilenameInData;
-                    Alert error = new Alert(null,sErr,null,AlertType.ERROR);
-                    OccleveMobileMidlet.getInstance().displayAlert(error,this);
+            		new Dialog(sErr).show();
                     return;
             	}
             	
             	iFilesMoved++;
             	String sMsg =
             		"Moving " + sFilename + "... " + iFilesMoved + " files moved. ";
-            	progress.setString(sMsg);
+            	// progress.setString(sMsg);
             	
             	// Copy the media file to the media recordstore.
             	byte[] recordDataMinusFilename =
@@ -458,7 +479,7 @@ implements CommandListener,Excludable,Runnable
             }
         }	
         
-        progress.setString("Finished moving media files - moved " + iFilesMoved + " files");
+        // progress.setString("Finished moving media files - moved " + iFilesMoved + " files");
 	}
 
 	/**0.9.7: Fix a foul-up caused by a previous bug in moveMediaFilesFromQuizRsToMediaRs()*/
@@ -471,8 +492,8 @@ implements CommandListener,Excludable,Runnable
         	mediaRsMgr.getRecordIndicesKeyedByFilenames();
         Enumeration indicesEnum = recordIndicesKeyedByFilenames.elements();
 
-        Alert progress = new Alert(null,"Fixing...",null,AlertType.INFO);
-        OccleveMobileMidlet.getInstance().displayAlert(progress,this);
+        //Alert progress = new Alert(null,"Fixing...",null,AlertType.INFO);
+        //OccleveMobileMidlet.getInstance().displayAlert(progress,this);
 
         int iNumberFixed = 0;
         while (indicesEnum.hasMoreElements())
@@ -482,11 +503,11 @@ implements CommandListener,Excludable,Runnable
         		mediaRsMgr.getRecordContentsMinusFilename(rsIndex.intValue());
         	mediaRsMgr.setRawRecordBytes(rsIndex.intValue(),dataMinusFilename);
         	
-        	progress.setString("Fixed file with index " + rsIndex.intValue());
+        	// progress.setString("Fixed file with index " + rsIndex.intValue());
         	iNumberFixed++;
         }		
         
-        progress.setString("Finished fixing... fixed " + iNumberFixed + " files");
+        // progress.setString("Finished fixing... fixed " + iNumberFixed + " files");
 	}
 	
     protected void countRecordsInRecordStores() throws Exception
@@ -502,8 +523,7 @@ implements CommandListener,Excludable,Runnable
     	String sMsg =
     		"Quiz recordstore contains " + iQuizRecordCount + " records. " +
     		"Media recordstore contains " + iMediaRecordCount + " records.";
-        Alert alert = new Alert(null,sMsg, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);    	
+		new Dialog(sMsg).show();
     }
     
     protected void countNewlinesInSelectedQuiz() throws Exception
@@ -526,8 +546,7 @@ implements CommandListener,Excludable,Runnable
 
         String sMsg = "No of LFs = " + lfCount + Constants.NEWLINE +
                       "No of CRLFs = " + crlfCount;
-        Alert alert = new Alert(null,sMsg, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+    	new Dialog(sMsg).show();
     }
 
     protected int getSubstringCount(String sCountIn,String sSubstring)
@@ -593,35 +612,31 @@ implements CommandListener,Excludable,Runnable
             iTotalQuestions += theTest.getQACount();
         }
 
-        Alert alert =
-            new Alert(null, "Total number of questions = " + iTotalQuestions, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        String msg = "Total number of questions = " + iTotalQuestions;
+    	new Dialog(msg).show();
     }
 
     protected void displayPhoneModel() throws Exception
     {
         String sModel = System.getProperty("microedition.platform");
-        Alert alert =
-            new Alert(null, "microedition.platform = " + sModel, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        String msg = "microedition.platform = " + sModel;
+		new Dialog(msg).show();
     }
 
     protected void displayMemoryStats() throws Exception
     {
         Runtime rt = Runtime.getRuntime();
-        String sMsg =
+        String msg =
             "Free memory = " + rt.freeMemory() + Constants.NEWLINE +
             "Total memory used = " + rt.totalMemory();
-        Alert alert = new Alert(null, sMsg, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+		new Dialog(msg).show();
     }
 
     protected void displayThreadStats() throws Exception
     {
         String sMsg =
             "Active thread count = " + Thread.activeCount();
-        Alert alert = new Alert(null, sMsg, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+		new Dialog(sMsg).show();
     }
 
     // From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/
@@ -635,9 +650,7 @@ implements CommandListener,Excludable,Runnable
             String root = (String) drives.nextElement();
             sMsg += root + Constants.NEWLINE;
         }
-
-        Alert alert = new Alert(null, sMsg, null, null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+		new Dialog(sMsg).show();
     }
 
     /**From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
@@ -664,10 +677,7 @@ implements CommandListener,Excludable,Runnable
 			}   
 			fc.close();
 		}
-
-		Alert alert = new Alert(null, sMsg, null, null);
-		alert.setTimeout(Alert.FOREVER);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+		new Dialog(sMsg).show();
     }
 
     private void showWikipediaStrokeFiles() throws Exception
@@ -703,9 +713,7 @@ implements CommandListener,Excludable,Runnable
 		}   
 		fc.close();
 
-		Alert alert = new Alert(null, sMsg, null, null);
-		alert.setTimeout(Alert.FOREVER);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+		new Dialog(sMsg).show();
     }
 
     private void showRootFileURLs() throws Exception
@@ -719,9 +727,7 @@ implements CommandListener,Excludable,Runnable
     		String url = (String)enm.nextElement();
 		    sMsg += url + Constants.NEWLINE;
     	}
-		Alert alert = new Alert(null, sMsg, null, null);
-		alert.setTimeout(Alert.FOREVER);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+		new Dialog(sMsg).show();
     }
 
     /**Since:
@@ -778,9 +784,7 @@ implements CommandListener,Excludable,Runnable
     {
         String sResult = System.getProperty(sPropName);
         String sMsg = sPropName + " = " + Constants.NEWLINE + sResult;
-
-        Alert alert = new Alert(null,sMsg,null,null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        new Dialog(sMsg).show();
     }
 
     public void displayRecordStoreCapacity() throws Exception
@@ -788,24 +792,49 @@ implements CommandListener,Excludable,Runnable
         RecordStore rs = RecordStore.openRecordStore("testCapacity",true);
         int capacity = rs.getSizeAvailable();
         rs.closeRecordStore();
-
-        Alert alert = new Alert(null,"RecordStore capacity = " + capacity,null,null);
-        OccleveMobileMidlet.getInstance().displayAlert(alert,this);
+        new Dialog("RecordStore capacity = " + capacity).show();
     }
 
     protected void deleteSelectedTest() throws Exception
     {
         if (m_SelectedListOfTestsEntry.getRecordStoreID() != null)
         {
-            DeleteTestConfirmationScreen conf =
-                    new DeleteTestConfirmationScreen(
-                           m_SelectedListOfTestsEntry.getRecordStoreID().intValue(),
-                           m_SelectedListOfTestsEntry.getFilename(),
-                           this);
-            OccleveMobileMidlet.getInstance().setCurrentForm(conf);
+        	boolean delete = Dialog.show("Delete quiz?",
+        			"Delete " + m_SelectedListOfTestsEntry.getFilename() + "?",
+                    Dialog.TYPE_CONFIRMATION,
+                    null,"Yes","No");
+        	
+        	if (delete)
+        	{
+        		deleteTest(m_SelectedListOfTestsEntry.getRecordStoreID(),
+    				m_SelectedListOfTestsEntry.getFilename());
+        	}
+        	
+            //DeleteTestConfirmationScreen conf =
+            //        new DeleteTestConfirmationScreen(
+            //               m_SelectedListOfTestsEntry.getRecordStoreID().intValue(),
+            //               m_SelectedListOfTestsEntry.getFilename(),
+            //               this);
+            // OccleveMobileMidlet.getInstance().setCurrentForm(conf);
         }
     }
 
+    protected void deleteTest(Integer rsid,String filename)
+    {
+        try
+        {
+        	VocabRecordStoreManager mgr =
+        		OccleveMobileMidlet.getInstance().getQuizRecordStoreManager();        	
+            mgr.deleteTest(rsid.intValue(),filename);
+            OccleveMobileMidlet.getInstance().repopulateFileChooser();
+
+            // Display confirmation
+            String msg = "Quiz " + filename +
+                          " deleted from recordstore";
+            new Dialog(msg).show();
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+    }
     protected void viewSourceOfSelectedQuiz() throws Exception
     {
         String sTestContents;

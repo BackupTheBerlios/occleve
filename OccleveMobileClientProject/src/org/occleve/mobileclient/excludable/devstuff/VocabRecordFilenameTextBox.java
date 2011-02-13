@@ -40,7 +40,7 @@ implements CommandListener
         super("Name of new test:","",100,TextField.ANY);
 
         m_DevStuffScreen = dvs;
-        m_Helper = new DevStuffChildScreenHelper(this,dvs);
+        //m_Helper = new DevStuffChildScreenHelper(this,dvs);
 
         m_OKCommand = new Command("OK",Command.OK,0);
         addCommand(m_OKCommand);
@@ -66,7 +66,7 @@ implements CommandListener
         }
         else
         {
-        	m_Helper.commandAction(c, s);
+        	//m_Helper.commandAction(c, s);
         }
     }
 }

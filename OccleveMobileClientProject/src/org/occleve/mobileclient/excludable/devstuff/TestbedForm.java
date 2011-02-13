@@ -30,11 +30,11 @@ public class TestbedForm extends Form implements CommandListener
 {
 	protected DevStuffChildScreenHelper m_Helper;
 
-    public TestbedForm(Displayable parentDisplayable) throws Exception
+    public TestbedForm(Object parentDisplayable) throws Exception
     {
         super(null);
 
-        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
+        //m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
                 
         setCommandListener(this);
 
@@ -92,7 +92,7 @@ public class TestbedForm extends Form implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c,Displayable s)
     {
-    	m_Helper.commandAction(c,s);
+    	//m_Helper.commandAction(c,s);
     }
 }
 

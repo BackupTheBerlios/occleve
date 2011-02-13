@@ -32,11 +32,11 @@ public class TestbedTextBox extends TextBox implements CommandListener
 	protected DevStuffChildScreenHelper m_Helper;
     protected Command m_InsertTextCommand;
 
-    public TestbedTextBox(Displayable parentDisplayable) throws Exception
+    public TestbedTextBox(Object parentDisplayable) throws Exception
     {
         super("Title","initial text",100,TextField.ANY);
 
-        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
+        //m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
 
         m_InsertTextCommand = new Command("Insert text",Command.BACK,0);
         addCommand(m_InsertTextCommand);
@@ -65,7 +65,7 @@ public class TestbedTextBox extends TextBox implements CommandListener
         }
         else
         {
-            m_Helper.commandAction(c, s);
+            //m_Helper.commandAction(c, s);
         }
     }
 }

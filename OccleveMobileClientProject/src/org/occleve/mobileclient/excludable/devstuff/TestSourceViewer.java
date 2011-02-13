@@ -31,11 +31,11 @@ public class TestSourceViewer extends Form implements CommandListener
 	protected DevStuffChildScreenHelper m_Helper;
 
     public TestSourceViewer(String sHeading,Vector vTestSource,
-    		Displayable parentDisplayable)
+    		Object parentDisplayable)
     {
         super(sHeading);
 
-        m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
+        //m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
 
         // DOESN'T WORK ON K300 (BUT DOES ON EMULATOR)
         // Passing in null removes title and saves screen space.
@@ -71,6 +71,6 @@ public class TestSourceViewer extends Form implements CommandListener
     /**Implementation of CommandListener.*/
     public void commandAction(Command c, Displayable s)
     {
-    	m_Helper.commandAction(c, s);
+    	//m_Helper.commandAction(c, s);
     }
 }
