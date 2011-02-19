@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2010  Joe Gittings
+Copyright (C) 2011  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -50,17 +50,57 @@ public class SageQA extends QA implements Runnable
 	
 	protected Vector m_EvaluatedSolutions;
 
+	protected boolean m_bThreadActive = false;
+	protected int m_iThreadAction;
+	protected String m_sSageCodeToExec;
+	private static final int EVALUATE_SOLNS = 0;
+	private static final int EVALUATE_VAR = 1;
+	private static final int EXEC = 2;
+	
 	protected class Var
 	{
-		private String m_Name;
-		private double m_Min;
-		private double m_Max;
-		private double m_Value;
+		protected String m_Name;
+		protected String m_Value;
+		protected String m_Exec;
+		protected String m_DisplayValue;
 		
 		public Var(Node varNode)
 		{
-        	boolean isInt = (varNode.name.equals("RandomInt"));
         	m_Name = (String)varNode.attributes.get("Name");
+        	m_DisplayValue = (String)varNode.attributes.get("DisplayValue");
+
+        	m_Exec = (String)varNode.attributes.get("Exec");
+        	if (m_Exec!=null) executeSageCode(m_Exec);
+		}
+		
+		public String toString()
+		{
+        	return m_Name + "=" + m_DisplayValue;			
+		}
+	}
+
+	protected void executeSageCode(String sSageCode)
+	{
+		m_iThreadAction = EXEC;
+		m_sSageCodeToExec = sSageCode;
+		new Thread(this).run();
+
+		do
+		{
+			try {Thread.sleep(500);} catch (Exception e) {}
+		} while (m_bThreadActive);			
+	}
+	
+	protected class RandomVar extends Var
+	{
+		private double m_Min;
+		private double m_Max;
+
+		public RandomVar(Node varNode)
+		{
+			super(varNode);
+			
+        	boolean isInt = (varNode.name.equals("RandomInt"));
 
         	String min = (String)varNode.attributes.get("Min");
         	m_Min = Double.parseDouble(min);
@@ -71,23 +111,22 @@ public class SageQA extends QA implements Runnable
 			double diff = m_Max - m_Min;
 			if (isInt)
 			{
-				m_Value = m_Min + (gen.nextDouble() * diff);
-				m_Value = (double)( (int)m_Value );
+				double value = m_Min + (gen.nextDouble() * diff);
+				m_Value = "" + (int)value;
 			}
 			else
-				m_Value = m_Min + (gen.nextDouble() * diff);
+			{
+				double value = m_Min + (gen.nextDouble() * diff);
+				m_Value = "" + value;
+			}
+
+			m_DisplayValue = m_Value;
 			
 			trace("Parsed var " + m_Name + " min=" + m_Min +
-					" max=" + m_Max + " value=" + m_Value);
-			
-		}
-		
-		public String toString()
-		{
-        	return m_Name + "=" + m_Value;			
-		}
+					" max=" + m_Max + " value=" + m_Value);			
+		}		
 	}
-	
+
     /**Load a MathQA from an XML file.*/
     public SageQA(Node qaNode) throws Exception
     {
@@ -110,12 +149,28 @@ public class SageQA extends QA implements Runnable
             Node child = (Node)vChildren.elementAt(i);
             if (child.name!=null)
             {
-	            if (child.name.equals("RandomVar") ||
+            	try
+            	{
+            		System.out.println("child.name=" + child.name);
+            		System.out.println("child.getCharacters()=" + child.getCharacters());
+            	} catch (Exception e) {}
+
+                if (child.name.equals("RandomVar") ||
             		child.name.equals("RandomInt"))
 	            {
 	            	trace("Parsing RandomVar node: " + child);
+	            	RandomVar var = new RandomVar(child);
+	            	m_Vars.addElement(var);
+	            }
+	            else if (child.name.equals("Var"))
+	            {
 	            	Var var = new Var(child);
 	            	m_Vars.addElement(var);
+	            }
+	            else if (child.name.equals("Exec"))
+	            {
+	            	String code = child.getCharacters();
+	            	executeSageCode(code);
 	            }
 	            else if (child.name.equals("Solution"))
 	            {
@@ -162,12 +217,13 @@ public class SageQA extends QA implements Runnable
     	}
     	else
     	{
+    		m_iThreadAction = EVALUATE_SOLNS;
     		new Thread(this).run();
 
     		do
     		{
     			try {Thread.sleep(500);} catch (Exception e) {}
-    		} while (m_EvaluatedSolutions==null);
+    		} while (m_bThreadActive);
     		
     		System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
     	}
@@ -178,11 +234,19 @@ public class SageQA extends QA implements Runnable
     /**Implementation of Runnable.*/
     public void run()
     {
-    	try
+    	synchronized(this)
     	{
-    		evaluateSolutions();
-        }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+    		m_bThreadActive = true;
+	    	try
+	    	{
+	    		if (m_iThreadAction==EVALUATE_SOLNS)
+	    			evaluateSolutions();
+	    		else
+	    			exec();
+	        }
+	        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+    		m_bThreadActive = false;
+    	}
     }
 
     protected void evaluateSolutions() throws Exception
@@ -192,13 +256,16 @@ public class SageQA extends QA implements Runnable
     	for (int i=0; i<m_Vars.size(); i++)
     	{
     		Var var = (Var)m_Vars.elementAt(i);
-    		String assign = var.m_Name + "=" + var.m_Value;
-        	String encoded = URLEncoder.encode(assign, "UTF-8");        	
-        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
-        	WikiConnection wc = new WikiConnection();
-        	byte[] bytes = wc.readAllBytes(sURL, null, true);
-        	wc.close();
-        	System.out.println("ASSIGNED VAR: " + var);    		
+    		if (var instanceof RandomVar)
+    		{
+	    		String assign = var.m_Name + "=" + var.m_Value;
+	        	String encoded = URLEncoder.encode(assign, "UTF-8");        	
+	        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
+	        	WikiConnection wc = new WikiConnection();
+	        	byte[] bytes = wc.readAllBytes(sURL, null, true);
+	        	wc.close();
+	        	System.out.println("ASSIGNED VAR: " + var);    		
+    		}
     	}
 
     	for (int i=0; i<m_Solutions.size(); i++)
@@ -220,7 +287,22 @@ public class SageQA extends QA implements Runnable
     	
     	m_EvaluatedSolutions = evaluatedSolns;
     }
-    
+
+    protected void exec() throws Exception
+    {
+		String toEval = m_sSageCodeToExec;
+    	String encoded = URLEncoder.encode(toEval, "UTF-8");
+    	
+    	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
+    	trace("EXECUTING: " + sURL);
+    	
+    	WikiConnection wc = new WikiConnection();
+    	byte[] bytes = wc.readAllBytes(sURL, null, true);
+    	wc.close();
+    	String evaluated = new String(bytes);
+    	System.out.println("EXECUTED: " + evaluated);
+    }
+
     public Vector getMatchingLastLinesUpToNextTestableChars()
     {
         Vector vLastLines = new Vector();

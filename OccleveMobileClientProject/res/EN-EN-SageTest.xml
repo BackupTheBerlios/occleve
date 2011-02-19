@@ -8,9 +8,23 @@
 	<RandomInt Name="a" Min="1" Max="200" />
 	<RandomInt Name="b" Min="1" Max="200" />
 	<RandomInt Name="c" Min="1" Max="200" />
-
 	<Solution>N( (-b + sqrt((b^2)-(4*a*c))  ) / (2*a) , digits=4)</Solution>
 	<Solution>N( (-b - sqrt((b^2)-(4*a*c))  ) / (2*a) , digits=4)</Solution>
+    </MQA>
+
+	<!-- import numpy;
+	var('Ax Ay Az Bx By Bz');
+	A=numpy.array([Ax,Ay,Az]);  B=numpy.array([Bx,By,Bz]);
+	C=numpy.dot(A,B); -->
+    <MQA>
+	<Desc>What is the dot product of vectors A and B?</Desc>
+	<Problem>A.B</Problem>
+	<Solution>numpy.dot(A,B)</Solution>
+	<Exec>import numpy; var('Ax Ay Az Bx By Bz');</Exec>
+	<Var Name="A" DisplayValue="Axi + Ayj + Azk"
+		Exec="var('Ax Ay Az'); A=numpy.array([Ax,Ay,Az])" />
+	<Var Name="B" DisplayValue="Bxi + Byj + Bzk"
+		Exec="var('Bx By Bz'); B=numpy.array([Bx,By,Bz])"/>
     </MQA>
 
   </Test>
