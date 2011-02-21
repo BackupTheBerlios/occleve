@@ -5,6 +5,9 @@
     <MQA>
 	<Desc>What is the solution x of the following quadratic?</Desc>
 	<Problem>ax^2+bx+c=0</Problem>
+	<Exec>warmupSage=1</Exec>
+	<Exec>warmupSage=2</Exec>
+	<Exec>warmupSage=3</Exec>
 	<RandomInt Name="a" Min="1" Max="200" />
 	<RandomInt Name="b" Min="1" Max="200" />
 	<RandomInt Name="c" Min="1" Max="200" />
@@ -25,6 +28,26 @@
 		Exec="var('Ax Ay Az'); A=numpy.array([Ax,Ay,Az])" />
 	<Var Name="B" DisplayValue="Bxi + Byj + Bzk"
 		Exec="var('Bx By Bz'); B=numpy.array([Bx,By,Bz])"/>
+    </MQA>
+
+	<!-- Variant of Boas page 104 Q10 -->
+    <MQA>
+	<Desc>Find A algebraically </Desc>
+	<Problem>.</Problem>
+	<Solution>A</Solution>
+	<Exec>import numpy;</Exec>
+	<RandomInt Name="Ax" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="Ay" Min="1" Max="5" Hidden="y"/>
+	<RandomInt Name="Az" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="Bx" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="By" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="Bz" Min="1" Max="5" Hidden="y" />
+	<Exec>A=numpy.array([Ax,Ay,Az])</Exec>
+	<Exec>B=numpy.array([Bx,By,Bz])</Exec>
+	<Var Name="ABSum" Exec="A+B" />
+	<Var Name="ABDiff" Exec="A-B" />
+	<Exec>ABSum = A+B</Exec>
+	<Exec>ABDiff = A-B</Exec>
     </MQA>
 
   </Test>
