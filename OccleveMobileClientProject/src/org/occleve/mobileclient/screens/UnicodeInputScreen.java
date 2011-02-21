@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.screens;
@@ -234,7 +234,9 @@ implements CommandListener,Runnable
 
     	byte[] bUnicodeCharBytes =
     		new Character(m_UnicodeCharToInput).toString().getBytes(Config.ENCODING);
+
     	StringBuffer sbURLEncodedUnicodeChar = new StringBuffer();
+    	StringBuffer sbURLEncodedUnicodeCharNoPercent = new StringBuffer();
     	for (int i=0; i<bUnicodeCharBytes.length; i++)
     	{
     		sbURLEncodedUnicodeChar.append('%');
@@ -245,13 +247,14 @@ implements CommandListener,Runnable
 				Integer.toHexString(bUnicodeCharBytes[i]).substring(6);	  	  
 
     		sbURLEncodedUnicodeChar.append(sByteInHex.toUpperCase());
+    		sbURLEncodedUnicodeCharNoPercent.append(sByteInHex.toUpperCase());
     	}
 
     	String sWikipediaFilenameForURL =
     		sbURLEncodedUnicodeChar.toString() + "-order.gif";
 
     	String sWikipediaFilenameForJar = "/wikipedia_stroke/" +
-    		sbURLEncodedUnicodeChar.toString() + "-order.gif";
+    		sbURLEncodedUnicodeCharNoPercent.toString() + "-order.gif";
 
     	String sHexString = StaticHelpers.unicodeCharToEucCnHexString(m_UnicodeCharToInput);
     	String sOcratFilename = sHexString + ".gif";
@@ -439,7 +442,9 @@ implements CommandListener,Runnable
 
         // 0.9.7 - allow cheating directly from this screen.
         boolean bCheatQuestion =
-			((inputtedChar=='#') && (m_UnicodeCharToInput!='#'));
+			((inputtedChar=='#') && (m_UnicodeCharToInput!='#'))
+        	|| ((inputtedChar=='"') && (m_UnicodeCharToInput!='"'))
+        	|| ((inputtedChar=='井') && (m_UnicodeCharToInput!='井'));
 
         if (bPeek)
         {
