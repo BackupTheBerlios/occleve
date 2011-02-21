@@ -119,6 +119,7 @@ implements ActionListener,Excludable,Runnable
     public DevStuffScreen() throws Exception
     {
         super("Dev stuff");
+        setScrollable(false); // Otherwise the List won't scroll.
 
         setLayout(new BorderLayout());
         addComponent(BorderLayout.CENTER,m_List);
