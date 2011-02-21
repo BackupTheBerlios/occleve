@@ -23,10 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
-
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-
 import com.exploringxml.xml.*;
 
 import org.occleve.mobileclient.OccleveMobileMidlet;
@@ -45,7 +43,7 @@ public class SageQA extends QA implements Runnable
 	
 	protected String m_Desc;
 	protected String m_Problem;
-	protected Vector m_Vars = new Vector();
+	protected Vector m_VarsAndExecs = new Vector();
 	protected Vector m_Solutions = new Vector();
 	
 	protected Vector m_EvaluatedSolutions;
@@ -63,33 +61,46 @@ public class SageQA extends QA implements Runnable
 		protected String m_Value;
 		protected String m_Exec;
 		protected String m_DisplayValue;
+		protected boolean m_bHidden = false;
 		
 		public Var(Node varNode)
 		{
         	m_Name = (String)varNode.attributes.get("Name");
         	m_DisplayValue = (String)varNode.attributes.get("DisplayValue");
-
         	m_Exec = (String)varNode.attributes.get("Exec");
-        	if (m_Exec!=null) executeSageCode(m_Exec);
+        	
+        	String hidden = (String)varNode.attributes.get("Hidden");
+        	if (hidden!=null)
+        	{
+        		if (hidden.toLowerCase().equals("y")) m_bHidden = true;
+        	}
 		}
+
+		public String getSageCode() {return m_Exec;}
+		public boolean isHidden() {return m_bHidden;}
+		public void setValue(String value) {m_Value = value;}
 		
 		public String toString()
 		{
-        	return m_Name + "=" + m_DisplayValue;			
+        	if (m_DisplayValue!=null && m_DisplayValue.length()!=0)
+        		return m_Name + "=" + m_DisplayValue;
+        	else
+        		return m_Name + "=" + m_Value;
 		}
 	}
 
+	/*
 	protected void executeSageCode(String sSageCode)
 	{
 		m_iThreadAction = EXEC;
 		m_sSageCodeToExec = sSageCode;
 		new Thread(this).run();
-
 		do
 		{
 			try {Thread.sleep(500);} catch (Exception e) {}
 		} while (m_bThreadActive);			
 	}
+	*/
 	
 	protected class RandomVar extends Var
 	{
@@ -160,17 +171,18 @@ public class SageQA extends QA implements Runnable
 	            {
 	            	trace("Parsing RandomVar node: " + child);
 	            	RandomVar var = new RandomVar(child);
-	            	m_Vars.addElement(var);
+	            	m_VarsAndExecs.addElement(var);
 	            }
 	            else if (child.name.equals("Var"))
 	            {
 	            	Var var = new Var(child);
-	            	m_Vars.addElement(var);
+	            	m_VarsAndExecs.addElement(var);
 	            }
 	            else if (child.name.equals("Exec"))
 	            {
 	            	String code = child.getCharacters();
-	            	executeSageCode(code);
+	            	// executeSageCode(code);
+	            	m_VarsAndExecs.addElement(code);
 	            }
 	            else if (child.name.equals("Solution"))
 	            {
@@ -196,9 +208,17 @@ public class SageQA extends QA implements Runnable
     {
     	String question =
     		m_Desc + "\n\n" + m_Problem + "\n where \n";
-    	for (int i=0; i<m_Vars.size(); i++)
+    	for (int i=0; i<m_VarsAndExecs.size(); i++)
     	{
-    		question += " " + m_Vars.elementAt(i) + " ";
+    		Object item = m_VarsAndExecs.elementAt(i); 
+    		if (item instanceof Var)
+    		{
+    			Var var = (Var)item;
+    			if (var.isHidden()==false)
+    			{
+    				question += " " + var + " ";
+    			}
+    		}
     	}
     	
     	Vector qv = new Vector();    	
@@ -241,8 +261,6 @@ public class SageQA extends QA implements Runnable
 	    	{
 	    		if (m_iThreadAction==EVALUATE_SOLNS)
 	    			evaluateSolutions();
-	    		else
-	    			exec();
 	        }
 	        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     		m_bThreadActive = false;
@@ -253,34 +271,51 @@ public class SageQA extends QA implements Runnable
     {
     	Vector evaluatedSolns = new Vector();
 
-    	for (int i=0; i<m_Vars.size(); i++)
+    	for (int i=0; i<m_VarsAndExecs.size(); i++)
     	{
-    		Var var = (Var)m_Vars.elementAt(i);
-    		if (var instanceof RandomVar)
+    		Object obj = m_VarsAndExecs.elementAt(i);
+    		if (obj instanceof RandomVar)
     		{
-	    		String assign = var.m_Name + "=" + var.m_Value;
+    			RandomVar var = (RandomVar)obj;
+	    		String sageCode = var.m_Name + "=" + var.m_Value;
+	    		/*
 	        	String encoded = URLEncoder.encode(assign, "UTF-8");        	
 	        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
 	        	WikiConnection wc = new WikiConnection();
 	        	byte[] bytes = wc.readAllBytes(sURL, null, true);
 	        	wc.close();
+	        	*/
+	    		exec(sageCode);
 	        	System.out.println("ASSIGNED VAR: " + var);    		
+    		}
+    		else if (obj instanceof Var)
+    		{
+    			Var var = (Var)obj;
+    			String value = exec(var.getSageCode());
+    			var.setValue(value);
+    		}
+    		else if (obj instanceof String)
+    		{
+    			String sageCode = (String)obj;
+            	exec(sageCode);
     		}
     	}
 
     	for (int i=0; i<m_Solutions.size(); i++)
     	{
     		String toEval = (String)m_Solutions.elementAt(i);
-        	String encoded = URLEncoder.encode(toEval, "UTF-8");
-        	
+    		String evaluated = exec(toEval);
+
+    		/*
+    		String encoded = URLEncoder.encode(toEval, "UTF-8");
         	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
         	trace("EVALUATING " + sURL);
-        	
         	WikiConnection wc = new WikiConnection();
         	byte[] bytes = wc.readAllBytes(sURL, null, true);
         	wc.close();
         	String evaluated = new String(bytes);
         	System.out.println("EVALUATED SOLN: " + evaluated);
+        	*/
         	
         	evaluatedSolns.addElement(evaluated);
     	}
@@ -288,10 +323,10 @@ public class SageQA extends QA implements Runnable
     	m_EvaluatedSolutions = evaluatedSolns;
     }
 
-    protected void exec() throws Exception
+    protected String exec(String sageCode) throws Exception
     {
-		String toEval = m_sSageCodeToExec;
-    	String encoded = URLEncoder.encode(toEval, "UTF-8");
+		//// String toEval = m_sSageCodeToExec;
+    	String encoded = URLEncoder.encode(sageCode,"UTF-8");
     	
     	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
     	trace("EXECUTING: " + sURL);
@@ -301,6 +336,8 @@ public class SageQA extends QA implements Runnable
     	wc.close();
     	String evaluated = new String(bytes);
     	System.out.println("EXECUTED: " + evaluated);
+    	
+    	return evaluated;
     }
 
     public Vector getMatchingLastLinesUpToNextTestableChars()
@@ -330,6 +367,7 @@ public class SageQA extends QA implements Runnable
     
     public String toXML() {return null;}
 
+    
     private void trace(String s)
     {
     	//// System.out.println(s);
