@@ -23,7 +23,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.screens;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.events.*;
+import com.sun.lwuit.events.ActionEvent;
+import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
@@ -31,6 +32,7 @@ import org.occleve.mobileclient.components.OccleveList;
 import org.occleve.mobileclient.serverbrowser.*;
 
 public class ChooseQuizServerScreen extends Form
+implements ActionListener
 {
 	protected OccleveList m_List = new OccleveList();
     protected Command m_ConnectCommand;
@@ -51,8 +53,7 @@ public class ChooseQuizServerScreen extends Form
     private static final String FRENCH_WIKIVERSITY =
     	"The French wikiversity. Contains quizzes on a range of topics.";
 
-    public ChooseQuizServerScreen()
-    throws Exception
+    public ChooseQuizServerScreen() throws Exception
     {
         super(Constants.PRODUCT_NAME);
         
@@ -79,7 +80,7 @@ public class ChooseQuizServerScreen extends Form
         // "Connect" is the default select command.
         // setSelectCommand(m_ConnectCommand);
         
-        // setCommandListener(this);
+        setCommandListener(this);
     }
 
     protected void append(String s)
@@ -87,7 +88,10 @@ public class ChooseQuizServerScreen extends Form
     	TextArea ta = new TextArea(s,2,2);
     	addComponent(ta);
     }
-    
+
+    /**Implementation of ActionListener.*/
+    public void actionPerformed(ActionEvent evt) {}
+
     public void commandAction(Command c)
     {
         try
@@ -120,6 +124,7 @@ public class ChooseQuizServerScreen extends Form
     protected void onConnectCommand()
     {
     	String sSelection = (String)m_List.getSelectedItem();
+    	System.out.println("Connect: " + sSelection);
     	
         if (sSelection.equals(ENGLISH_WIKIVERSITY))
         {
