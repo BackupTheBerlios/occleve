@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.qa.language;
@@ -371,7 +371,21 @@ public class LanguageQA extends QA
     /**Implementation of abstract function in QA class.*/
     public String getEntireContentsAsString()
     {
-        return "DEFUNCT FUNCTION???";
+    	StringBuffer sb = new StringBuffer();
+        for (int i=0; i<m_vFirsteseEntities.size(); i++)
+        {
+            LanguageEntity leFirstese =
+               (LanguageEntity)m_vFirsteseEntities.elementAt(i);
+            sb.append ( leFirstese.toString() + " " );
+        }
+
+        for (int i=0; i<m_vSecondeseEntities.size(); i++)
+        {
+            LanguageEntity leSecondese =
+                (LanguageEntity)m_vSecondeseEntities.elementAt(i);
+            sb.append( leSecondese.toString() + " " );
+        }
+        return sb.toString();
     }
 
     /**Implementation of abstract function in QA class.*/

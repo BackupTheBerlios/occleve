@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.screens;
@@ -26,14 +26,17 @@ import java.io.*;
 import java.util.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
-import javax.microedition.lcdui.*;
+
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class VocabViewerScreen extends Form
-implements CommandListener,ItemCommandListener
+//implements CommandListener,ItemCommandListener
 {
     protected Test m_Test;
 
@@ -50,11 +53,12 @@ implements CommandListener,ItemCommandListener
     // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
     //protected Command m_EditCommand;
 
-    protected TextBox m_QuestionNoTextBox;
+//    protected TextBox m_QuestionNoTextBox;
 
     public VocabViewerScreen(String sHeading,Test theTest)
     {
         super(sHeading);
+        setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         m_Test = theTest;
 
         // DOESN'T WORK ON K300 (BUT DOES ON EMULATOR)
@@ -72,45 +76,45 @@ implements CommandListener,ItemCommandListener
             // more than 256 Items to a Form.
         }
 
-        m_NewTestCommand = new Command("New test", Command.BACK, 0);
+        m_NewTestCommand = new Command("New test");
         addCommand(m_NewTestCommand);
 
-        m_SearchThisFileCommand = new Command("Search", Command.ITEM, 0);
+        m_SearchThisFileCommand = new Command("Search");
         addCommand(m_SearchThisFileCommand);
 
-        m_ExitCommand = new Command("Exit", Command.EXIT, 0);
+        m_ExitCommand = new Command("Exit");
         addCommand(m_ExitCommand);
 
-        m_ScrollToStartCommand = new Command("Scroll to start", Command.ITEM, 0);
+        m_ScrollToStartCommand = new Command("Scroll to start");
         addCommand(m_ScrollToStartCommand);
 
-        m_ScrollToMiddleCommand = new Command("Scroll to middle", Command.ITEM, 0);
+        m_ScrollToMiddleCommand = new Command("Scroll to middle");
         addCommand(m_ScrollToMiddleCommand);
 
-        m_ScrollToEndCommand = new Command("Scroll to end", Command.ITEM, 0);
+        m_ScrollToEndCommand = new Command("Scroll to end");
         addCommand(m_ScrollToEndCommand);
 
-        m_RunTestCommand = new Command("Run test", Command.ITEM, 0);
+        m_RunTestCommand = new Command("Run test");
         addCommand(m_RunTestCommand);
 
         // Disabled in 0.9.6 - see earlier comment
         //m_EditCommand = new Command("Edit", Command.ITEM, 0);
         //addCommand(m_EditCommand);
 
-        setCommandListener(this);
+//        setCommandListener(this);
     }
 
     public void populate(Test theTest) throws IllegalArgumentException
     {
         // Clear any existing items.
-        deleteAll();
+        removeAll();
 
         // This is a definite possibility until the mobile client
         // supports all wikiversity quiz types.
         if (theTest.getQACount()==0)
         {
-            StringItem empty = new StringItem(null,Constants.EMPTY_QUIZ_MSG);
-            append(empty);
+            TextArea empty = new TextArea(Constants.EMPTY_QUIZ_MSG,2,2);
+            addComponent(empty);
             return;
         }
 
@@ -118,18 +122,24 @@ implements CommandListener,ItemCommandListener
         {
             String sQuestionNo = Integer.toString(i+1);
             QA currentQA = theTest.getQA(i);
-            Vector items = currentQA.getEntireContentsAsItems();
-            for (int i2=0; i2<items.size(); i2++)
+            // Vector items = currentQA.getEntireContentsAsItems();
+
+            String sQA = i + "." + currentQA.getEntireContentsAsString();
+            TextArea comp = new TextArea(sQA,2,2);
+            addComponent(comp);
+
+            /* for (int i2=0; i2<items.size(); i2++)
             {
-                StringItem si = (StringItem)items.elementAt(i2);
+            	String line = (String)items.elementAt(i2);
 
                 if (i2==0)
                 {
-                    si.setText(sQuestionNo + ". " + si.getText());
+                    line = sQuestionNo + ". " + line;
                 }
+                TextArea comp = new TextArea(line,2,2);
 
-                StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
-                append(si);
+                // StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
+                addComponent(comp);
 
                 // If it's the last item for this LQA, add a newline.
                 if (i2==(items.size()-1))
@@ -143,21 +153,20 @@ implements CommandListener,ItemCommandListener
                 {
                     si.setItemCommandListener(this);
                 }
-            }
+            } */
         }
     }
 
-    /**Implementation of CommandListener.*/
-    public void commandAction(Command c, Displayable s)
+    public void commandAction(Command c)
     {
-        if ((s!=null) && (s==m_QuestionNoTextBox))
+        /* if ((s!=null) && (s==m_QuestionNoTextBox))
         {
             String sQuestionNo = m_QuestionNoTextBox.getString();
             int iQuestionIndex = Integer.parseInt(sQuestionNo) - 1;
             ExcludableHooks.editQA(m_Test.getEntry(),
                                    new Integer(iQuestionIndex),this);
             return;
-        }
+        } */
 
         if (c==m_NewTestCommand)
         {
@@ -173,20 +182,20 @@ implements CommandListener,ItemCommandListener
         }
         else if (c==m_ScrollToStartCommand)
         {
-            Item qaItem = get(0);
-            StaticHelpers.safeSetCurrentItem(qaItem);
+            // Item qaItem = get(0);
+            // StaticHelpers.safeSetCurrentItem(qaItem);
         }
         else if (c==m_ScrollToMiddleCommand)
         {
-            int iIndex = (size()-1) / 2;
-            Item qaItem = get(iIndex);
-            StaticHelpers.safeSetCurrentItem(qaItem);
+            // int iIndex = (size()-1) / 2;
+            // Item qaItem = get(iIndex);
+            // StaticHelpers.safeSetCurrentItem(qaItem);
         }
         else if (c==m_ScrollToEndCommand)
         {
-            int iLastItemIndex = size()-1;
-            Item qaItem = get(iLastItemIndex);
-            StaticHelpers.safeSetCurrentItem(qaItem);
+            // int iLastItemIndex = size()-1;
+            // Item qaItem = get(iLastItemIndex);
+            // StaticHelpers.safeSetCurrentItem(qaItem);
         }
         else if (c==m_RunTestCommand)
         {
@@ -230,8 +239,8 @@ implements CommandListener,ItemCommandListener
                 // System.out.println("Matching QA = " + currentQA.getEntireContentsAsString());
                 // System.out.println("Matching QA index = " + i);
 
-                Item qaItem = get(i);
-                StaticHelpers.safeSetCurrentItem(qaItem);
+//                Item qaItem = get(i);
+//                StaticHelpers.safeSetCurrentItem(qaItem);
                 return true;
             }
         }
@@ -259,13 +268,14 @@ implements CommandListener,ItemCommandListener
         // prompts.
         StringBuffer sbOutput = new StringBuffer();
 
-        System.out.println("Writing to StringBuffer...");
+/*        System.out.println("Writing to StringBuffer...");
         for (int i=0; i<size(); i++)
         {
             StringItem item = (StringItem)get(i);
             String sLine = item.getText();
             sbOutput.append(sLine + Constants.CRLF);
         }
+*/        
 
         System.out.println("About to write StringBuffer to file");
         writer.write(sbOutput.toString());
@@ -279,12 +289,12 @@ implements CommandListener,ItemCommandListener
         // Display confirmation
         String sMsg = "Test " + m_Test.getFilename() +
                       " successfully printed to file ";
-        Alert alert = new Alert(null,sMsg,null,null);
-        OccleveMobileMidlet.getInstance().displayAlertThenFileChooser(alert);
+        Dialog.show(Constants.PRODUCT_NAME,sMsg,"OK","");
+        OccleveMobileMidlet.getInstance().displayFileChooser();
     }
 
     /**Implementation of ItemCommandListener.*/
-    public void commandAction(Command c,Item item)
+/*    public void commandAction(Command c,Item item)
     {
         System.out.println("Item clicked");
 
@@ -298,5 +308,6 @@ implements CommandListener,ItemCommandListener
             OccleveMobileMidlet.getInstance().onError(e);
         }
     }
+   */
 }
 
