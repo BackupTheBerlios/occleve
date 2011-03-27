@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2008  Joe Gittings
+Copyright (C) 2008-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,18 +17,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.screens;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.components.OccleveList;
 import org.occleve.mobileclient.serverbrowser.*;
 
-public class ChooseQuizServerScreen extends List
-implements CommandListener
+public class ChooseQuizServerScreen extends Form
 {
+	protected OccleveList m_List = new OccleveList();
     protected Command m_ConnectCommand;
     protected Command m_BackCommand;
     protected CommonCommands m_CommonCommands;
@@ -50,39 +54,45 @@ implements CommandListener
     public ChooseQuizServerScreen()
     throws Exception
     {
-        super(Constants.PRODUCT_NAME,List.IMPLICIT);
-
-        // Try to make the phone wrap long test names
-        setFitPolicy(Choice.TEXT_WRAP_ON);
+        super(Constants.PRODUCT_NAME);
         
-        m_ConnectCommand = new Command("Connect", Command.ITEM, 0);
+        setScrollable(false); // Otherwise the List won't scroll.
+        setLayout(new BorderLayout());
+        addComponent(BorderLayout.CENTER,m_List);
+        
+        m_ConnectCommand = new Command("Connect");
         addCommand(m_ConnectCommand);
-        m_BackCommand = new Command("Back", Command.ITEM, 1);
+        m_BackCommand = new Command("Back");
         addCommand(m_BackCommand);
 
         m_CommonCommands = new CommonCommands();
-        m_CommonCommands.addToDisplayable(this);
+        m_CommonCommands.addToForm(this);
 
-        append(PREAMBLE,null);
-        append(OCCLEVE_WIKI,null);
-        append(ENGLISH_WIKIVERSITY,null);
-        append(FRENCH_WIKIVERSITY,null);
+        m_List.addItem(PREAMBLE);
+        m_List.addItem(OCCLEVE_WIKI);
+        m_List.addItem(ENGLISH_WIKIVERSITY);
+        m_List.addItem(FRENCH_WIKIVERSITY);
         
         // By default, OCCLEVE_WIKI is selected.
-        setSelectedIndex(1,true);
+        m_List.setSelectedIndex(1,true);
 
         // "Connect" is the default select command.
-        setSelectCommand(m_ConnectCommand);
+        // setSelectCommand(m_ConnectCommand);
         
-        setCommandListener(this);
+        // setCommandListener(this);
     }
 
-    /*Implementation of CommandListener.*/
-    public void commandAction(Command c,Displayable d)
+    protected void append(String s)
+    {
+    	TextArea ta = new TextArea(s,2,2);
+    	addComponent(ta);
+    }
+    
+    public void commandAction(Command c)
     {
         try
         {
-            commandAction_Inner(c,d);
+            commandAction_Inner(c);
         }
         catch (Exception e)
         {
@@ -90,8 +100,7 @@ implements CommandListener
         }
     }
 
-    /*Subfunction for code clarity.*/
-    public void commandAction_Inner(Command c,Displayable d) throws Exception
+    public void commandAction_Inner(Command c) throws Exception
     {
     	if (c==m_ConnectCommand)
     	{
@@ -104,14 +113,13 @@ implements CommandListener
     	}
         else
         {
-        	m_CommonCommands.commandAction(c,this);
+        	m_CommonCommands.actionCommand(c);
         }
     }
     
     protected void onConnectCommand()
     {
-    	int iSelIndex = getSelectedIndex();
-    	String sSelection = getString(iSelIndex);
+    	String sSelection = (String)m_List.getSelectedItem();
     	
         if (sSelection.equals(ENGLISH_WIKIVERSITY))
         {
@@ -137,7 +145,6 @@ implements CommandListener
                                       Config.OCCLEVE_QUIZ_URL_SUFFIX);
             browser.populateAndDisplay();
         }
-    	
     }
 }
 
