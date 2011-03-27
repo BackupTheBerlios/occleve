@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-2009  Joe Gittings
+Copyright (C) 2007-2011  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.screens.options;
@@ -25,8 +25,6 @@ package org.occleve.mobileclient.screens.options;
 import com.sun.lwuit.*;
 import com.sun.lwuit.events.*;
 import com.sun.lwuit.layouts.*;
-import com.sun.lwuit.plaf.*;
-import com.sun.lwuit.util.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
@@ -203,6 +201,8 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
 
     public void makeVisible(Test test)
     {
+m_Test = null;
+    	
     	setTitle(test.getFilename());
     	
     	// If the user is running a NEW test, reset the first and last
