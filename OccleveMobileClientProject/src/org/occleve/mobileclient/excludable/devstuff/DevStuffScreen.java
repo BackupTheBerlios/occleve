@@ -28,11 +28,9 @@ import java.util.*;
 import com.sun.lwuit.*;
 import com.sun.lwuit.events.*;
 import com.sun.lwuit.layouts.*;
-import com.sun.lwuit.list.*;
 
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.*;
-import javax.microedition.lcdui.Alert;
 import javax.microedition.rms.*;
 
 import org.occleve.mobileclient.*;
@@ -465,9 +463,9 @@ implements ActionListener,Excludable,Runnable
             	
             	if (sFilenameInData.equals(sFilename)==false)
             	{
-            		String sErr =
+            		String err =
             			"Filenames don't match: " + sFilename + " vs " + sFilenameInData;
-            		new Dialog(sErr).show();
+            		dssAlert(err);
                     return;
             	}
             	
@@ -553,7 +551,7 @@ implements ActionListener,Excludable,Runnable
 
         String sMsg = "No of LFs = " + lfCount + Constants.NEWLINE +
                       "No of CRLFs = " + crlfCount;
-    	new Dialog(sMsg).show();
+    	dssAlert(sMsg);
     }
 
     protected int getSubstringCount(String sCountIn,String sSubstring)
@@ -620,7 +618,7 @@ implements ActionListener,Excludable,Runnable
         }
 
         String msg = "Total number of questions = " + iTotalQuestions;
-    	new Dialog(msg).show();
+    	dssAlert(msg);
     }
 
     protected void displayPhoneModel() throws Exception
@@ -632,18 +630,33 @@ implements ActionListener,Excludable,Runnable
 
     protected void displayMemoryStats() throws Exception
     {
+    	String msg = getMemoryStats();
+		dssAlert(msg);
+    }
+
+    protected String getMemoryStats() throws Exception
+    {
         Runtime rt = Runtime.getRuntime();
         String msg =
             "Free memory = " + rt.freeMemory() + Constants.NEWLINE +
             "Total memory used = " + rt.totalMemory();
-		new Dialog(msg).show();
+        return msg;
     }
-
+    
     protected void displayThreadStats() throws Exception
     {
-        String sMsg =
-            "Active thread count = " + Thread.activeCount();
-		new Dialog(sMsg).show();
+        String msg = "Active thread count = " + Thread.activeCount();
+		dssAlert(msg);
+    }
+
+    protected void runGC() throws Exception
+    {
+        String before = getMemoryStats();
+        System.gc();
+        String after= getMemoryStats();
+        String msg = "Ran gc. Before: " + before + Constants.NEWLINE +
+        	"After: " + after; 
+		dssAlert(msg);
     }
 
     // From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/
@@ -657,7 +670,7 @@ implements ActionListener,Excludable,Runnable
             String root = (String) drives.nextElement();
             sMsg += root + Constants.NEWLINE;
         }
-		new Dialog(sMsg).show();
+		dssAlert(sMsg);
     }
 
     /**From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
@@ -684,7 +697,7 @@ implements ActionListener,Excludable,Runnable
 			}   
 			fc.close();
 		}
-		new Dialog(sMsg).show();
+		dssAlert(sMsg);
     }
 
     private void showWikipediaStrokeFiles() throws Exception
@@ -720,7 +733,7 @@ implements ActionListener,Excludable,Runnable
 		}   
 		fc.close();
 
-		new Dialog(sMsg).show();
+		dssAlert(sMsg);
     }
 
     private void showRootFileURLs() throws Exception
@@ -734,7 +747,7 @@ implements ActionListener,Excludable,Runnable
     		String url = (String)enm.nextElement();
 		    sMsg += url + Constants.NEWLINE;
     	}
-		new Dialog(sMsg).show();
+		dssAlert(sMsg);
     }
 
     /**Since:
@@ -791,7 +804,7 @@ implements ActionListener,Excludable,Runnable
     {
         String sResult = System.getProperty(sPropName);
         String sMsg = sPropName + " = " + Constants.NEWLINE + sResult;
-        new Dialog(sMsg).show();
+        dssAlert(sMsg);
     }
 
     public void displayRecordStoreCapacity() throws Exception
@@ -799,7 +812,7 @@ implements ActionListener,Excludable,Runnable
         RecordStore rs = RecordStore.openRecordStore("testCapacity",true);
         int capacity = rs.getSizeAvailable();
         rs.closeRecordStore();
-        new Dialog("RecordStore capacity = " + capacity).show();
+        dssAlert("RecordStore capacity = " + capacity);
     }
 
     protected void deleteSelectedTest() throws Exception
@@ -838,7 +851,7 @@ implements ActionListener,Excludable,Runnable
             // Display confirmation
             String msg = "Quiz " + filename +
                           " deleted from recordstore";
-            new Dialog(msg).show();
+            dssAlert(msg);
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
@@ -888,6 +901,6 @@ implements ActionListener,Excludable,Runnable
     protected void dssAlert(String msg)
     {
     	Dialog.show(Constants.PRODUCT_NAME,msg,"OK","");
-    }
+    }    
 }
 
