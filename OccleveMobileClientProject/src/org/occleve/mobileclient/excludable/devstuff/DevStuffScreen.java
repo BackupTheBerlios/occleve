@@ -414,8 +414,7 @@ implements ActionListener,Excludable,Runnable
         else if (sOption.equals(TRACE_ON))
         {
         	OccleveTrace.setTraceOn();
-            String msg = "Tracing enabled";
-        	new Dialog(msg).show();
+        	dssAlert("Tracing enabled");
         }
         
         /*
@@ -517,7 +516,7 @@ implements ActionListener,Excludable,Runnable
         
         // progress.setString("Finished fixing... fixed " + iNumberFixed + " files");
 	}
-	
+
     protected void countRecordsInRecordStores() throws Exception
     {
     	VocabRecordStoreManager quizMgr =
@@ -531,7 +530,7 @@ implements ActionListener,Excludable,Runnable
     	String sMsg =
     		"Quiz recordstore contains " + iQuizRecordCount + " records. " +
     		"Media recordstore contains " + iMediaRecordCount + " records.";
-		new Dialog(sMsg).show();
+		dssAlert(sMsg);
     }
     
     protected void countNewlinesInSelectedQuiz() throws Exception
@@ -628,7 +627,7 @@ implements ActionListener,Excludable,Runnable
     {
         String sModel = System.getProperty("microedition.platform");
         String msg = "microedition.platform = " + sModel;
-		new Dialog(msg).show();
+		dssAlert(msg);
     }
 
     protected void displayMemoryStats() throws Exception
@@ -885,5 +884,10 @@ implements ActionListener,Excludable,Runnable
 		mgr.createFileInRecordStore(sNameOfXmlFile,sXML,true);
     }
     */
+    
+    protected void dssAlert(String msg)
+    {
+    	Dialog.show(Constants.PRODUCT_NAME,msg,"OK","");
+    }
 }
 
