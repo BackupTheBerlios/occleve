@@ -32,7 +32,7 @@ import org.occleve.mobileclient.serverbrowser.*;
 /**QA which can be used to generate many variants on a given type of
 mathematical question.
 The solutions are calculated by a Sage server.*/
-public class SageQA extends QA implements Runnable
+public class SageQA extends QA //// implements Runnable
 {
 	/**localhost while still under dev.*/
 	public static String SAGE_SERVER = "localhost:8000";
@@ -46,12 +46,12 @@ public class SageQA extends QA implements Runnable
 	
 	protected Vector m_EvaluatedSolutions;
 
-	protected boolean m_bThreadActive = false;
-	protected int m_iThreadAction;
+	//protected boolean m_bThreadActive = false;
+	//protected int m_iThreadAction;
 	protected String m_sSageCodeToExec;
-	private static final int EVALUATE_SOLNS = 0;
-	private static final int EVALUATE_VAR = 1;
-	private static final int EXEC = 2;
+	//private static final int EVALUATE_SOLNS = 0;
+	//private static final int EVALUATE_VAR = 1;
+	//private static final int EXEC = 2;
 	
 	protected class Var
 	{
@@ -235,16 +235,10 @@ public class SageQA extends QA implements Runnable
     	}
     	else
     	{
-try {
-	throw new Exception();
-} catch (Exception e) {
-	e.printStackTrace();
-}
-    		
-    		
     		try
     		{
-    		    invokeEvaluateSolutionsThread();
+    		    evaluateSolutions();
+    			System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
     		}
     		catch (Exception e)
     		{
@@ -255,24 +249,28 @@ try {
     	return m_EvaluatedSolutions;
     }
 
-    protected void invokeEvaluateSolutionsThread() throws Exception {
+//    protected void invokeEvaluateSolutionsThread() throws Exception {
         /* ProgressAlert alt =
         	new ProgressAlert("","Evaluating solution for maths QA");
     	Object oldForm = OccleveMobileMidlet.getInstance().getCurrentForm();
         OccleveMobileMidlet.getInstance().setCurrentForm(alt); */
-		m_iThreadAction = EVALUATE_SOLNS;
-		new Thread(this).start();
 
-		do
-		{
-			try {Thread.sleep(500);} catch (Exception e) {}
-		} while (m_bThreadActive);
+  //  	evaluateSolutions();
+    	
+//    	m_iThreadAction = EVALUATE_SOLNS;
+//		new Thread(this).start();
+
+//		do
+//		{
+//			try {Thread.sleep(500);} catch (Exception e) {}
+//		} while (m_bThreadActive);
 		
-		System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
+	//	System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
 		//OccleveMobileMidlet.getInstance().setCurrentForm(oldForm);
-    }
+    //}
     
     /**Implementation of Runnable.*/
+    /*
     public void run()
     {
     	synchronized(this)
@@ -286,7 +284,7 @@ try {
 	        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     		m_bThreadActive = false;
     	}
-    }
+    } */
 
     protected void evaluateSolutions() throws Exception
     {
@@ -346,18 +344,12 @@ try {
 
     protected String exec(String sageCode) throws Exception
     {
-		//// String toEval = m_sSageCodeToExec;
     	String encoded = URLEncoder.encode(sageCode,"UTF-8");
-    	
     	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
     	trace("EXECUTING: " + sURL);
     	
     	WikiConnection wc = new WikiConnection();
     	byte[] bytes = wc.readAllBytes(sURL, null, true);
-Object current = OccleveMobileMidlet.getInstance().getCurrentForm();
-System.out.println("Current form is " + current);
-OccleveMobileMidlet.getInstance().setCurrentForm(current);
-System.out.println("Redisplayed " + current);
     	wc.close();
     	String evaluated = new String(bytes);
     	System.out.println("EXECUTED: " + evaluated);
@@ -392,7 +384,6 @@ System.out.println("Redisplayed " + current);
     
     public String toXML() {return null;}
 
-    
     private void trace(String s)
     {
     	//// System.out.println(s);
