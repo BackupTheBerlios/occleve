@@ -50,6 +50,22 @@
 	<Exec>ABDiff = A-B</Exec>
     </MQA>
 
+	<!-- Variant of Boas page 104 Q12 -->
+    <MQA>
+	<Desc>Find angle between A and B</Desc>
+	<Problem>.</Problem>
+	<Solution>(180/N(pi)) * arccos ( numpy.dot(A,B) / (numpy.linalg.norm(A) * numpy.linalg.norm(B)) )</Solution>
+	<Exec>import numpy;</Exec>
+	<RandomInt Name="Ax" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="Ay" Min="1" Max="5" Hidden="y"/>
+	<RandomInt Name="Az" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="Bx" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="By" Min="1" Max="5" Hidden="y" />
+	<RandomInt Name="Bz" Min="1" Max="5" Hidden="y" />
+	<Var Name="A" Exec="numpy.array([Ax,Ay,Az])" />
+	<Var Name="B" Exec="numpy.array([Bx,By,Bz])" />
+    </MQA>
+
   </Test>
 </pre>
 
