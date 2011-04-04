@@ -23,13 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
-import javax.microedition.io.Connector;
-import javax.microedition.io.HttpConnection;
 import com.exploringxml.xml.*;
 
 import org.occleve.mobileclient.OccleveMobileMidlet;
 import org.occleve.mobileclient.util.*;
-import org.occleve.mobileclient.screens.ProgressAlert;
 import org.occleve.mobileclient.serverbrowser.*;
 
 /**QA which can be used to generate many variants on a given type of
