@@ -25,12 +25,11 @@ package org.occleve.mobileclient.excludable.devstuff;
 import java.util.*;
 import com.sun.lwuit.*;
 import com.sun.lwuit.layouts.*;
+
 import org.occleve.mobileclient.*;
-import org.occleve.mobileclient.components.OccleveList;
 
 public class TestSourceViewer extends Form
 {
-	protected OccleveList m_List = new OccleveList();
 	protected DevStuffChildScreenHelper m_Helper;
 
     public TestSourceViewer(String sHeading,Vector vTestSource,
@@ -41,9 +40,6 @@ public class TestSourceViewer extends Form
         try
         {
             m_Helper = new DevStuffChildScreenHelper(this,parentForm);
-            setScrollable(false); // Otherwise the List won't scroll.
-            setLayout(new BorderLayout());
-            addComponent(BorderLayout.CENTER,m_List);
             populate(vTestSource);
         }
         catch (Exception e)
@@ -54,11 +50,19 @@ public class TestSourceViewer extends Form
 
     public void populate(Vector vTestSource) throws Exception
     {
+    	StringBuffer sb = new StringBuffer();
         for (int i=0; i<vTestSource.size(); i++)
         {
             String line = (String)vTestSource.elementAt(i) + Constants.NEWLINE;
-            m_List.addItem(line);
+            sb.append(line);
         }
+        
+        setScrollable(false); // Otherwise the TextArea won't scroll.
+        setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+        
+        TextArea comp = new TextArea(sb.toString(),10000,2);
+        comp.setSmoothScrolling(true);
+        addComponent(comp);
     }
 
     public void actionCommand(Command c)
