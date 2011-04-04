@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,60 +17,52 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
 
 import java.util.*;
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.layouts.*;
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.components.OccleveList;
 
-public class TestSourceViewer extends Form implements CommandListener
+public class TestSourceViewer extends Form
 {
+	protected OccleveList m_List = new OccleveList();
 	protected DevStuffChildScreenHelper m_Helper;
 
     public TestSourceViewer(String sHeading,Vector vTestSource,
-    		Object parentDisplayable)
+    		Object parentForm)
     {
         super(sHeading);
 
-        //m_Helper = new DevStuffChildScreenHelper(this,parentDisplayable);
-
-        // DOESN'T WORK ON K300 (BUT DOES ON EMULATOR)
-        // Passing in null removes title and saves screen space.
-        // super(null);
-
         try
         {
+            m_Helper = new DevStuffChildScreenHelper(this,parentForm);
+            setScrollable(false); // Otherwise the List won't scroll.
+            setLayout(new BorderLayout());
+            addComponent(BorderLayout.CENTER,m_List);
             populate(vTestSource);
         }
-        catch (IllegalArgumentException e)
+        catch (Exception e)
         {
-            // On Sony Ericsson phones, this is thrown if you try to append
-            // more than 256 Items to a Form.
+        	OccleveMobileMidlet.getInstance().onError(e);
         }
-
-        setCommandListener(this);
     }
 
-    public void populate(Vector vTestSource) throws IllegalArgumentException
+    public void populate(Vector vTestSource) throws Exception
     {
-        // Clear any existing items.
-        deleteAll();
-
         for (int i=0; i<vTestSource.size(); i++)
         {
-            String sLine = (String)vTestSource.elementAt(i) + Constants.NEWLINE;
-            StringItem si = new StringItem(null,sLine);
-            StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
-            append(si);
+            String line = (String)vTestSource.elementAt(i) + Constants.NEWLINE;
+            m_List.addItem(line);
         }
     }
 
-    /**Implementation of CommandListener.*/
-    public void commandAction(Command c, Displayable s)
+    public void actionCommand(Command c)
     {
-    	//m_Helper.commandAction(c, s);
+    	m_Helper.actionCommand(c);
     }
 }

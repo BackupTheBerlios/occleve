@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2008-9  Joe Gittings
+Copyright (C) 2008-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,30 +17,30 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
 
 import java.util.*;
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.components.OccleveList;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.testing.*;
 
 import com.exploringxml.xml.Node;
 import com.exploringxml.xml.Xparse;
 
-/**New in 0.9.6 - a utility class which lists ALL files stored in the recordstore
-(quizzes, GIFs, MP3s,....)*/
-public class FileManager extends List
-implements CommandListener
+/**Lists ALL files stored in the recordstore (quizzes, GIFs, MP3s,....)*/
+public class FileManager extends Form
 {
+	protected OccleveList m_List = new OccleveList();
 	protected DevStuffScreen m_DevStuffScreen;
 	protected DevStuffChildScreenHelper m_Helper;
 	
-	/**0.9.7*/
 	protected VocabRecordStoreManager m_RecordStoreManager;
 	
     protected Command m_DeleteCommand;
@@ -51,27 +51,27 @@ implements CommandListener
     public FileManager(VocabRecordStoreManager rsMgr,DevStuffScreen dvs)
     throws Exception
     {
-        super(Constants.PRODUCT_NAME,List.IMPLICIT);
+        super(Constants.PRODUCT_NAME);
 
         m_DevStuffScreen = dvs;
-        // m_Helper = new DevStuffChildScreenHelper(this,dvs);
+
+        m_Helper = new DevStuffChildScreenHelper(this,dvs);
+        setScrollable(false); // Otherwise the List won't scroll.
+        setLayout(new BorderLayout());
+        addComponent(BorderLayout.CENTER,m_List);
 
         m_RecordStoreManager = rsMgr;
-        m_DeleteCommand = new Command("Delete", Command.ITEM, 1);
-        m_DetailsCommand = new Command("Details", Command.ITEM, 1);
+        m_DeleteCommand = new Command("Delete");
+        m_DetailsCommand = new Command("Details");
 
         addCommand(m_DeleteCommand);
         addCommand(m_DetailsCommand);
 
         populate();
-        setCommandListener(this);
     }
 
     public void populate() throws Exception
-    {
-        // Clear out the existing items in this form, if any.
-        deleteAll();
-
+    {    	
     	// 0.9.6
         //VocabRecordStoreManager mgr = new VocabRecordStoreManager();
     	////VocabRecordStoreManager mgr = OccleveMobileMidlet.getInstance().getVocabRecordStoreManager();
@@ -82,17 +82,16 @@ implements CommandListener
                 
         for (int i=0; i<m_RecordIndicesKeyedByFilenames.size(); i++)
         {
-        	String sFilename = (String)filenames.nextElement();
-        	append(sFilename,null);
+        	String filename = (String)filenames.nextElement();
+        	m_List.addItem(filename);
         }
     }
 
-    /*Implementation of CommandListener.*/
-    public void commandAction(Command c,Displayable d)
+    public void actionCommand(Command c)
     {
         try
         {
-            commandAction_Inner(c,d);
+            actionCommand_Inner(c);
         }
         catch (Exception e)
         {
@@ -101,14 +100,14 @@ implements CommandListener
     }
 
     /*Subfunction for code clarity.*/
-    private void commandAction_Inner(Command c,Displayable d) throws Exception
+    private void actionCommand_Inner(Command c) throws Exception
     {
-        int iSelIndex = getSelectedIndex();
+        int iSelIndex = m_List.getSelectedIndex();
 
         if (c==m_DeleteCommand)
         {
         	// Delete the selected record from the record store.
-        	String sFilename = getString(iSelIndex);
+        	String sFilename = (String)m_List.getSelectedItem();
         	Integer iRecordID =
         		(Integer)m_RecordIndicesKeyedByFilenames.get(sFilename);
             m_RecordStoreManager.deleteTest(iRecordID.intValue(),sFilename);
@@ -117,8 +116,8 @@ implements CommandListener
             // Simplest way to do this would be to call populate() again...
             // but this changes the order of the remaining items in the list,
             // which looks a bit confusing (although is perfectly correct).
-            delete(iSelIndex);
-            m_RecordIndicesKeyedByFilenames.remove(sFilename);
+////            m_List. delete(iSelIndex);
+////            m_RecordIndicesKeyedByFilenames.remove(sFilename);
 
             // Once we exit the dev stuff screen, the main list of quizzes
             // will need refreshing.
@@ -126,7 +125,7 @@ implements CommandListener
         }
         else if (c==m_DetailsCommand)
         {
-        	String sFilename = getString(iSelIndex);
+        	String sFilename = (String)m_List.getSelectedItem();
         	showFileDetails(sFilename);
         }
         else
@@ -167,8 +166,7 @@ implements CommandListener
 	        	Constants.NEWLINE + "Memory used by parsing XML = " + lMemUsedByParsing;
         }
                 
-        Alert infoAlert = new Alert(sFilename,sFileInfo,null,AlertType.INFO);
-        OccleveMobileMidlet.getInstance().displayAlert(infoAlert,this);    	
+        OccleveMobileMidlet.getInstance().displayAlert(sFileInfo);    	
     }
 }
 
