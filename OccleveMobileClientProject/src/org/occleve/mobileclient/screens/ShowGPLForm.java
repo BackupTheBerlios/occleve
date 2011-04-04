@@ -22,19 +22,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.screens;
 
-import java.util.*;
 import com.sun.lwuit.*;
 import com.sun.lwuit.layouts.*;
 import org.occleve.mobileclient.*;
 
 public class ShowGPLForm extends Form
 {
-    protected Command m_NewTestCommand;
+    protected Command m_OKCommand;
 
     public ShowGPLForm() throws Exception
     {
         super("Copyright and license");
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
+        setScrollable(false); // So the TextArea will scroll.        
         
         String sCopyright =
             "Copyright (C) 2007-11 Joe Gittings, except for: " + Constants.NEWLINE +
@@ -45,9 +45,6 @@ public class ShowGPLForm extends Form
             "OpenBaseMovil database classes " +
             "copyright (C) 2004-2008 Elondra S.L." + Constants.NEWLINE +
         	"All rights reserved. " + Constants.NEWLINE;
-        sCopyright += Constants.NEWLINE + Constants.NEWLINE;
-  //      TextArea comp = new TextArea(sCopyright,2,2);
-   //     addComponent(comp);
 
         String sPreamble =
             "This program is free software; you can redistribute it and/or " +
@@ -57,38 +54,25 @@ public class ShowGPLForm extends Form
             "This program is distributed in the hope that it will be useful, " +
             "but WITHOUT ANY WARRANTY; without even the implied warranty of " +
             "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the " +
-            "GNU General Public License for more details." +
-            Constants.NEWLINE + Constants.NEWLINE;
-     //   comp = new TextArea(sPreamble,2,2);
-      //  addComponent(comp);
+            "GNU General Public License for more details.";
 
         String sLicence = StaticHelpers.readUnicodeFile("/COPYING");
         
-        TextArea comp = new TextArea(sCopyright + Constants.NEWLINE +
-        	sPreamble + Constants.NEWLINE + sLicence,500,2);
+        TextArea comp = new TextArea(
+        	sCopyright + Constants.NEWLINE + Constants.NEWLINE +
+        	sPreamble + Constants.NEWLINE + Constants.NEWLINE + 
+        	sLicence,500,2);
+        comp.setSmoothScrolling(true);
+        comp.setLinesToScroll(2);
         addComponent(comp);
         
-        /* Vector vLicense = StaticHelpers.stringToVector(sLicense);
-        String sLine = "";
-        for (int i=0; i<vLicense.size(); i++)
-        {
-            sLine += " " + (String)vLicense.elementAt(i);
-            if (   ((i%10)==0)   ||  (i==vLicense.size()-1)   )
-            {
-                comp = new TextArea(sLine);
-                // StaticHelpers.safeSetFont(si, OccleveMobileFonts.DETAILS_FONT);
-                addComponent(comp);
-                sLine = "";
-            }
-        } */
-
-        m_NewTestCommand = new Command("New test",0);
-        addCommand(m_NewTestCommand);
+        m_OKCommand = new Command("OK");
+        addCommand(m_OKCommand);
     }
 
     protected void actionCommand(Command c)
     {
-        if (c==m_NewTestCommand)
+        if (c==m_OKCommand)
         {
             OccleveMobileMidlet.getInstance().displayFileChooser();
         }
