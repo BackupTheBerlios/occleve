@@ -49,16 +49,20 @@ public class SageQA extends QA //// implements Runnable
 	protected class Var
 	{
 		protected String m_Name;
+		protected String m_DisplayName;
 		protected String m_Value;
 		protected String m_Exec;
 		protected String m_DisplayValue;
+		protected String m_DisplayFilter;
 		protected boolean m_bHidden = false;
 		
 		public Var(Node varNode)
 		{
         	m_Name = (String)varNode.attributes.get("Name");
+        	m_DisplayName = (String)varNode.attributes.get("DisplayName");
         	m_DisplayValue = (String)varNode.attributes.get("DisplayValue");
         	m_Exec = (String)varNode.attributes.get("Exec");
+        	m_DisplayFilter = (String)varNode.attributes.get("DisplayFilter");
         	
         	String hidden = (String)varNode.attributes.get("Hidden");
         	if (hidden!=null)
@@ -73,10 +77,32 @@ public class SageQA extends QA //// implements Runnable
 		
 		public String toString()
 		{
-        	if (m_DisplayValue!=null && m_DisplayValue.length()!=0)
-        		return m_Name + "=" + m_DisplayValue;
+			String name;
+        	if (m_DisplayName!=null && m_DisplayName.length()!=0)
+        		name = m_DisplayName;
         	else
-        		return m_Name + "=" + m_Value;
+        		name = m_Name;
+
+        	String value;
+        	if (m_DisplayValue!=null && m_DisplayValue.length()!=0)
+        		value = m_DisplayValue;
+        	else if (m_DisplayFilter!=null && m_DisplayFilter.length()!=0)
+        		value = applyFilter();
+        	else
+        		value = m_Value;
+        	
+    		return name + "=" + value;
+		}
+		
+		public String applyFilter()
+		{
+			return m_Value;  // TO DO
+
+			/////////// TO DO /////////////////////////////
+			// if (m_DisplayFilter.equals("array")) {
+				// Format to decode is: array([1,2,3])
+				// StringTokenizer st = new StringTokenizer(.......);
+			// }
 		}
 	}
 	
