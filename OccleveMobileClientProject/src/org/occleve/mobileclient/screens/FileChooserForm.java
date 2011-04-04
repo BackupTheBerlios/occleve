@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-2010  Joe Gittings
+Copyright (C) 2007-2011  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -329,7 +329,7 @@ public class FileChooserForm extends Form implements Runnable
     throws Exception
     {
 		System.out.println("Trying to load Test");
-		Test theTest = new Test(entry,null); // LWUIT-TO-DO progressAlert);
+		Test theTest = new Test(entry,progressAlert);
 		System.out.println("Loaded Test ok");
 		System.out.println("Trying to displayTestOptions");
 		displayTestOptions(theTest);

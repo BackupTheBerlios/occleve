@@ -23,8 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.screens;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.events.ActionEvent;
-import com.sun.lwuit.events.ActionListener;
 import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
@@ -32,7 +30,6 @@ import org.occleve.mobileclient.components.OccleveList;
 import org.occleve.mobileclient.serverbrowser.*;
 
 public class ChooseQuizServerScreen extends Form
-implements ActionListener
 {
 	protected OccleveList m_List = new OccleveList();
     protected Command m_ConnectCommand;
@@ -79,8 +76,6 @@ implements ActionListener
 
         // "Connect" is the default select command.
         // setSelectCommand(m_ConnectCommand);
-        
-        setCommandListener(this);
     }
 
     protected void append(String s)
@@ -89,14 +84,11 @@ implements ActionListener
     	addComponent(ta);
     }
 
-    /**Implementation of ActionListener.*/
-    public void actionPerformed(ActionEvent evt) {}
-
-    public void commandAction(Command c)
+    public void actionCommand(Command c)
     {
         try
         {
-            commandAction_Inner(c);
+            actionCommand_Inner(c);
         }
         catch (Exception e)
         {
@@ -104,7 +96,7 @@ implements ActionListener
         }
     }
 
-    public void commandAction_Inner(Command c) throws Exception
+    public void actionCommand_Inner(Command c) throws Exception
     {
     	if (c==m_ConnectCommand)
     	{
