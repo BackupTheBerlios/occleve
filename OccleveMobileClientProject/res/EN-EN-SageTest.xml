@@ -44,8 +44,8 @@
 	<RandomInt Name="Bz" Min="1" Max="5" Hidden="y" />
 	<Exec>A=numpy.array([Ax,Ay,Az])</Exec>
 	<Exec>B=numpy.array([Bx,By,Bz])</Exec>
-	<Var Name="ABSum" Exec="A+B" />
-	<Var Name="ABDiff" Exec="A-B" />
+	<Var Name="ABSum" DisplayName="A+B" Exec="A+B" DisplayFilter="array" />
+	<Var Name="ABDiff" DisplayName="A-B" Exec="A-B" DisplayFilter="array" />
 	<Exec>ABSum = A+B</Exec>
 	<Exec>ABDiff = A-B</Exec>
     </MQA>
