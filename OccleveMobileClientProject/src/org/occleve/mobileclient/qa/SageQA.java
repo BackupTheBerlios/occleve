@@ -42,16 +42,9 @@ public class SageQA extends QA //// implements Runnable
 	protected String m_Desc;
 	protected String m_Problem;
 	protected Vector m_VarsAndExecs = new Vector();
-	protected Vector m_Solutions = new Vector();
-	
+	protected Vector m_Solutions = new Vector();	
 	protected Vector m_EvaluatedSolutions;
-
-	//protected boolean m_bThreadActive = false;
-	//protected int m_iThreadAction;
 	protected String m_sSageCodeToExec;
-	//private static final int EVALUATE_SOLNS = 0;
-	//private static final int EVALUATE_VAR = 1;
-	//private static final int EXEC = 2;
 	
 	protected class Var
 	{
@@ -86,19 +79,6 @@ public class SageQA extends QA //// implements Runnable
         		return m_Name + "=" + m_Value;
 		}
 	}
-
-	/*
-	protected void executeSageCode(String sSageCode)
-	{
-		m_iThreadAction = EXEC;
-		m_sSageCodeToExec = sSageCode;
-		new Thread(this).run();
-		do
-		{
-			try {Thread.sleep(500);} catch (Exception e) {}
-		} while (m_bThreadActive);			
-	}
-	*/
 	
 	protected class RandomVar extends Var
 	{
@@ -249,43 +229,6 @@ public class SageQA extends QA //// implements Runnable
     	return m_EvaluatedSolutions;
     }
 
-//    protected void invokeEvaluateSolutionsThread() throws Exception {
-        /* ProgressAlert alt =
-        	new ProgressAlert("","Evaluating solution for maths QA");
-    	Object oldForm = OccleveMobileMidlet.getInstance().getCurrentForm();
-        OccleveMobileMidlet.getInstance().setCurrentForm(alt); */
-
-  //  	evaluateSolutions();
-    	
-//    	m_iThreadAction = EVALUATE_SOLNS;
-//		new Thread(this).start();
-
-//		do
-//		{
-//			try {Thread.sleep(500);} catch (Exception e) {}
-//		} while (m_bThreadActive);
-		
-	//	System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
-		//OccleveMobileMidlet.getInstance().setCurrentForm(oldForm);
-    //}
-    
-    /**Implementation of Runnable.*/
-    /*
-    public void run()
-    {
-    	synchronized(this)
-    	{
-    		m_bThreadActive = true;
-	    	try
-	    	{
-	    		if (m_iThreadAction==EVALUATE_SOLNS)
-	    			evaluateSolutions();
-	        }
-	        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
-    		m_bThreadActive = false;
-    	}
-    } */
-
     protected void evaluateSolutions() throws Exception
     {
     	Vector evaluatedSolns = new Vector();
@@ -297,13 +240,6 @@ public class SageQA extends QA //// implements Runnable
     		{
     			RandomVar var = (RandomVar)obj;
 	    		String sageCode = var.m_Name + "=" + var.m_Value;
-	    		/*
-	        	String encoded = URLEncoder.encode(assign, "UTF-8");        	
-	        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
-	        	WikiConnection wc = new WikiConnection();
-	        	byte[] bytes = wc.readAllBytes(sURL, null, true);
-	        	wc.close();
-	        	*/
 	    		exec(sageCode);
 	        	System.out.println("ASSIGNED VAR: " + var);    		
     		}
@@ -324,18 +260,6 @@ public class SageQA extends QA //// implements Runnable
     	{
     		String toEval = (String)m_Solutions.elementAt(i);
     		String evaluated = exec(toEval);
-
-    		/*
-    		String encoded = URLEncoder.encode(toEval, "UTF-8");
-        	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
-        	trace("EVALUATING " + sURL);
-        	WikiConnection wc = new WikiConnection();
-        	byte[] bytes = wc.readAllBytes(sURL, null, true);
-        	wc.close();
-        	String evaluated = new String(bytes);
-        	System.out.println("EVALUATED SOLN: " + evaluated);
-        	*/
-        	
         	evaluatedSolns.addElement(evaluated);
     	}
     	
