@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2009-2010  Joe Gittings
+Copyright (C) 2009-2011  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,6 +32,11 @@ public class ProgressAlert extends Form
 {
 	protected TextArea m_Label;
 
+    public ProgressAlert(String message) throws Exception
+    {
+    	this(Constants.PRODUCT_NAME,message);
+    }
+
     public ProgressAlert(String title,String message) throws Exception
     {
         super(title);
@@ -50,22 +55,10 @@ public class ProgressAlert extends Form
         addComponent(BorderLayout.CENTER,m_Label);
     }
 
-    /*Implementation of CommandListener.*/
-    public void actionCommand(Command c)
-    {
-        try
-        {
-            commandAction_Inner(c);
-        }
-        catch (Exception e)
-        {
-            OccleveMobileMidlet.getInstance().onError(e);
-        }
-    }
+    public void actionCommand(Command c) {}
 
-    /*Subfunction for code clarity.*/
-    public void commandAction_Inner(Command c) throws Exception
-    {
-    }
+    public String getMessage() {return m_Label.getText();}
+
+    public void setMessage(String msg) {m_Label.setText(msg);}
 }
 

@@ -28,11 +28,11 @@ import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
+import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
-public class TestOptionsScreen extends Form
-implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
+public class TestOptionsScreen extends Form implements ActionListener,Runnable
 {
     protected Test m_Test;
 
@@ -42,20 +42,17 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
     protected String RANDOM = "Random";
     protected ComboBox m_SequentialOrRandomChoiceGroup;
 
-    // 0.9.6 - add a Start From Question No field for sequential mode
+    // Start From Question No field for sequential mode
     protected TextField m_FirstQuestionTextField = new TextField();
     protected TextField m_LastQuestionTextField = new TextField();
     protected TextField m_RestartOnPercentageBelowTextField = new TextField();
     
-    //// Took this out in 0.9.3 as it was just confusing users.
-    //protected String CANVAS = "Canvas view";
-    //protected String FORM = "Form view";
-    //protected ChoiceGroup m_ViewChoiceGroup;
-
     protected CommonCommands m_CommonCommands;
     protected Command m_OKCommand;
     protected Command m_CancelCommand;
 
+    protected ProgressAlert m_ProgressAlert;
+    
     /**Does nothing except in the derived class.*/
     protected void addSubclassControls() throws Exception {}
 
@@ -70,9 +67,8 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
         			Font.STYLE_PLAIN, Font.SIZE_SMALL);
         getStyle().setFont(smallFont);
 
-        // LWUIT-TO-DO - reenable once CommonCommands is LWUIT friendly 
-//        m_CommonCommands = new CommonCommands();
-//        m_CommonCommands.addToDisplayable(this);
+        m_CommonCommands = new CommonCommands();
+        m_CommonCommands.addToForm(this);
 
         m_OKCommand = new Command("OK",0);
         m_CancelCommand = new Command("Cancel",0);
@@ -105,8 +101,6 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
 
         addPromptAndField("Restart if score below:",
         		m_RestartOnPercentageBelowTextField,"0");
-        
-		///show();
     }
 
     private void addPromptAndField(String sPrompt,TextField field,String sInitialValue)
@@ -123,11 +117,7 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
     {
         if (c==m_OKCommand)
         {
-            try
-            {
-                runTest();
-            }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        	createRunTestThread();
         }
         else if (c==m_CancelCommand)
         {
@@ -135,14 +125,44 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
         }
         else
         {
-        	/// TODO
-        	//////m_CommonCommands.commandAction(c,this);
+        	m_CommonCommands.actionCommand(c);
         }
     }
 
-    protected void runTest() throws Exception
+    protected void createRunTestThread()
+    {    	
+        try
+        {
+        	QA firstQA = m_Test.getQA(0);
+        	if (firstQA instanceof SageQA)
+        	{
+                m_ProgressAlert =
+                	new ProgressAlert("","Evaluating solutions for maths QAs");
+                OccleveMobileMidlet.getInstance().setCurrentForm(m_ProgressAlert);
+        	}
+        	else {
+        		m_ProgressAlert = null;
+        	}
+        	
+        	new Thread(this).start();
+        }
+        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+    }
+
+    /**Implementation of Runnable.*/
+    public void run()
     {
-        ////int i = m_SequentialOrRandomChoiceGroup.getSelectedIndex();
+    	try {
+    		runTest();
+    	}
+    	catch (Exception e) {
+    		OccleveMobileMidlet.getInstance().onError(e);
+    	}
+    }
+    
+    
+    protected void runTest() throws Exception
+    {    	
         String sChoice = (String)m_SequentialOrRandomChoiceGroup.getSelectedItem();
         boolean bRandom = (sChoice.equals(RANDOM));
 
@@ -188,12 +208,12 @@ implements ActionListener   /////,ItemCommandListener ////,ItemStateListener
         if (bRandom)
         {
             tc = new RandomTestController(m_Test,direction,
-            		iFirstQuestion-1,iLastQuestion-1,iMinScore);
+            		iFirstQuestion-1,iLastQuestion-1,iMinScore,m_ProgressAlert);
         }
         else
         {        	        	
         	tc = new SequentialTestController(m_Test,direction,
-        			iFirstQuestion-1,iLastQuestion-1,iMinScore);
+        			iFirstQuestion-1,iLastQuestion-1,iMinScore,m_ProgressAlert);
         }
 
         tc.setVisible();
@@ -247,8 +267,7 @@ m_Test = null;
         {
             if (ae.getSource()==m_StartTestItem)
             {
-                ///////OccleveMobileMidlet.getInstance().beep();
-                runTest();
+                createRunTestThread();
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}

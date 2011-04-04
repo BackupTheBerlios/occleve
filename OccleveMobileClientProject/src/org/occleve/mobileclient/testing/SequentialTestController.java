@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.testing;
@@ -25,6 +25,7 @@ package org.occleve.mobileclient.testing;
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
+import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class SequentialTestController extends TestController
@@ -35,11 +36,12 @@ public class SequentialTestController extends TestController
     protected Command m_SkipForwardCommand;
     
     public SequentialTestController(Test theTest,QADirection direction,
-    		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore)
+    		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore,
+    		ProgressAlert progressAlert)
     throws Exception
     {
         super(theTest,direction,iFirstQuestionIndex,
-        		iLastQuestionIndex,iMinScore);
+        		iLastQuestionIndex,iMinScore,progressAlert);
 
         int iMaxIndex = m_Test.getQACount()-1;
         if (iFirstQuestionIndex <= iMaxIndex)

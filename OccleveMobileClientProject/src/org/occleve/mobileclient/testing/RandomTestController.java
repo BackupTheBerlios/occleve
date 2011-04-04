@@ -25,6 +25,7 @@ package org.occleve.mobileclient.testing;
 import java.util.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
+import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.test.*;
 import net.dclausen.microfloat.*;
 
@@ -35,11 +36,11 @@ public class RandomTestController extends TestController
 
     public RandomTestController(Test theTest,QADirection direction,
                           int iFirstQuestionIndex,int iLastQuestionIndex,
-                          int iMinScore)
+                          int iMinScore,ProgressAlert progressAlert)
     throws Exception
     {
         super(theTest,direction,iFirstQuestionIndex,iLastQuestionIndex,
-        		iMinScore);
+        		iMinScore,progressAlert);
 
         Integer ciIndex = findRandomUnansweredQuestionIndex();
         if (ciIndex==null)

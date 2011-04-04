@@ -34,6 +34,7 @@ import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.test.*;
 
+import com.sun.lwuit.Dialog;
 import com.sun.lwuit.plaf.UIManager;
 import com.sun.lwuit.util.Resources;
 
@@ -56,7 +57,7 @@ implements CommandListener,Runnable
     
     protected FileChooserForm m_FileChooserForm;
 
-    protected Alert m_ProgressAlertCache;
+    protected ProgressAlert m_ProgressAlertCache;
     protected ListOfTestsEntry m_EntryCache;
 
     /**0.9.6: The recordstore which stores quizzes.*/
@@ -130,6 +131,11 @@ implements CommandListener,Runnable
         return Display.getDisplay(this).getCurrent();
     }
 
+    public Object getCurrentForm()
+    {
+    	return m_CurrentForm;
+    }
+
     public void setCurrentForm(Object form)
     {
     	setCurrentForm(form,false);
@@ -187,7 +193,12 @@ implements CommandListener,Runnable
 			onError(e);
 		}
     }
-    
+
+	public void displayAlert(String msg)
+	{
+    	Dialog.show(Constants.PRODUCT_NAME,msg,"OK","");
+	}
+
 	public void displayAlert(Alert alert,Displayable nextScreen)
 	{
 	    Display.getDisplay(this).setCurrent(alert,nextScreen);
@@ -274,13 +285,9 @@ implements CommandListener,Runnable
     public void displayTest(ListOfTestsEntry entry)
     throws Exception
     {
-        Alert alt = new Alert(null, "Loading " + entry.getFilename(), null, null);
-        alt.setTimeout(Alert.FOREVER);
-        StaticHelpers.safeAddGaugeToAlert(alt);
-        Display.getDisplay(this).setCurrent(alt);
-
+        m_ProgressAlertCache = new ProgressAlert("Loading " + entry.getFilename());
+        setCurrentForm(m_ProgressAlertCache);
         m_EntryCache = entry;
-        m_ProgressAlertCache = alt;
         m_ThreadAction = VIEW_TEST;
         new Thread(this).start();
     }
@@ -310,7 +317,7 @@ implements CommandListener,Runnable
         catch (Exception e) {onError(e);}
     }
 
-    private void displayTest_Thread(ListOfTestsEntry entry,Alert progressAlert)
+    private void displayTest_Thread(ListOfTestsEntry entry,ProgressAlert progressAlert)
     throws Exception
     {
         Test theTest = new Test(entry,progressAlert);

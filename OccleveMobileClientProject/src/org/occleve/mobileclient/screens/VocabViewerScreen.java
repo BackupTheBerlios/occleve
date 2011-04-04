@@ -23,12 +23,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.screens;
 
 import java.io.*;
-import java.util.*;
 import javax.microedition.io.*;
 import javax.microedition.io.file.*;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.events.*;
 import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
@@ -36,7 +34,6 @@ import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public class VocabViewerScreen extends Form
-//implements CommandListener,ItemCommandListener
 {
     protected Test m_Test;
 
@@ -157,7 +154,7 @@ public class VocabViewerScreen extends Form
         }
     }
 
-    public void commandAction(Command c)
+    public void actionCommand(Command c)
     {
         /* if ((s!=null) && (s==m_QuestionNoTextBox))
         {

@@ -24,13 +24,13 @@ package org.occleve.mobileclient.testing.test;
 
 import com.exploringxml.xml.*;
 import java.util.*;
-import javax.microedition.lcdui.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
 import org.occleve.mobileclient.recordstore.*;
+import org.occleve.mobileclient.screens.*;
 import org.occleve.mobileclient.testing.ListOfTestsEntry;
 
 public class Test
@@ -78,18 +78,18 @@ public class Test
     	}
     }
 
-    public Test(ListOfTestsEntry entry,Alert progressAlert) throws Exception
+    public Test(ListOfTestsEntry entry,ProgressAlert progressAlert) throws Exception
     {
         load(entry,progressAlert);
     }
 
-    public void load(ListOfTestsEntry entry,Alert progressAlert) throws Exception
+    public void load(ListOfTestsEntry entry,ProgressAlert progressAlert) throws Exception
     {
         load_Inner(entry,progressAlert);
         System.out.println("Loaded " + m_QAs.size() + " QAs");
     }
 
-    private void load_Inner(ListOfTestsEntry entry,Alert progressAlert)
+    private void load_Inner(ListOfTestsEntry entry,ProgressAlert progressAlert)
     throws Exception
     {
     	m_ListOfTestsEntry = entry;
@@ -117,13 +117,14 @@ public class Test
     }
 
     /**Load an XML test.*/
-    public void xmlLoadQuestions(String sTestFilename,String sTestSource,Alert progressAlert)
+    public void xmlLoadQuestions(String sTestFilename,String sTestSource,
+    	ProgressAlert progressAlert)
     throws Exception
     {
     	String sOriginalProgressPrompt = null;
     	if (progressAlert!=null)
     	{
-    		sOriginalProgressPrompt = progressAlert.getString();
+    		sOriginalProgressPrompt = progressAlert.getMessage();
     	}
     	
         int iFirstHyphenIndex = sTestFilename.indexOf('-');
@@ -204,7 +205,7 @@ public class Test
     }
 
     private void xmlLoadQuestions_OneQA(String qaType,String qaText,Node qaNode,
-		String sOriginalProgressPrompt,Alert progressAlert) throws Exception
+		String sOriginalProgressPrompt,ProgressAlert progressAlert) throws Exception
     {
     	// System.out.println("qaText=" + qaText);
     	
@@ -230,7 +231,7 @@ public class Test
         					" - loaded " + m_QAs.size() + " questions. " +
         					"Free memory in bytes = " +
         					Runtime.getRuntime().freeMemory();
-        	progressAlert.setString(sMsg);
+        	progressAlert.setMessage(sMsg);
         }    	
     }
 

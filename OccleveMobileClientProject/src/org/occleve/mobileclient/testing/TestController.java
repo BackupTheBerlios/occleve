@@ -28,6 +28,7 @@ import java.util.*;
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
+import org.occleve.mobileclient.screens.ProgressAlert;
 import org.occleve.mobileclient.testing.qacontrol.*;
 import org.occleve.mobileclient.testing.qaview.*;
 import org.occleve.mobileclient.testing.test.*;
@@ -64,9 +65,15 @@ public abstract class TestController implements CommandListener
     /////////////////////////////////////////////
     
     public TestController(Test theTest,QADirection direction,
-    		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore)
+    		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore,
+    		ProgressAlert pa)
     throws Exception
     {
+    	for (int i=0; i<theTest.getQACount(); i++) {
+    		if (pa!=null) pa.setMessage("Evaluating answer " + (i+1));
+    		theTest.getQA(i).getAnswer();
+    	}
+    	
     	// 0.9.6: Only include QAs in the test which contain the desired
     	// question and answer fields. For example, if testing on english-to-hanzi,
     	// make sure all the QAs actually contain hanzi.

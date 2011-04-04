@@ -116,8 +116,8 @@ public class FileManager extends Form
             // Simplest way to do this would be to call populate() again...
             // but this changes the order of the remaining items in the list,
             // which looks a bit confusing (although is perfectly correct).
-////            m_List. delete(iSelIndex);
-////            m_RecordIndicesKeyedByFilenames.remove(sFilename);
+            m_List.getModel().removeItem(iSelIndex);
+            m_RecordIndicesKeyedByFilenames.remove(sFilename);
 
             // Once we exit the dev stuff screen, the main list of quizzes
             // will need refreshing.
@@ -130,7 +130,7 @@ public class FileManager extends Form
         }
         else
         {
-        	//m_Helper.actionCommand(c);
+        	m_Helper.actionCommand(c);
         }
     }
 
