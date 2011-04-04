@@ -23,9 +23,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.excludable.devstuff;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.events.*;
-import com.sun.lwuit.layouts.*;
-import com.sun.lwuit.list.*;
 import org.occleve.mobileclient.*;
 
 public class DevStuffChildScreenHelper
@@ -33,11 +30,9 @@ public class DevStuffChildScreenHelper
     protected Command m_BackCommand;
     protected Object m_Parent;
 
-    public DevStuffChildScreenHelper(Form form,
-    		Object parent)
+    public DevStuffChildScreenHelper(Form form,Object parent)
     {
         m_Parent = parent;
-
         m_BackCommand = new Command("Back");
         form.addCommand(m_BackCommand);
     }

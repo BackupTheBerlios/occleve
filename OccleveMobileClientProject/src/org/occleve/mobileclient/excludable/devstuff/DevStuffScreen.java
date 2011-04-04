@@ -86,8 +86,6 @@ implements ActionListener,Excludable,Runnable
     protected final String DELETE_ALL_XML = "Delete all XML-prefixed files";
     protected final String TEST_BABELFISH = "Test Babelfish";
     protected final String TESTBED_CANVAS = "Testbed canvas";
-    protected final String TESTBED_FORM = "Testbed form";
-    protected final String TESTBED_TEXTBOX = "Testbed textbox";
     protected final String TEST_LWUIT = "Test the LWUIT";
     protected final String COUNT_QUESTIONS = "Count questions";
     protected final String DISPLAY_PHONE_MODEL = "Display phone model";
@@ -142,8 +140,6 @@ implements ActionListener,Excludable,Runnable
         append(DELETE_ALL_XML,null);
         append(TEST_BABELFISH,null);
         append(TESTBED_CANVAS,null);
-        append(TESTBED_FORM,null);
-        append(TESTBED_TEXTBOX,null);
         append(TEST_LWUIT,null);
         append(COUNT_QUESTIONS,null);
         append(DISPLAY_PHONE_MODEL,null);
@@ -308,16 +304,6 @@ implements ActionListener,Excludable,Runnable
             TestbedCanvas tbc = new TestbedCanvas(this);
             OccleveMobileMidlet.getInstance().setCurrentForm(tbc);
         }
-        else if (sOption.equals(TESTBED_FORM))
-        {
-            TestbedForm tbf = new TestbedForm(this);
-            OccleveMobileMidlet.getInstance().setCurrentForm(tbf);
-        }
-        else if (sOption.equals(TESTBED_TEXTBOX))
-        {
-            TestbedTextBox ttb = new TestbedTextBox(this);
-            OccleveMobileMidlet.getInstance().setCurrentForm(ttb);
-        }
         else if (sOption.equals(TEST_LWUIT))
         {
             TestLWUIT tl = new TestLWUIT();
@@ -341,7 +327,7 @@ implements ActionListener,Excludable,Runnable
         }
         else if (sOption.equals(RUN_GARBAGE_COLLECTOR))
         {
-            System.gc();
+            runGC();
         }
         else if (sOption.equals(SHOW_FILESYSTEM_ROOTS))
         {

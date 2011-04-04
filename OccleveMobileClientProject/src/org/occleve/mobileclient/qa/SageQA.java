@@ -29,6 +29,7 @@ import com.exploringxml.xml.*;
 
 import org.occleve.mobileclient.OccleveMobileMidlet;
 import org.occleve.mobileclient.util.*;
+import org.occleve.mobileclient.screens.ProgressAlert;
 import org.occleve.mobileclient.serverbrowser.*;
 
 /**QA which can be used to generate many variants on a given type of
@@ -237,20 +238,43 @@ public class SageQA extends QA implements Runnable
     	}
     	else
     	{
-    		m_iThreadAction = EVALUATE_SOLNS;
-    		new Thread(this).run();
-
-    		do
-    		{
-    			try {Thread.sleep(500);} catch (Exception e) {}
-    		} while (m_bThreadActive);
+try {
+	throw new Exception();
+} catch (Exception e) {
+	e.printStackTrace();
+}
     		
-    		System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
+    		
+    		try
+    		{
+    		    invokeEvaluateSolutionsThread();
+    		}
+    		catch (Exception e)
+    		{
+    			OccleveMobileMidlet.getInstance().onError(e);
+    		}
     	}
 
     	return m_EvaluatedSolutions;
     }
 
+    protected void invokeEvaluateSolutionsThread() throws Exception {
+        /* ProgressAlert alt =
+        	new ProgressAlert("","Evaluating solution for maths QA");
+    	Object oldForm = OccleveMobileMidlet.getInstance().getCurrentForm();
+        OccleveMobileMidlet.getInstance().setCurrentForm(alt); */
+		m_iThreadAction = EVALUATE_SOLNS;
+		new Thread(this).start();
+
+		do
+		{
+			try {Thread.sleep(500);} catch (Exception e) {}
+		} while (m_bThreadActive);
+		
+		System.out.println("No of evaluated solutions=" + m_EvaluatedSolutions.size());
+		//OccleveMobileMidlet.getInstance().setCurrentForm(oldForm);
+    }
+    
     /**Implementation of Runnable.*/
     public void run()
     {
@@ -333,6 +357,10 @@ public class SageQA extends QA implements Runnable
     	
     	WikiConnection wc = new WikiConnection();
     	byte[] bytes = wc.readAllBytes(sURL, null, true);
+Object current = OccleveMobileMidlet.getInstance().getCurrentForm();
+System.out.println("Current form is " + current);
+OccleveMobileMidlet.getInstance().setCurrentForm(current);
+System.out.println("Redisplayed " + current);
     	wc.close();
     	String evaluated = new String(bytes);
     	System.out.println("EXECUTED: " + evaluated);
