@@ -69,9 +69,13 @@ public abstract class TestController implements CommandListener
     		ProgressAlert pa)
     throws Exception
     {
-    	for (int i=0; i<theTest.getQACount(); i++) {
-    		if (pa!=null) pa.setMessage("Evaluating answer " + (i+1));
-    		theTest.getQA(i).getAnswer();
+    	for (int i=0; i<theTest.getQACount(); i++)
+    	{
+    		if (theTest.getQA(i) instanceof SageQA)
+    		{
+    			if (pa!=null) pa.setMessage("Evaluating answer " + (i+1));
+    			theTest.getQA(i).getAnswer();
+    		}
     	}
     	
     	// 0.9.6: Only include QAs in the test which contain the desired
