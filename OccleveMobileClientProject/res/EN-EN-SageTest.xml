@@ -3,11 +3,23 @@
   <Test>
 
     <MQA>
-	<Desc>What is the solution x of the following quadratic?</Desc>
-	<Problem>ax^2+bx+c=0</Problem>
+	<Desc>Integrate the following wrt x: </Desc>
+	<Problem>ax^p+bx^q+cx^r</Problem>
 	<Exec>warmupSage=1</Exec>
 	<Exec>warmupSage=2</Exec>
 	<Exec>warmupSage=3</Exec>
+	<RandomInt Name="a" Min="1" Max="10" />
+	<RandomInt Name="b" Min="1" Max="10" />
+	<RandomInt Name="c" Min="1" Max="10" />
+	<RandomInt Name="p" Min="1" Max="10" />
+	<RandomInt Name="q" Min="1" Max="10" />
+	<RandomInt Name="r" Min="1" Max="10" />
+	<Solution>integral(a*x^p+b*x^q+c*x^r,x)</Solution>
+    </MQA>
+
+    <MQA>
+	<Desc>What is the solution x of the following quadratic?</Desc>
+	<Problem>ax^2+bx+c=0</Problem>
 	<RandomInt Name="a" Min="1" Max="200" />
 	<RandomInt Name="b" Min="1" Max="200" />
 	<RandomInt Name="c" Min="1" Max="200" />
