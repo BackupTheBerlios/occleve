@@ -34,9 +34,10 @@ mathematical question.
 The solutions are calculated by a Sage server.*/
 public class SageQA extends QA //// implements Runnable
 {
-	/**localhost while still under dev.*/
-	public static String SAGE_SERVER = "localhost:8000";
+	public static String SAGE_SERVER = "sageserver.mathwash.com:8000";
 
+	protected WikiConnection wikiConnection;
+	
 	private static Random gen = new Random(System.currentTimeMillis());
 	
 	protected String m_Desc;
@@ -143,11 +144,13 @@ public class SageQA extends QA //// implements Runnable
 	}
 
     /**Load a MathQA from an XML file.*/
-    public SageQA(Node qaNode) throws Exception
+    public SageQA(Node qaNode,WikiConnection wikiCxn) throws Exception
     {
         trace("Entering SageQA constructor");
         trace("With qaNode.name = " + qaNode.name);
 
+        wikiConnection = wikiCxn;
+        
     	Node descNode = qaNode.findFirst("Desc");
     	trace("descNode=" + descNode);
     	trace("descNode chars=" + descNode.getCharacters());
@@ -259,6 +262,8 @@ public class SageQA extends QA //// implements Runnable
     {
     	Vector evaluatedSolns = new Vector();
 
+    	StringBuffer batchedCode = new StringBuffer();
+    	
     	for (int i=0; i<m_VarsAndExecs.size(); i++)
     	{
     		Object obj = m_VarsAndExecs.elementAt(i);
@@ -266,21 +271,36 @@ public class SageQA extends QA //// implements Runnable
     		{
     			RandomVar var = (RandomVar)obj;
 	    		String sageCode = var.m_Name + "=" + var.m_Value;
-	    		exec(sageCode);
-	        	System.out.println("ASSIGNED VAR: " + var);    		
+	    		batchedCode.append(sageCode);
+	    		if (batchedCode.charAt(batchedCode.length()-1)!=';') batchedCode.append(";");
+	        	trace("ASSIGNED VAR: " + var);    		
     		}
     		else if (obj instanceof Var)
     		{
+    	    	if (batchedCode.length()!=0)
+    	    	{
+    	    		trace("Executing batch: " + batchedCode);
+    	    		exec(batchedCode.toString());
+    	    		batchedCode.setLength(0);
+    	    	}
+
     			Var var = (Var)obj;
-    			String value = exec(var.getSageCode());
+				String value = exec(var.getSageCode());
     			var.setValue(value);
     		}
     		else if (obj instanceof String)
     		{
     			String sageCode = (String)obj;
-            	exec(sageCode);
+	    		batchedCode.append(sageCode);
+	    		if (batchedCode.charAt(batchedCode.length()-1)!=';') batchedCode.append(";");
     		}
     	}
+
+    	if (batchedCode.length()!=0)
+		{
+    		trace("Executing batch: " + batchedCode);
+			exec(batchedCode.toString());
+		}
 
     	for (int i=0; i<m_Solutions.size(); i++)
     	{
@@ -298,11 +318,10 @@ public class SageQA extends QA //// implements Runnable
     	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
     	trace("EXECUTING: " + sURL);
     	
-    	WikiConnection wc = new WikiConnection();
-    	byte[] bytes = wc.readAllBytes(sURL, null, true);
-    	wc.close();
+    	// WikiConnection wc = new WikiConnection();
+    	byte[] bytes = wikiConnection.readAllBytes(sURL, null, true);
     	String evaluated = new String(bytes);
-    	System.out.println("EXECUTED: " + evaluated);
+    	trace("EXECUTED: " + evaluated);
     	
     	return evaluated;
     }

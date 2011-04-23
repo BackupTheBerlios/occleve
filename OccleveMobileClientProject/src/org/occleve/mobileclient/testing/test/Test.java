@@ -31,6 +31,7 @@ import org.occleve.mobileclient.qa.language.*;
 import org.occleve.mobileclient.qa.wikiversity.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
+import org.occleve.mobileclient.serverbrowser.WikiConnection;
 import org.occleve.mobileclient.testing.ListOfTestsEntry;
 
 public class Test
@@ -55,6 +56,8 @@ public class Test
     public QA getQA(int iIndex) {return (QA)m_QAs.elementAt(iIndex);}
     public int getQACount() {return m_QAs.size();}
     public void addQA(QA qa) {m_QAs.addElement(qa);}
+
+	protected WikiConnection wikiConnection;
 
     public Test(ListOfTestsEntry entry) throws Exception
     {
@@ -87,6 +90,11 @@ public class Test
     {
         load_Inner(entry,progressAlert);
         System.out.println("Loaded " + m_QAs.size() + " QAs");
+        
+        if (wikiConnection!=null) {
+        	wikiConnection.close();
+        	wikiConnection = null;
+        }
     }
 
     private void load_Inner(ListOfTestsEntry entry,ProgressAlert progressAlert)
@@ -212,8 +220,10 @@ public class Test
     	QA qa;
     	if (qaType.equals("lqa"))
     		qa = new LanguageQA(qaNode,m_sFirsteseISOCode,m_sSecondeseISOCode);
-    	else
-    		qa = new SageQA(qaNode);
+    	else {
+    		if (wikiConnection==null) wikiConnection = new WikiConnection();
+    		qa = new SageQA(qaNode,wikiConnection);
+    	}
     	
         m_QAs.addElement(qa);
 

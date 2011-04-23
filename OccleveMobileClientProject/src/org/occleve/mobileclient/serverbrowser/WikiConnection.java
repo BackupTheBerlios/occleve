@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -157,8 +157,8 @@ public class WikiConnection
        if (m_InputStreamReader!=null) m_InputStreamReader.close();
        if (m_DataInputStream!=null) m_DataInputStream.close();
 
-       m_InputStream.close();
-       m_HttpConnection.close();
+       if (m_InputStream!=null) m_InputStream.close();
+       if (m_HttpConnection!=null) m_HttpConnection.close();
     }
     
     private void outputRawConnectionDataViaException(String url)
