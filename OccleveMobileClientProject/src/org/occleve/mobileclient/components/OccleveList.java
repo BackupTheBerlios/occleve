@@ -27,6 +27,9 @@ import com.sun.lwuit.list.*;
 
 public class OccleveList extends List
 {
+	protected boolean m_bUseTextArea = false;
+	public void setUseTextArea(boolean b) {m_bUseTextArea = b;}
+	
 	protected Font m_Font;
 	public void setFont(Font f) {m_Font = f;}
 		
@@ -60,7 +63,16 @@ public class OccleveList extends List
 		public Component getListCellRendererComponent(List list,
 				Object value,int index,boolean isSelected)
 		{
-			Component c = super.getListCellRendererComponent(list,value,index,isSelected);
+			Component c;
+			if (m_bUseTextArea)
+			{
+				TextArea ta = new TextArea((String)value + "  fooooooooooooooooo fooooo foooo",2,2);
+				ta.setGrowByContent(true);
+				c = (Component)ta;
+			}
+			else
+				c = super.getListCellRendererComponent(list,value,index,isSelected);
+			
 			if (m_Font!=null) c.getStyle().setFont(m_Font);
 			return c;
 		}
