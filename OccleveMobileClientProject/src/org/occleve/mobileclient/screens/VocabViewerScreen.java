@@ -38,7 +38,6 @@ public class VocabViewerScreen extends Form
 {
     protected Test m_Test;
 
-	protected OccleveList m_List;
 	protected Font m_Font;
 
     protected Command m_NewTestCommand;
@@ -57,8 +56,7 @@ public class VocabViewerScreen extends Form
         super(sHeading);
         m_Test = theTest;
 
-        setScrollable(false); // Otherwise the List won't scroll.
-        setLayout(new BorderLayout());
+        setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         
         m_Font = Font.createSystemFont(Font.FACE_SYSTEM,Font.STYLE_PLAIN, Font.SIZE_SMALL);
         getStyle().setFont(m_Font);
@@ -103,15 +101,12 @@ public class VocabViewerScreen extends Form
     public void populate(Test theTest) throws IllegalArgumentException
     {
     	removeAll();
-    	m_List = new OccleveList();
-        m_List.setFont(m_Font);
-        addComponent(BorderLayout.CENTER,m_List);
-    	
+    	    	
         // This is a definite possibility until the mobile client
         // supports all wikiversity quiz types.
         if (theTest.getQACount()==0)
         {
-        	m_List.addItem(Constants.EMPTY_QUIZ_MSG);
+        	addComponent(new Label(Constants.EMPTY_QUIZ_MSG));
             return;
         }
 
@@ -120,7 +115,10 @@ public class VocabViewerScreen extends Form
             QA currentQA = theTest.getQA(i);
 
             String sQA = (i+1) + ". " + currentQA.getEntireContentsAsString();
-            m_List.addItem(sQA);
+            TextArea ta = new TextArea(sQA,2,2);
+            ta.setGrowByContent(true);
+            ta.getStyle().setFont(m_Font);
+            addComponent(ta);
 
             // You can click Play on a ListenItem.
             // if (si instanceof ListenItem) si.setItemCommandListener(this);
@@ -144,7 +142,7 @@ public class VocabViewerScreen extends Form
         }
         else if (c==m_SearchThisFileCommand)
         {
-//            startSearch();
+        	// startSearch();
         }
         else if (c==m_ExitCommand)
         {
