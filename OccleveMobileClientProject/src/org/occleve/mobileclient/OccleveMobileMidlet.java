@@ -27,7 +27,6 @@ import javax.microedition.lcdui.*;
 import javax.microedition.media.*;
 import javax.microedition.midlet.*;
 
-import org.occleve.aml.*;
 import org.occleve.aml.lwuit.*;
 import org.occleve.mobileclient.recordstore.*;
 import org.occleve.mobileclient.screens.*;
@@ -359,9 +358,17 @@ implements CommandListener,Runnable
     
     public boolean isLocalFilesystemAvailable()
     {
-        String sPropName = "microedition.io.file.FileConnection.version";
-        String sResult = System.getProperty(sPropName);
-        return (sResult!=null);
+    	try
+    	{
+    		String sPropName = "microedition.io.file.FileConnection.version";
+    		String sResult = System.getProperty(sPropName);
+    		return (sResult!=null);
+    	}
+    	catch (Exception e)
+    	{
+    		// Will get an AccessControlException on microemulator.
+    		return false;
+    	}
     }
 
     /**0.9.6 - for speed, one global copy of this is kept here.*/
