@@ -30,6 +30,7 @@ import com.sun.lwuit.*;
 import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
+import org.occleve.mobileclient.components.OccleveList;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.testing.test.*;
 
@@ -37,40 +38,39 @@ public class VocabViewerScreen extends Form
 {
     protected Test m_Test;
 
+	protected OccleveList m_List;
+	protected Font m_Font;
+
     protected Command m_NewTestCommand;
     protected Command m_SearchThisFileCommand;
     protected Command m_ExitCommand;
     protected Command m_ScrollToStartCommand;
     protected Command m_ScrollToMiddleCommand;
     protected Command m_ScrollToEndCommand;
-    
-    // 0.9.7 - allow invocation of quiz directly from this screen
     protected Command m_RunTestCommand;
 
-    // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
-    //protected Command m_EditCommand;
-
-//    protected TextBox m_QuestionNoTextBox;
+    // protected Command m_EditCommand;
+    // protected TextBox m_QuestionNoTextBox;
 
     public VocabViewerScreen(String sHeading,Test theTest)
     {
         super(sHeading);
-        setLayout(new BoxLayout(BoxLayout.Y_AXIS));
         m_Test = theTest;
 
-        // DOESN'T WORK ON K300 (BUT DOES ON EMULATOR)
-        // Passing in null removes the redundant title and saves
-        // screen space.
-        // super(null);
+        setScrollable(false); // Otherwise the List won't scroll.
+        setLayout(new BorderLayout());
+        
+        m_Font = Font.createSystemFont(Font.FACE_SYSTEM,Font.STYLE_PLAIN, Font.SIZE_SMALL);
+        getStyle().setFont(m_Font);
 
         try
         {
             populate(theTest);
         }
-        catch (IllegalArgumentException e)
+        catch (Exception e)
         {
-            // On Sony Ericsson phones, this is thrown if you try to append
-            // more than 256 Items to a Form.
+        	OccleveMobileMidlet.getInstance().onError(e);
+        	return;
         }
 
         m_NewTestCommand = new Command("New test");
@@ -94,63 +94,36 @@ public class VocabViewerScreen extends Form
         m_RunTestCommand = new Command("Run test");
         addCommand(m_RunTestCommand);
 
-        // Disabled in 0.9.6 - see earlier comment
-        //m_EditCommand = new Command("Edit", Command.ITEM, 0);
-        //addCommand(m_EditCommand);
+        // m_EditCommand = new Command("Edit", Command.ITEM, 0);
+        // addCommand(m_EditCommand);
 
-//        setCommandListener(this);
+        // setCommandListener(this);
     }
 
     public void populate(Test theTest) throws IllegalArgumentException
     {
-        // Clear any existing items.
-        removeAll();
-
+    	removeAll();
+    	m_List = new OccleveList();
+        m_List.setFont(m_Font);
+        addComponent(BorderLayout.CENTER,m_List);
+    	
         // This is a definite possibility until the mobile client
         // supports all wikiversity quiz types.
         if (theTest.getQACount()==0)
         {
-            TextArea empty = new TextArea(Constants.EMPTY_QUIZ_MSG,2,2);
-            addComponent(empty);
+        	m_List.addItem(Constants.EMPTY_QUIZ_MSG);
             return;
         }
 
         for (int i=0; i<theTest.getQACount(); i++)
         {
-            String sQuestionNo = Integer.toString(i+1);
             QA currentQA = theTest.getQA(i);
-            // Vector items = currentQA.getEntireContentsAsItems();
 
-            String sQA = i + "." + currentQA.getEntireContentsAsString();
-            TextArea comp = new TextArea(sQA,2,2);
-            addComponent(comp);
+            String sQA = (i+1) + ". " + currentQA.getEntireContentsAsString();
+            m_List.addItem(sQA);
 
-            /* for (int i2=0; i2<items.size(); i2++)
-            {
-            	String line = (String)items.elementAt(i2);
-
-                if (i2==0)
-                {
-                    line = sQuestionNo + ". " + line;
-                }
-                TextArea comp = new TextArea(line,2,2);
-
-                // StaticHelpers.safeSetFont(si,OccleveMobileFonts.SMALL_FONT);
-                addComponent(comp);
-
-                // If it's the last item for this LQA, add a newline.
-                if (i2==(items.size()-1))
-                {
-                    ////si.setText(si.getText() + Constants.NEWLINE);
-                    append(new StringItem(null,Constants.NEWLINE));
-                }
-
-                // You can click Play on a ListenItem.
-                if (si instanceof ListenItem)
-                {
-                    si.setItemCommandListener(this);
-                }
-            } */
+            // You can click Play on a ListenItem.
+            // if (si instanceof ListenItem) si.setItemCommandListener(this);
         }
     }
 
