@@ -23,18 +23,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.components;
 
 import com.sun.lwuit.*;
-import com.sun.lwuit.layouts.*;
 import com.sun.lwuit.list.*;
 
 public class OccleveList extends List
 {
+	protected Font m_Font;
+	public void setFont(Font f) {m_Font = f;}
+		
 	public OccleveList()
 	{
         DefaultListModel model = new DefaultListModel();
         setModel(model);
         
 		// Don't display a number next to each item in the list.
-        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        OccleveListCellRenderer renderer = new OccleveListCellRenderer();
         renderer.setShowNumbers(false);
         setListCellRenderer(renderer);
 
@@ -53,4 +55,14 @@ public class OccleveList extends List
         setModel(model);		
 	}
 
+	protected class OccleveListCellRenderer extends DefaultListCellRenderer
+	{
+		public Component getListCellRendererComponent(List list,
+				Object value,int index,boolean isSelected)
+		{
+			Component c = super.getListCellRendererComponent(list,value,index,isSelected);
+			if (m_Font!=null) c.getStyle().setFont(m_Font);
+			return c;
+		}
+	}
 }
