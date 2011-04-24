@@ -62,10 +62,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
 
         setLayout(new BoxLayout(BoxLayout.Y_AXIS));
 
-        Font smallFont =
-        	Font.createSystemFont(Font.FACE_PROPORTIONAL,
-        			Font.STYLE_PLAIN, Font.SIZE_SMALL);
-        getStyle().setFont(smallFont);
+        Font font = Font.createSystemFont(Font.FACE_SYSTEM,Font.STYLE_PLAIN, Font.SIZE_SMALL);
+        getStyle().setFont(font);
 
         m_CommonCommands = new CommonCommands();
         m_CommonCommands.addToForm(this);
@@ -85,10 +83,9 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         m_StartTestItem.addActionListener(this);
 
         String[] orderChoices = {SEQUENTIAL,RANDOM};
-        m_SequentialOrRandomChoiceGroup =
-            new ComboBox(orderChoices);
+        m_SequentialOrRandomChoiceGroup = new ComboBox(orderChoices);
         addComponent(m_SequentialOrRandomChoiceGroup);
-        m_SequentialOrRandomChoiceGroup.getStyle().setFont(smallFont);
+        m_SequentialOrRandomChoiceGroup.getStyle().setFont(font);
 
         // Give the derived class a chance to add other controls.
         addSubclassControls();
