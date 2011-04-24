@@ -66,7 +66,7 @@ public class OccleveList extends List
 			Component c;
 			if (m_bUseTextArea)
 			{
-				TextArea ta = new TextArea((String)value + "  fooooooooooooooooo fooooo foooo",2,2);
+				TextArea ta = new TextArea((String)value,2,2);
 				ta.setGrowByContent(true);
 				c = (Component)ta;
 			}
