@@ -34,8 +34,10 @@ mathematical question.
 The solutions are calculated by a Sage server.*/
 public class SageQA extends QA //// implements Runnable
 {
-	public static String SAGE_SERVER = "sageserver.mathwash.com:8000";
+	////// public static String SAGE_SERVER = "sageserver.mathwash.com:8000/eval";
 
+	public static String SAGE_SERVER = "occleve.berlios.de/sageserver.php";
+	
 	protected WikiConnection wikiConnection;
 	
 	private static Random gen = new Random(System.currentTimeMillis());
@@ -306,6 +308,7 @@ public class SageQA extends QA //// implements Runnable
     	{
     		String toEval = (String)m_Solutions.elementAt(i);
     		String evaluated = exec(toEval);
+System.out.println(evaluated);    		
         	evaluatedSolns.addElement(evaluated);
     	}
     	
@@ -315,7 +318,7 @@ public class SageQA extends QA //// implements Runnable
     protected String exec(String sageCode) throws Exception
     {
     	String encoded = URLEncoder.encode(sageCode,"UTF-8");
-    	String sURL = "http://" + SAGE_SERVER + "/eval?code=" + encoded;
+    	String sURL = "http://" + SAGE_SERVER + "?code=" + encoded;
     	trace("EXECUTING: " + sURL);
     	
     	// WikiConnection wc = new WikiConnection();
