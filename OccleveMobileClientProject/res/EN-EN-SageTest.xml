@@ -14,7 +14,8 @@
 	<RandomInt Name="p" Min="1" Max="10" />
 	<RandomInt Name="q" Min="1" Max="10" />
 	<RandomInt Name="r" Min="1" Max="10" />
-	<Solution>integral(a*x^p+b*x^q+c*x^r)</Solution>
+	<Exec>var("x");</Exec>
+	<Solution>integral(a*x^p+b*x^q+c*x^r,x)</Solution>
     </MQA>
 
     <MQA>

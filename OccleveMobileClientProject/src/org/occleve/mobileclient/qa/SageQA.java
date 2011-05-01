@@ -34,7 +34,7 @@ mathematical question.
 The solutions are calculated by a Sage server.*/
 public class SageQA extends QA //// implements Runnable
 {
-	////// public static String SAGE_SERVER = "sageserver.mathwash.com:8000/eval";
+	////////public static String SAGE_SERVER = "sageserver.mathwash.com:8000/eval";
 
 	public static String SAGE_SERVER = "occleve.berlios.de/sageserver.php";
 	
@@ -216,7 +216,7 @@ public class SageQA extends QA //// implements Runnable
     public Vector getQuestion()
     {
     	String question =
-    		m_Desc + "\n\n" + m_Problem + "\n where \n";
+    		m_Desc + " " + m_Problem + " where ";
     	for (int i=0; i<m_VarsAndExecs.size(); i++)
     	{
     		Object item = m_VarsAndExecs.elementAt(i); 
