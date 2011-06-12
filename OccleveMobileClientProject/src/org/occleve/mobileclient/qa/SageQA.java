@@ -37,6 +37,8 @@ public class SageQA extends QA //// implements Runnable
 	////////public static String SAGE_SERVER = "sageserver.mathwash.com:8000/eval";
 
 	public static String SAGE_SERVER = "occleve.berlios.de/sageserver.php";
+
+	protected final static long MWCLIENT_ID = System.currentTimeMillis();
 	
 	protected WikiConnection wikiConnection;
 	
@@ -318,7 +320,7 @@ System.out.println(evaluated);
     protected String exec(String sageCode) throws Exception
     {
     	String encoded = URLEncoder.encode(sageCode,"UTF-8");
-    	String sURL = "http://" + SAGE_SERVER + "?code=" + encoded;
+    	String sURL = "http://" + SAGE_SERVER + "?mwclient=" + MWCLIENT_ID + "&code=" + encoded;
     	trace("EXECUTING: " + sURL);
     	
     	// WikiConnection wc = new WikiConnection();
