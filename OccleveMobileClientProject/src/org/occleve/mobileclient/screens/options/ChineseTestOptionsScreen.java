@@ -28,8 +28,6 @@ import com.sun.lwuit.layouts.*;
 import com.sun.lwuit.plaf.*;
 import com.sun.lwuit.util.*;
 
-////import javax.microedition.lcdui.*;
-
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.qa.language.*;
@@ -97,10 +95,10 @@ public class ChineseTestOptionsScreen extends TestOptionsScreen
         int iFrom = getLanguageCode(m_FromChoiceGroup);
         int iTo = getLanguageCode(m_ToChoiceGroup);
 
-        //boolean bIncludeMW = m_MeasureWordsItem.getText().equals(MEASURE_WORDS_ON);
         boolean bIncludeMW = m_MeasureWordsRadioButton.isSelected();
+        boolean bIncludeMnemonics = m_MnemonicCheckbox.isSelected();
 
-        return new LanguageQADirection(iFrom,iTo,bIncludeMW);
+        return new LanguageQADirection(iFrom,iTo,bIncludeMW,bIncludeMnemonics);
     }
 
     protected int getLanguageCode(ComboBox choiceGroup) throws Exception

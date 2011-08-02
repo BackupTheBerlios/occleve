@@ -300,7 +300,10 @@ implements CommandListener,Runnable
         try
         {
         	if (m_ThreadAction==VIEW_TEST)
+        	{
         		displayTest_Thread(m_EntryCache,m_ProgressAlertCache);
+                setCurrentForm(viewerForm);
+        	}
         	else if (m_ThreadAction==DISPLAY_MIDP_FORM)
         	{
         		for (int i=0; i<(10*4); i++)
@@ -316,6 +319,9 @@ implements CommandListener,Runnable
         catch (Exception e) {onError(e);}
     }
 
+VocabViewerScreen viewerForm;
+
+    
     private void displayTest_Thread(ListOfTestsEntry entry,ProgressAlert progressAlert)
     throws Exception
     {
@@ -329,8 +335,7 @@ implements CommandListener,Runnable
         }
 
         Display disp = Display.getDisplay(this);
-        VocabViewerScreen viewerForm = new VocabViewerScreen(sHeading,theTest);
-        setCurrentForm(viewerForm);
+viewerForm = new VocabViewerScreen(sHeading,theTest);
     }
 
     public void tryToPlaceinBackground()

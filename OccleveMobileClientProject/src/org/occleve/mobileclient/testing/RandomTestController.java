@@ -36,11 +36,12 @@ public class RandomTestController extends TestController
 
     public RandomTestController(Test theTest,QADirection direction,
                           int iFirstQuestionIndex,int iLastQuestionIndex,
-                          int iMinScore,ProgressAlert progressAlert)
+                          int iMinScore,
+                          boolean showMnemonics,ProgressAlert progressAlert)
     throws Exception
     {
         super(theTest,direction,iFirstQuestionIndex,iLastQuestionIndex,
-        		iMinScore,progressAlert);
+        		iMinScore,showMnemonics,progressAlert);
 
         Integer ciIndex = findRandomUnansweredQuestionIndex();
         if (ciIndex==null)

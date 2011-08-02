@@ -41,8 +41,12 @@ public class LanguageEntity
     /**This language entity written in its native script (if any).*/
     protected String m_sNativeForm;
 
-    /**The literal translation in the other language of this entity.*/
+    /**Optional: The literal translation in the other language of this entity.*/
     protected String m_sLiteralTranslation;
+
+    /**Optional: a mnemonic.*/
+    protected String m_sMnemonic;
+    public String getMnemonic() {return m_sMnemonic;}
 
     /**The filename of the audio clip (if any) associated with this entity.*/
     protected String m_sAudioClipFilename;
@@ -126,8 +130,11 @@ public class LanguageEntity
             m_sAudioClipFilename = audioFilename.getCharacters();
         }
 
+        Node mnemonic = entityNode.findFirst(XML.MNEMONIC);
+        if (mnemonic!=null) m_sMnemonic = mnemonic.getCharacters();
+
         // Node register = entityNode.findFirst(XML.REGISTER);
-        // m_sRegister = register.getCharacters();
+        // if (register!=null) m_sRegister = register.getCharacters();
     }
 
     // 0.9.5 - finally removed
@@ -146,6 +153,7 @@ public class LanguageEntity
         if (fieldContains(m_sRomanForm,s)) return true;
         if (fieldContains(m_sNativeForm,s)) return true;
         if (fieldContains(m_sLiteralTranslation,s)) return true;
+        if (fieldContains(m_sMnemonic,s)) return true;
         return false;
     }
 
@@ -179,6 +187,7 @@ public class LanguageEntity
         addXMLFieldIfNotBlank(sb,XML.ROMAN,m_sRomanForm);
         addXMLFieldIfNotBlank(sb,XML.SCRIPT,m_sNativeForm);
         addXMLFieldIfNotBlank(sb,XML.LITERAL,m_sLiteralTranslation);
+        addXMLFieldIfNotBlank(sb,XML.MNEMONIC,m_sMnemonic);
 
         // Give derived classes a chance to add extra fields.
         toXML_ExtraFields(sb);
@@ -230,6 +239,11 @@ public class LanguageEntity
         if (sLiteral!=null)
         {
             if (sLiteral.length()>0) sb.append(", lit. " + sLiteral);
+        }
+
+        if (m_sMnemonic!=null)
+        {
+            if (m_sMnemonic.length()>0) sb.append(", mnemonic: " + m_sMnemonic);
         }
 
         /* String sAudioFilename = le.getAudioFilename();

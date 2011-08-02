@@ -50,13 +50,18 @@ public class LanguageQADirection extends QADirection
 
     protected boolean m_bIncludeMeasureWords;
 
+    protected boolean m_bIncludeMnemonics;
+    public boolean getIncludeMnemonics() {return m_bIncludeMnemonics;}
+
     /**"value" should be one of the static enumerated values declared by this class.*/
     public LanguageQADirection(int questionLang,int answerLang,
-                              boolean bIncludeMeasureWords)
+                              boolean bIncludeMeasureWords,
+                              boolean bIncludeMnemonics)
     {
         m_iQuestionLanguage = questionLang;
         m_iAnswerLanguage = answerLang;
         m_bIncludeMeasureWords = bIncludeMeasureWords;
+        m_bIncludeMnemonics = bIncludeMnemonics;
     }
 
     public boolean includeMeasureWords() {return m_bIncludeMeasureWords;}

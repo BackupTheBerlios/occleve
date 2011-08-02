@@ -42,11 +42,7 @@ public abstract class TestController implements CommandListener
     protected Command m_ExitCommand;
     protected Command m_RestartCommand;
     protected Command m_PauseCommand;
-
-    // 0.9.6
     protected Command m_TestOptionsCommand;
-
-    // 0.9.6 - remove the Edit command - isn't working anyway, and is confusing users.
     //protected Command m_EditThisQACommand;
 
     protected TestResults m_TestResults;
@@ -54,19 +50,19 @@ public abstract class TestController implements CommandListener
     protected int m_iCurrentQAIndex;
     protected QuestionView m_View;
     
-    //////////////protected int m_iNoOfQuestionsAnswered; // 0.9.6
+    //// protected int m_iNoOfQuestionsAnswered; // 0.9.6
 
-    /////////////////////////////////////////////
-    // 0.9.6
     protected int m_iFirstQuestionIndex;
     protected int m_iLastQuestionIndex;
     protected int m_iMinScore;
     public int getMinScore() {return m_iMinScore;}
-    /////////////////////////////////////////////
+    
+    protected boolean m_bShowMnemonics;
+    public boolean getShowMnemonics() {return m_bShowMnemonics;}
     
     public TestController(Test theTest,QADirection direction,
     		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore,
-    		ProgressAlert pa)
+    		boolean showMnemonics,ProgressAlert pa)
     throws Exception
     {
     	for (int i=0; i<theTest.getQACount(); i++)
@@ -88,11 +84,10 @@ public abstract class TestController implements CommandListener
         m_QADirection = direction;
         m_TestResults = new TestResults();
 
-        //////////////////// 0.9.6 ///////////////////////////////
         m_iFirstQuestionIndex = iFirstQuestionIndex;
         m_iLastQuestionIndex = iLastQuestionIndex;
         m_iMinScore = iMinScore;
-        //////////////////////////////////////////////////////////
+        m_bShowMnemonics = showMnemonics;
                 
         ///////////////////// TO FINISH //////////////////////////////
         QA firstQA = m_Test.getQA(0);

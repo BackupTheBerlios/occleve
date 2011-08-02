@@ -111,6 +111,8 @@ public class LanguageQA extends QA
         LanguageQADirection cqaDir = (LanguageQADirection)m_QADirection;
         boolean bIncludeMW = cqaDir.includeMeasureWords();
 
+        boolean bIncludeMnemonics = cqaDir.getIncludeMnemonics();
+
         if (cqaDir.isQuestionPinyin())
             return getAllRomanForms(bIncludeMW);
         else if (cqaDir.isQuestionEnglish())
@@ -120,7 +122,7 @@ public class LanguageQA extends QA
         else if (cqaDir.isQuestionCharsAndPinyin())
             return getAllPinyinAndChars(bIncludeMW);
         else if (cqaDir.isQuestionEnglishAndPinyin())
-            return getAllEnglishAndPinyin(bIncludeMW);
+            return getAllEnglishAndPinyin(bIncludeMW,bIncludeMnemonics);
         else if (cqaDir.isQuestionEnglishAndChars())
             return getAllEnglishAndChars(bIncludeMW);
         else
@@ -136,6 +138,8 @@ public class LanguageQA extends QA
     {
         LanguageQADirection cqaDir = (LanguageQADirection)m_QADirection;
         boolean bIncludeMW = cqaDir.includeMeasureWords();
+        
+        boolean bIncludeMnemonics = cqaDir.getIncludeMnemonics();
 
         if (cqaDir.isAnswerPinyin())
             return getAllRomanForms(bIncludeMW);
@@ -146,7 +150,7 @@ public class LanguageQA extends QA
         else if (cqaDir.isAnswerCharsAndPinyin())
             return getAllPinyinAndChars(bIncludeMW);
         else if (cqaDir.isAnswerEnglishAndPinyin())
-            return getAllEnglishAndPinyin(bIncludeMW);
+            return getAllEnglishAndPinyin(bIncludeMW,bIncludeMnemonics);
         else if (cqaDir.isAnswerEnglishAndChars())
             return getAllEnglishAndChars(bIncludeMW);
         else
@@ -303,7 +307,7 @@ public class LanguageQA extends QA
         return v;
     }
     
-    protected Vector getAllEnglishAndPinyin(boolean bIncludeMW)
+    protected Vector getAllEnglishAndPinyin(boolean bIncludeMW,boolean bIncludeMnemonics)
     {
         Vector v = new Vector();
         for (int i=0; i<m_vFirsteseEntities.size(); i++)
@@ -312,6 +316,11 @@ public class LanguageQA extends QA
                 (LanguageEntity)m_vFirsteseEntities.elementAt(i);
             String sLine = cle.getRomanForm(bIncludeMW);
             if (sLine!=null)v.addElement(sLine);
+            
+            if (bIncludeMnemonics) {
+            	String mnem = cle.getMnemonic();
+                if (mnem!=null)v.addElement(mnem);
+            }
         }
         
         for (int i=0; i<m_vSecondeseEntities.size(); i++)
@@ -320,6 +329,11 @@ public class LanguageQA extends QA
                 (LanguageEntity)m_vSecondeseEntities.elementAt(i);
             String sLine = cle.getRomanForm(bIncludeMW);
             if (sLine!=null)v.addElement(sLine);
+            
+            if (bIncludeMnemonics) {
+            	String mnem = cle.getMnemonic();
+                if (mnem!=null)v.addElement(mnem);
+            }
         }
         return v;
     }
@@ -438,7 +452,7 @@ public class LanguageQA extends QA
     protected void languageEntityToStringItems(LanguageEntity le,Vector vAppendTo)
     {
         StringBuffer sb = new StringBuffer();
-
+        
         String sRoman = le.getRomanForm(true);
         if (sRoman!=null) sb.append(sRoman);
 

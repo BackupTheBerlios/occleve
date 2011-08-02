@@ -49,6 +49,7 @@ public class XML
     public static final String SCRIPT = "Script";
     public static final String LITERAL = "LiteralTranslation";
     public static final String AUDIO = "Audio";
+    public static final String MNEMONIC = "Mnemonic";
 
     public static final String CNOUN = "CNoun";
     public static final String PNOUN = "PNoun";

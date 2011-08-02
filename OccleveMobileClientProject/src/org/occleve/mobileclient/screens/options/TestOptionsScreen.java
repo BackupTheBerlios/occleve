@@ -42,6 +42,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
     protected String RANDOM = "Random";
     protected ComboBox m_SequentialOrRandomChoiceGroup;
 
+    protected CheckBox m_MnemonicCheckbox = new CheckBox("Show mnemonics");
+
     // Start From Question No field for sequential mode
     protected TextField m_FirstQuestionTextField = new TextField();
     protected TextField m_LastQuestionTextField = new TextField();
@@ -87,6 +89,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         addComponent(m_SequentialOrRandomChoiceGroup);
         m_SequentialOrRandomChoiceGroup.getStyle().setFont(font);
 
+        addComponent(m_MnemonicCheckbox);
+        
         // Give the derived class a chance to add other controls.
         addSubclassControls();
 
@@ -164,6 +168,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         boolean bRandom = (sChoice.equals(RANDOM));
 
         QADirection direction = getQADirection();
+        
+        boolean mnemonics = m_MnemonicCheckbox.isSelected();
 
     	String sFirstQuestion = m_FirstQuestionTextField.getText();
     	int iFirstQuestion;
@@ -205,12 +211,14 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         if (bRandom)
         {
             tc = new RandomTestController(m_Test,direction,
-            		iFirstQuestion-1,iLastQuestion-1,iMinScore,m_ProgressAlert);
+            		iFirstQuestion-1,iLastQuestion-1,iMinScore,
+            		mnemonics,m_ProgressAlert);
         }
         else
         {        	        	
         	tc = new SequentialTestController(m_Test,direction,
-        			iFirstQuestion-1,iLastQuestion-1,iMinScore,m_ProgressAlert);
+        			iFirstQuestion-1,iLastQuestion-1,iMinScore,
+        			mnemonics,m_ProgressAlert);
         }
 
         tc.setVisible();

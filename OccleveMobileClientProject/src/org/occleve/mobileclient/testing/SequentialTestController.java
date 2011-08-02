@@ -37,11 +37,11 @@ public class SequentialTestController extends TestController
     
     public SequentialTestController(Test theTest,QADirection direction,
     		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore,
-    		ProgressAlert progressAlert)
+    		boolean showMnemonics,ProgressAlert progressAlert)
     throws Exception
     {
         super(theTest,direction,iFirstQuestionIndex,
-        		iLastQuestionIndex,iMinScore,progressAlert);
+        		iLastQuestionIndex,iMinScore,showMnemonics,progressAlert);
 
         int iMaxIndex = m_Test.getQACount()-1;
         if (iFirstQuestionIndex <= iMaxIndex)
