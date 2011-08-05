@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-2011  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,18 +17,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.qa;
 
 import java.util.*;
-
 import org.occleve.mobileclient.*;
-import org.occleve.mobileclient.languageentity.LanguageEntity;
-
 import com.exploringxml.xml.Node;
-
 import javax.microedition.lcdui.*;
 
 public class PlainQA extends QA
@@ -41,7 +37,7 @@ public class PlainQA extends QA
         Node questionNode = qaNode.findFirst("Q");
         Node answerNode = qaNode.findFirst("A");
 
-        m_sQuestion = qaNode.getCharacters();
+        m_sQuestion = questionNode.getCharacters();
         m_sAnswer = answerNode.getCharacters();
     }
 
@@ -98,8 +94,7 @@ public class PlainQA extends QA
         return s;
     }
 
-    /**Implementation of abstract function in class QA.
-    New in v0.9.3*/
+    /**Implementation of abstract function in class QA.*/
     public Vector getEntireContentsAsItems()
     {
         StringItem item = new StringItem(null,getEntireContentsAsString());
@@ -146,40 +141,16 @@ public class PlainQA extends QA
         XML.appendStartTag(sb,XML.QA);
         sb.append(Constants.NEWLINE);
 
-        ///////////////////////////////////////////////////
-        XML.appendStartTag(sb,"EN");
+        XML.appendStartTag(sb,"Q");
+        sb.append(Constants.NEWLINE);
+        sb.append(m_sQuestion + Constants.NEWLINE);
+        XML.appendEndTag(sb,"Q");
         sb.append(Constants.NEWLINE);
 
-        XML.appendStartTag(sb,XML.UNKNOWN);
+        XML.appendStartTag(sb,"A");
         sb.append(Constants.NEWLINE);
-
-        XML.appendStartTag(sb,XML.ROMAN);
-        sb.append(m_sQuestion);
-        XML.appendEndTag(sb,XML.ROMAN);
-        sb.append(Constants.NEWLINE);
-
-        XML.appendEndTag(sb,XML.UNKNOWN);
-        sb.append(Constants.NEWLINE);
-
-        XML.appendEndTag(sb,"EN");
-        sb.append(Constants.NEWLINE);
-
-        ///////////////////////////////////////////////////
-        XML.appendStartTag(sb,"ZH");
-        sb.append(Constants.NEWLINE);
-
-        XML.appendStartTag(sb,XML.UNKNOWN);
-        sb.append(Constants.NEWLINE);
-
-        XML.appendStartTag(sb,XML.ROMAN);
-        sb.append(m_sAnswer);
-        XML.appendEndTag(sb,XML.ROMAN);
-        sb.append(Constants.NEWLINE);
-
-        XML.appendEndTag(sb,XML.UNKNOWN);
-        sb.append(Constants.NEWLINE);
-
-        XML.appendEndTag(sb,"ZH");
+        sb.append(m_sAnswer + Constants.NEWLINE);
+        XML.appendEndTag(sb,"A");
         sb.append(Constants.NEWLINE);
 
         XML.appendEndTag(sb,XML.QA);

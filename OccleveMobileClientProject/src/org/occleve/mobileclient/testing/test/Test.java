@@ -137,12 +137,14 @@ public class Test
     	
         int iFirstHyphenIndex = sTestFilename.indexOf('-');
         int iSecondHyphenIndex = sTestFilename.indexOf('-',iFirstHyphenIndex+1);
-                
-        m_sFirsteseISOCode =
-        	sTestFilename.toUpperCase().substring(0,iFirstHyphenIndex);
-        m_sSecondeseISOCode =
-        	sTestFilename.toUpperCase().substring(iFirstHyphenIndex+1,
-				                                   iSecondHyphenIndex);
+
+        if (iFirstHyphenIndex!=-1 && iSecondHyphenIndex!=-1) {
+	        m_sFirsteseISOCode =
+	        	sTestFilename.toUpperCase().substring(0,iFirstHyphenIndex);
+	        m_sSecondeseISOCode =
+	        	sTestFilename.toUpperCase().substring(iFirstHyphenIndex+1,
+					                                   iSecondHyphenIndex);
+        }
 
 		/* if (progressAlert!=null) progressAlert.setString(
 				progressAlert.getString() + "\r\n\r\n" +
@@ -172,12 +174,20 @@ public class Test
 
 		int lqaIndex = sLowerTestSource.indexOf("<lqa>");
 		int mqaIndex = sLowerTestSource.indexOf("<mqa>");
-        if (lqaIndex==-1 && mqaIndex==-1)
+		int qaIndex = sLowerTestSource.indexOf("<qa>");
+        if (lqaIndex==-1 && mqaIndex==-1 && qaIndex==-1)
         {
         	throw new Exception("Couldn't find any QA nodes in the test");        	
         }
 
-		String qaType = (lqaIndex!=-1) ? "lqa":"mqa";
+		String qaType;
+		if (lqaIndex!=-1)
+			qaType = "lqa";
+		else if (mqaIndex!=-1)
+			qaType = "mqa";
+		else
+			qaType = "qa";
+		
     	String openQATag = XML.lowerOpenTag(qaType);
     	String closeQATag = XML.lowerCloseTag(qaType);
 
@@ -220,9 +230,12 @@ public class Test
     	QA qa;
     	if (qaType.equals("lqa"))
     		qa = new LanguageQA(qaNode,m_sFirsteseISOCode,m_sSecondeseISOCode);
-    	else {
+    	else if (qaType.equals("mqa")) {
     		if (wikiConnection==null) wikiConnection = new WikiConnection();
     		qa = new SageQA(qaNode,wikiConnection);
+    	}
+    	else {
+    		qa = new PlainQA(qaNode);
     	}
     	
         m_QAs.addElement(qa);
