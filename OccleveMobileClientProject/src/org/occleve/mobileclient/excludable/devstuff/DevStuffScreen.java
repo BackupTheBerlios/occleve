@@ -70,6 +70,7 @@ implements ActionListener,Excludable,Runnable
     /**Should be one of the prompt values.*/
     protected String m_sThreadAction;
 
+    protected final String LIST_VIRTUAL_KBS = "List virtual keyboards";
     protected final String SET_SAGE_SERVER = "Set Sage server address";
     protected final String COUNT_NEWLINES = "Count LFs and CRLFs";
     protected final String CREATE_BACKUP = "Create backup";
@@ -131,6 +132,7 @@ implements ActionListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
+        append(LIST_VIRTUAL_KBS,null);
         append(SET_SAGE_SERVER,null);
         append(QUIZ_FILE_MANAGER,null);
         append(MEDIA_FILE_MANAGER,null);
@@ -165,7 +167,7 @@ implements ActionListener,Excludable,Runnable
         
         m_BackCommand = new Command("Back");
         addCommand(m_BackCommand);
-        setCommandListener(this);
+        //setCommandListener(this);
     }
 
     protected void append(String item,Object ignored)
@@ -272,7 +274,23 @@ implements ActionListener,Excludable,Runnable
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {        
-        if (sOption.equals(SET_SAGE_SERVER))
+        if (sOption.equals(LIST_VIRTUAL_KBS))
+        {
+        	//com.sun.lwuit.impl.midp.VKBImplementationFactory.init();
+        	
+        	com.sun.lwuit.Display disp =
+        		com.sun.lwuit.Display.getInstance();
+        	//String[] kbs = disp.getSupportedVirtualKeyboard();
+        	
+        	//String msg = "";
+        	//for (int i=0; i<kbs.length; i++) msg += kbs[i] + " ";        	
+        	//dssAlert(msg);
+        	
+        	dssAlert("showing virtual keyboard");
+        	disp.setShowVirtualKeyboard(true);
+        	System.out.println("Showing virtual keyboard");
+        }
+        else if (sOption.equals(SET_SAGE_SERVER))
         {
         	SageServerTextBox tb = new SageServerTextBox(this);
             OccleveMobileMidlet.getInstance().setCurrentForm(tb);        	
@@ -725,7 +743,7 @@ implements ActionListener,Excludable,Runnable
     private void showRootFileURLs() throws Exception
     {
     	Hashtable filenamesToURLs =
-    		FileConnectionHelpers.getAllFilenamesInRootDirs("*");
+    		FileConnectionHelpers.getAllFilenamesInRootDirs("*",null);
     	Enumeration enm = filenamesToURLs.elements();
     	String sMsg = "";
     	while (enm.hasMoreElements())
