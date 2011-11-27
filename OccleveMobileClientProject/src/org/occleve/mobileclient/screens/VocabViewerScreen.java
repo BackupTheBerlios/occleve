@@ -118,6 +118,7 @@ public class VocabViewerScreen extends Form
             TextArea ta = new TextArea(sQA,2,2);
             ta.setGrowByContent(true);
             ta.getStyle().setFont(m_Font);
+            ta.setEditable(false);
             addComponent(ta);
 
             // You can click Play on a ListenItem.

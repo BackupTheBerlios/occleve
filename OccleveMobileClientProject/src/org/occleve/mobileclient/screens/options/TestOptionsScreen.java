@@ -75,7 +75,7 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
 
         addCommand(m_OKCommand);
         addCommand(m_CancelCommand);
-        setCommandListener(this);
+        //setCommandListener(this);
 
         // Append items to this form.
 

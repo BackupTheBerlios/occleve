@@ -46,7 +46,7 @@ public class MagicTypewriterController extends QAController
     protected TestResults m_TestResults;
 
     /**0.9.7: start keeping a reference so we can shut down
-    UnicodeInputScreen's thread.*/
+    UnicodeInputScreen's thread. */
     protected UnicodeInputScreen m_UnicodeInputScreen;
     
     public void setAnswerFragmentLastLine(String sSetToThis) throws Exception
@@ -216,6 +216,7 @@ public class MagicTypewriterController extends QAController
         	}
         	
             m_TestController.getQuestionView().doRepainting();
+            Thread.yield();
             Thread.sleep(1000);
             m_TestController.moveToNextQuestion();
         }    	
@@ -296,6 +297,23 @@ public class MagicTypewriterController extends QAController
     {
         trace("Entering keypressEqualsChar()");
 
+        // On Microemulator on Android, the keycode is just the ASCII code.
+        String os = System.getProperty("microedition.platform");
+    	org.occleve.mobileclient.testing.qaview.
+    		MagicTypewriterCanvas.extraDebugInfo = os;        
+        if (os.indexOf("microemulator-android")!=-1) {
+        	char[] keyArray = {(char)iKeycode};
+        	String lowerKey = new String(keyArray).toLowerCase();
+
+        	char[] charArray = {theChar};
+        	String lowerChar = new String(charArray).toLowerCase();
+
+        	org.occleve.mobileclient.testing.qaview.
+        		MagicTypewriterCanvas.extraDebugInfo += lowerKey + " " + lowerChar;
+        	
+        	return (lowerKey.charAt(0)==lowerChar.charAt(0));
+        }
+        
         char lowercaseChar = Character.toLowerCase(theChar);
         lowercaseChar = StaticHelpers.removeAccent(lowercaseChar);
 
@@ -328,7 +346,7 @@ public class MagicTypewriterController extends QAController
 
     public void setVisible()
     {
-        Displayable disp = m_TestController.getQuestionView().getDisplayable();
+        Object disp = m_TestController.getQuestionView().getDisplayable();
         OccleveMobileMidlet.getInstance().setCurrentForm(disp);
         m_TestController.getQuestionView().doRepainting();
     }

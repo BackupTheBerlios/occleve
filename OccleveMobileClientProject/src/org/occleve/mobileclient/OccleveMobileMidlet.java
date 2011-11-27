@@ -177,14 +177,34 @@ implements CommandListener,Runnable
     {
     	m_bLWUITDisplayInitialized = true;
     	
-		// 0.9.7 - initialize display for LWUIT
+		// Initialize display for LWUIT
     	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
 
     	try
 		{
 			Resources r = Resources.open("/javaTheme.res");
-			UIManager.getInstance().setThemeProps(r.getTheme("javaTheme"));
+			java.util.Hashtable props = r.getTheme("javaTheme");
+			System.out.println("Theme props=" + props);
+			
+			com.sun.lwuit.Font f = (com.sun.lwuit.Font)props.get("font");
+			System.out.println("font=" + f);
+			System.out.println("font size=" + f.getSize());
+			// System.out.println("font name=" + f.)
+			
+			com.sun.lwuit.Font f2 =
+				com.sun.lwuit.Font.createSystemFont(
+				f.getFace(),f.getStyle(),f.SIZE_LARGE);
+			props.put("font",f2);
+			
+			UIManager.getInstance().setThemeProps(props);
 			///////com.sun.lwuit.Display.getInstance().getCurrent().refreshTheme();
+			
+			//String font = UIManager.getInstance().
+			//	getThemeConstant("font","not found");
+			
+			// java.util.Hashtable props = r.getTheme("javaTheme");
+			// String font = (String)props.get("font");			
+			// System.out.println("theme font=" + font);
 		}
 		catch (Exception e)
 		{

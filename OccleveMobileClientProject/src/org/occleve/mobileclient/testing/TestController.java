@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.testing;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
 import java.util.*;
 
 import org.occleve.mobileclient.*;
@@ -33,7 +33,7 @@ import org.occleve.mobileclient.testing.qacontrol.*;
 import org.occleve.mobileclient.testing.qaview.*;
 import org.occleve.mobileclient.testing.test.*;
 
-public abstract class TestController implements CommandListener
+public abstract class TestController
 {
     protected Test m_Test;    
     protected QADirection m_QADirection;
@@ -102,37 +102,35 @@ public abstract class TestController implements CommandListener
         {
             MagicTypewriterController mtc =
                     new MagicTypewriterController(this,theTest,direction,m_TestResults);
-            m_View = new MagicTypewriterCanvas(mtc);
+            m_View = new MagicTypewriterLWUITFormView(mtc);
         }
 
-        Displayable disp = m_View.getDisplayable();
+        Form disp = (Form)m_View.getDisplayable();
         addCommandsToDisplayable(disp);
     }
 
     /**More than one Displayable may be used through the course of a test,
     corresponding to different question types.*/
-    protected void addCommandsToDisplayable(Displayable disp)
+    protected void addCommandsToDisplayable(Form disp)
     {
-        m_NewTestCommand = new Command("New test",Command.ITEM,1);
+        m_NewTestCommand = new Command("New test");
         disp.addCommand(m_NewTestCommand);
 
-        m_ExitCommand = new Command("Exit Occleve",Command.ITEM,1);
+        m_ExitCommand = new Command("Exit Occleve");
         disp.addCommand(m_ExitCommand);
 
-        m_RestartCommand = new Command("Restart",Command.ITEM,1);
+        m_RestartCommand = new Command("Restart");
         disp.addCommand(m_RestartCommand);
 
-        m_PauseCommand = new Command("Pause",Command.ITEM,1);
+        m_PauseCommand = new Command("Pause");
         disp.addCommand(m_PauseCommand);
 
         // Disabled in 0.9.6 - see earlier comment
         //m_EditThisQACommand = new Command("Edit this QA",Command.ITEM,1);
         //disp.addCommand(m_EditThisQACommand);
 
-        m_TestOptionsCommand = new Command("Test options",Command.ITEM,1);
+        m_TestOptionsCommand = new Command("Test options");
         disp.addCommand(m_TestOptionsCommand);
-
-        disp.setCommandListener(this);
     }
 
     public QA getCurrentQA()
@@ -181,12 +179,11 @@ public abstract class TestController implements CommandListener
         return sAccuracyDisplay;
     }
 
-    /**Implementation of CommandListener.*/
-    public void commandAction(Command c, Displayable s)
+    public void actionCommand(Command c)
     {      
     	try
     	{
-    		commandAction_Inner(c,s);
+    		commandAction_Inner(c);
     	}
     	catch (Exception e)
     	{
@@ -194,7 +191,7 @@ public abstract class TestController implements CommandListener
     	}
     }
 
-	private void commandAction_Inner(Command c, Displayable s)
+	private void commandAction_Inner(Command c)
 	throws Exception
 	{        
     	if (c==m_ExitCommand)
@@ -236,6 +233,11 @@ public abstract class TestController implements CommandListener
     {
         OccleveMobileMidlet.getInstance().setCurrentForm( m_View.getDisplayable() );
         m_View.doRepainting();
+        
+        String os = System.getProperty("microedition.platform");
+        if (os.indexOf("microemulator-android")!=-1) {       
+        	com.sun.lwuit.Display.getInstance().setShowVirtualKeyboard(true);
+        }
     }
 
     /*Clear out the test results, and jump to the first question.*/

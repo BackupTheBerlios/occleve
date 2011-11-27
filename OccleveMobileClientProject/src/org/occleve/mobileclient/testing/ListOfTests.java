@@ -222,7 +222,8 @@ public class ListOfTests
     /**Get the list of tests that are in the phone's filesystem.*/
     private void ListOfTests_LoadFromFilesystem(Alert progressAlert) throws Exception
     {
-    	Hashtable filenamesToURLs = FileConnectionHelpers.getAllFilenamesInRootDirs("*.xml");
+    	Hashtable filenamesToURLs =
+    		FileConnectionHelpers.getAllFilenamesInRootDirs("*.xml","pcquiz");
     	
     	// Make sure the progress alert is still visible (the phone's own
     	// security popup for JSR75 access might have displaced it).

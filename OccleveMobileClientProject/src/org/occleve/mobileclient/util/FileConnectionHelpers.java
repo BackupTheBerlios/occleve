@@ -49,7 +49,8 @@ public class FileConnectionHelpers
         return is;
 	}
 	
-	public static Hashtable getAllFilenamesInRootDirs(String sFilter) throws Exception
+	public static Hashtable getAllFilenamesInRootDirs(String sFilter,String subdir)
+	throws Exception
 	{
 		Hashtable htResults = new Hashtable();
 				
@@ -58,6 +59,10 @@ public class FileConnectionHelpers
 		{
 			String root = (String)drives.nextElement();
 			String rootURL = "file:///" + root;
+			if (subdir!=null) {
+				if (rootURL.endsWith("/")==false) rootURL += "/";
+				rootURL += subdir + "/";
+			}
 			System.out.println("Root URL=" + rootURL);
 			
 			// Setting the mode to READ reduces the number of
@@ -70,7 +75,8 @@ public class FileConnectionHelpers
 			while(filelist.hasMoreElements())
 			{
 			    String sFilename = (String) filelist.nextElement();
-			    String sFileURL = "file:///" + root + sFilename;
+			    // String sFileURL = "file:///" + root + sFilename;
+			    String sFileURL = rootURL + sFilename;
 			    htResults.put(sFilename,sFileURL);
 			}   
 			fc.close();
