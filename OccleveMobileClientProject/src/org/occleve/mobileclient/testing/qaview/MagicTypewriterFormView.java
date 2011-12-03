@@ -29,12 +29,12 @@ import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
 
 public class MagicTypewriterFormView extends Form
-implements QuestionView
+implements QuestionView, Runnable
 {
     protected MagicTypewriterController m_Controller;
 
     protected StringItem m_QuestionItem;
-    protected StringItem m_AnswerItem;
+    protected Vector m_AnswerTextFields;
     protected StringItem m_ResultsItem;
 
     public MagicTypewriterFormView(MagicTypewriterController mtc)
@@ -43,24 +43,38 @@ implements QuestionView
         super("");
 
         m_QuestionItem = new StringItem("","");
-        m_AnswerItem = new StringItem("","");
+
+        m_AnswerTextFields = new Vector();
+        TextField firstAnswerField =
+        	new TextField("","",1000,TextField.ANY);
+        m_AnswerTextFields.addElement(firstAnswerField);
+        
         m_ResultsItem = new StringItem("","");
 
         m_Controller = mtc;
 
         // Sony Ericsson K300 seems to object to this if it's
         // zero-sized.
-        MagicTypewriterFormViewCustomItem solelyToCatchKeypresses =
-            new MagicTypewriterFormViewCustomItem(this);
-        append(solelyToCatchKeypresses);
+        // MagicTypewriterFormViewCustomItem solelyToCatchKeypresses =
+        //    new MagicTypewriterFormViewCustomItem(this);
+        // append(solelyToCatchKeypresses);
 
+        //TextField foo = new TextField("foo","foo12345",10,TextField.ANY);
+        //append(foo);
+        
         append(m_QuestionItem);
-        append(m_AnswerItem);
+        append(firstAnswerField);
         append(m_ResultsItem);
 
+        new Thread(this).start();
+        
+        setCommandListener(
+        	(CommandListener)m_Controller.getTestController());
+        
         // Ensure the CustomItem has focus so it will catch keypresses
         // (which is the point of it).
-        Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(solelyToCatchKeypresses);
+        // Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(solelyToCatchKeypresses);
+
     }
 
     public void onKeyPressEvent(int keyCode)
@@ -81,11 +95,32 @@ implements QuestionView
 
         String sQuestion =
             vectorToString( mtc.getTestController().getCurrentQuestion() );
-        String sAnswer =
-            vectorToString( mtc.getTestController().getCurrentAnswerFragment() );
 
-        m_QuestionItem.setText( "Q: " + sQuestion );
-        m_AnswerItem.setText( "A: " + sAnswer );
+
+        Vector answerLines =
+            mtc.getTestController().getCurrentAnswerFragment();
+        int diff = answerLines.size() - m_AnswerTextFields.size();
+        for (int i=0; i<answerLines.size(); i++) {
+        	String line = (String)answerLines.elementAt(i);
+
+        	TextField tf;
+        	if (i >= m_AnswerTextFields.size()) {
+                tf = new TextField("","",1000,TextField.ANY);
+                m_AnswerTextFields.addElement(tf);
+                
+                if (i != answerLines.size()-1) {
+                	tf.setConstraints(TextField.UNEDITABLE);
+                }
+        	}
+        	else {
+        		tf = (TextField)m_AnswerTextFields.elementAt(i);
+        	}
+
+        	tf.setString("");
+        	tf.insert(line,0);
+        }
+
+        m_QuestionItem.setText("Q: " + sQuestion );
         m_ResultsItem.setText( mtc.getTestController().getCurrentScore() );
     }
 
@@ -105,6 +140,38 @@ implements QuestionView
     public QuestionView perhapsClone() throws Exception
     {
         return this;
+    }
+
+    public void run() {
+    	try {
+    		run_Inner();
+    	}
+    	catch (Throwable t) {
+    		OccleveMobileMidlet.getInstance().onError(
+    			"MagicTypewriterFormView.run",t);
+    	}
+    }
+
+    private void run_Inner() throws Throwable {
+		String lastContents = null;
+    	
+    	do {
+    		TextField tf = (TextField)m_AnswerTextFields.lastElement();
+    		String contents = tf.getString();
+    		if (lastContents==null) lastContents = contents;
+
+    		if (contents.equals(lastContents)==false) {
+    			if (contents.length()>lastContents.length()) {
+    				//char nextChar = contents.charAt(lastContents.length());
+    				char nextChar = contents.charAt(0);
+    		        m_Controller.onKeyPressed((int)nextChar);
+    			}
+    		}
+    		lastContents = contents;
+    		
+    		try {Thread.sleep(50);} catch (Exception e) {}
+    		
+    	} while (isShown());
     }
 
 }

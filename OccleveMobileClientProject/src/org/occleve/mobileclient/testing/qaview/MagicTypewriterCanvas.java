@@ -29,7 +29,7 @@ import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
 
 public class MagicTypewriterCanvas extends GameCanvas
-implements QuestionView
+ implements QuestionView
 {
     private static final Font FONT_TO_USE = OccleveMobileFonts.DETAILS_FONT;
     private static final int MARGIN = 5;
@@ -40,6 +40,10 @@ implements QuestionView
     protected MagicTypewriterController m_Controller;
 
     protected int m_iRepaintScrollUpBy = 0;
+
+private String lastAction = "";    
+
+public static String extraDebugInfo = "";
 
     public MagicTypewriterCanvas(MagicTypewriterController mtc)
     throws Exception
@@ -52,6 +56,7 @@ implements QuestionView
 
     protected void keyPressed(int keyCode)
     {
+lastAction = "Key pressed=" + keyCode;    		
         m_Controller.onKeyPressed(keyCode);
     }
 
@@ -64,6 +69,7 @@ implements QuestionView
     {
     	try
     	{
+    		lastAction = "Pointer pressed at " + x + "," + y;    		
     		m_Controller.invokeUnicodeInputScreen();
     	}
     	catch (Exception e)
@@ -77,6 +83,7 @@ implements QuestionView
     {
     	try
     	{
+    		lastAction = "Pointer dragged at " + x + "," + y;    		
     		m_Controller.invokeUnicodeInputScreen();
     	}
     	catch (Exception e)
@@ -111,10 +118,12 @@ implements QuestionView
         	// 0.9.10 - also show memory/thread stats
         	String sScoreEtc = mtc.getTestController().getCurrentScore();
             Runtime rt = Runtime.getRuntime();
-        	sScoreEtc = "" + (rt.freeMemory()/1000) + "/" +
+        	sScoreEtc =
+        		//// extraDebugInfo + " " + lastAction + "  " + 
+        		"" + (rt.freeMemory()/1000) + "/" +
         		(rt.totalMemory()/1000) + "k " +
         		Thread.activeCount() + " " +
-        		sScoreEtc; 
+        		sScoreEtc;
             printString(sScoreEtc, g, iFooterY);
         }
 
@@ -206,7 +215,7 @@ implements QuestionView
     }
 
     /**Implementation of MagicTypewriterView method.*/
-    public Displayable getDisplayable()
+    public Object getDisplayable()
     {
         return this;
     }
