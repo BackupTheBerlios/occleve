@@ -35,13 +35,15 @@ implements QuestionView
     protected TextArea m_QuestionArea;
     protected TextArea m_AnswerArea;
     protected TextArea m_ResultsArea;
+    
+    protected TextField m_DummyTextField;
 
-    //// protected TextField m_DummyTextField;
+    protected javax.microedition.lcdui.TextField m_MIDPTextField;
 
     protected MagicTypewriterController m_Controller;
 
-private String lastAction = "";    
-public static String extraDebugInfo = "";
+    private String lastAction = "";    
+    public static String extraDebugInfo = "";
 
     public MagicTypewriterLWUITFormView(MagicTypewriterController mtc)
     throws Exception
@@ -72,9 +74,32 @@ public static String extraDebugInfo = "";
         m_QuestionArea.getStyle().setFont(m_Font);
         m_AnswerArea.getStyle().setFont(m_Font);
         m_ResultsArea.getStyle().setFont(m_Font);
+
+        // Create virtual keyboard and bind to text field
+        com.sun.lwuit.impl.midp.VirtualKeyboard vkb
+        	= new com.sun.lwuit.impl.midp.VirtualKeyboard();
+        vkb.setInputModeOrder(new String[] {VirtualKeyboard.QWERTY_MODE} );
         
-        m_QuestionArea.setFocus(true);
+        m_DummyTextField = new TextField("foo");
+        m_DummyTextField.setUseNativeTextInput(true);
+        m_DummyTextField.setEditable(true);
         
+        com.sun.lwuit.impl.midp.VirtualKeyboard.
+    	bindVirtualKeyboard(m_DummyTextField, vkb);
+
+        addComponent(m_DummyTextField);
+        m_DummyTextField.setFocus(true);
+
+        javax.microedition.lcdui.TextField m_MIDPTextField =
+        	new javax.microedition.lcdui.TextField
+        	("foo","foo",5,javax.microedition.lcdui.TextField.ANY);
+
+        //android.widget.Button btn = new android.widget.Button(
+        //		com.sun.lwuit.impl.android.LWUITActivity.currentActivity);
+        //btn.setText("Test");        
+        //PeerComponent pc = PeerComponent.create(btn);
+        //addComponent(pc);
+                
         System.out.println("FINISHED");
     }
 
@@ -83,6 +108,13 @@ public static String extraDebugInfo = "";
     	lastAction = "Key pressed=" + keyCode;    		
         m_Controller.onKeyPressed(keyCode);
         // doUpdate();
+        
+        m_DummyTextField.keyPressed(keyCode);
+        
+    	com.sun.lwuit.Display disp =
+    		com.sun.lwuit.Display.getInstance();
+    	disp.setShowVirtualKeyboard(true);
+
     }
 
     /**0.9.4: If the pointer is pressed, jump straight into the Unicode input screen.
@@ -186,7 +218,7 @@ public static String extraDebugInfo = "";
     
     public void actionCommand(Command c)
     {
-    	m_Controller.getTestController().actionCommand(c);    	
+    	// m_Controller.getTestController().actionCommand(c);    	
     }
 }
 

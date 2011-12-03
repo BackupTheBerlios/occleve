@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,7 +25,8 @@ package org.occleve.mobileclient.testing.qaview;
 import javax.microedition.lcdui.*;
 import org.occleve.mobileclient.*;
 
-public class MagicTypewriterFormViewCustomItem extends CustomItem
+public class MagicTypewriterFormViewCustomItem
+	extends CustomItem implements Runnable
 {
     private final int SIZE = 10;
 
@@ -33,8 +34,12 @@ public class MagicTypewriterFormViewCustomItem extends CustomItem
 
     public MagicTypewriterFormViewCustomItem(MagicTypewriterFormView mtFormView)
     {
-        super("");
+        super("FOOOO");
         m_MagicTypewriterFormView = mtFormView;
+        
+super.setLabel("keypresses? " + areKeypressesSupported());        
+
+		//new Thread(this).start();
     }
 
     /**Implementation of abstract method in CustomItem.*/
@@ -68,6 +73,16 @@ public class MagicTypewriterFormViewCustomItem extends CustomItem
 
     protected void keyPressed(int keyCode)
     {
+String foo = "" + keyCode;    	
+super.setLabel(foo);    	
         m_MagicTypewriterFormView.onKeyPressEvent(keyCode);
+    }
+    
+    public void run() {
+        Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(this);
+        try {
+        	Thread.sleep(100);
+        }
+        catch (Exception e) {}
     }
 }
