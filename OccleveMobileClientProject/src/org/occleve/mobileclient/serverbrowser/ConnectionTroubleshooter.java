@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2009  Joe Gittings
+Copyright (C) 2009-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.serverbrowser;
@@ -155,7 +155,10 @@ implements CommandListener,ItemCommandListener,Runnable
             {
 		        new Thread(this).start();
             }
-            catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+            catch (Throwable t) {
+            	OccleveMobileMidlet.getInstance().
+            		onError("ConnectionTroubleshooter.commandAction",t);
+            }
         }
         else if (c==m_CancelCommand)
         {
@@ -174,7 +177,10 @@ implements CommandListener,ItemCommandListener,Runnable
     	{
     		runTest();
         }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        catch (Throwable t) {
+        	OccleveMobileMidlet.getInstance().
+        		onError("ConnectionTroubleshooter.run",t);
+        }
     }
 
     protected void runTest() throws Exception
