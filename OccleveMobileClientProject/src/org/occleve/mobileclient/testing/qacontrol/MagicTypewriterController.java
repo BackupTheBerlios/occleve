@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.testing.qacontrol;
@@ -85,7 +85,8 @@ public class MagicTypewriterController extends QAController
         }
         catch (Exception e)
         {
-            OccleveMobileMidlet.getInstance().onError(e);
+            OccleveMobileMidlet.getInstance().
+            	onError("MagicTypewriterController.onKeyPressed()",e);
         }
         
         // 0.9.6 - if score drops below a user-specified threshold,
@@ -116,8 +117,12 @@ public class MagicTypewriterController extends QAController
             m_TestController.getCurrentQA().getNextPossibleCharsCount();
         trace("getNextPossibleCharsCount = " + iCount);
 
-        if (bUnicode && (iCount==1) && (bIsCheatKey == false))
+        String os = System.getProperty("microedition.platform");
+                
+        if (bUnicode && (iCount==1) && (bIsCheatKey == false)
+        	&& (os.indexOf("microemulator-android")==-1) )
         {
+        	// Only do this on J2ME, not Android
         	invokeUnicodeInputScreen();
         }
         else
