@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.3
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.testing.qaview;
@@ -71,10 +71,9 @@ implements QuestionView, Runnable
         setCommandListener(
         	(CommandListener)m_Controller.getTestController());
         
-        // Ensure the CustomItem has focus so it will catch keypresses
-        // (which is the point of it).
-        // Display.getDisplay(OccleveMobileMidlet.getInstance()).setCurrentItem(solelyToCatchKeypresses);
-
+        // Set focus
+        Display.getDisplay(OccleveMobileMidlet.getInstance()).
+        	setCurrentItem(firstAnswerField);
     }
 
     public void onKeyPressEvent(int keyCode)
@@ -99,25 +98,30 @@ implements QuestionView, Runnable
 
         Vector answerLines =
             mtc.getTestController().getCurrentAnswerFragment();
+        
         int diff = answerLines.size() - m_AnswerTextFields.size();
+        for (int i=0; i<diff; i++) {
+            TextField tf = new TextField("","",1000,TextField.ANY);
+            m_AnswerTextFields.addElement(tf);
+            append(tf);
+        }
+        
         for (int i=0; i<answerLines.size(); i++) {
         	String line = (String)answerLines.elementAt(i);
 
-        	TextField tf;
-        	if (i >= m_AnswerTextFields.size()) {
-                tf = new TextField("","",1000,TextField.ANY);
-                m_AnswerTextFields.addElement(tf);
-                
-                if (i != answerLines.size()-1) {
-                	tf.setConstraints(TextField.UNEDITABLE);
-                }
-        	}
-        	else {
-        		tf = (TextField)m_AnswerTextFields.elementAt(i);
-        	}
+        	TextField tf = (TextField)m_AnswerTextFields.elementAt(i);
+            if (i == answerLines.size()-1) {
+            	tf.setConstraints(TextField.ANY);
+            }
+            else {
+            	tf.setConstraints(TextField.UNEDITABLE);
+            }
 
         	tf.setString("");
         	tf.insert(line,0);
+            
+        	Display.getDisplay(OccleveMobileMidlet.getInstance()).
+        		setCurrentItem(tf);
         }
 
         m_QuestionItem.setText("Q: " + sQuestion );
@@ -171,8 +175,6 @@ implements QuestionView, Runnable
     		
     		try {Thread.sleep(50);} catch (Exception e) {}
     		
-    	} while (isShown());
+    	} while (!m_Controller.getTestController().isTestCompleted());
     }
-
 }
-

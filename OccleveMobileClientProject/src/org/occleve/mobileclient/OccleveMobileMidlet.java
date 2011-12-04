@@ -52,7 +52,7 @@ implements CommandListener,Runnable
     // Currently can be either an LWUIT Form or MIDP Displayable until switch from
     // MIDP to LWUIT is complete.
     // LWUIT-TO-DO eventually make this an LWUIT Form only.
-    protected Object m_CurrentForm;
+    protected Object m_CurrentForm = null;
     
     protected FileChooserForm m_FileChooserForm;
 
@@ -76,7 +76,16 @@ implements CommandListener,Runnable
 	{
 		try
 		{
-			startApp_Inner();
+			if (m_CurrentForm==null)
+				startApp_Inner();
+			else {
+		        if (m_CurrentForm instanceof com.sun.lwuit.Form) {
+		    		com.sun.lwuit.Form lwuitForm = (com.sun.lwuit.Form)m_CurrentForm;
+		        	lwuitForm.show();
+		        }
+		        else
+	    			Display.getDisplay(this).setCurrent((Displayable)m_CurrentForm);
+			}
 		}
 		catch (Exception e)
 		{
@@ -178,6 +187,7 @@ implements CommandListener,Runnable
     	m_bLWUITDisplayInitialized = true;
     	
 		// Initialize display for LWUIT
+    	com.sun.lwuit.impl.midp.VKBImplementationFactory.init();
     	com.sun.lwuit.Display.init(OccleveMobileMidlet.getInstance());
 
     	try
@@ -279,7 +289,13 @@ implements CommandListener,Runnable
     {
     	m_FileChooserForm.displayTestOptions(theTest);
     }
-    
+
+    public void onError(String location,Throwable t)
+    {
+        onError(location + ": " + t.toString());
+        t.printStackTrace();
+    }
+
     public void onError(Throwable t)
     {
         onError(t.toString());

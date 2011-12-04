@@ -70,6 +70,8 @@ implements ActionListener,Excludable,Runnable
     /**Should be one of the prompt values.*/
     protected String m_sThreadAction;
 
+    protected final String SHOW_ANDROID_PROPS = "Show android props";
+    protected final String TEST_MIDP_FORM = "Test MIDP Form";
     protected final String LIST_VIRTUAL_KBS = "List virtual keyboards";
     protected final String SET_SAGE_SERVER = "Set Sage server address";
     protected final String COUNT_NEWLINES = "Count LFs and CRLFs";
@@ -132,6 +134,8 @@ implements ActionListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
+        append(SHOW_ANDROID_PROPS,null);
+        append(TEST_MIDP_FORM,null);
         append(LIST_VIRTUAL_KBS,null);
         append(SET_SAGE_SERVER,null);
         append(QUIZ_FILE_MANAGER,null);
@@ -274,19 +278,38 @@ implements ActionListener,Excludable,Runnable
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {        
-        if (sOption.equals(LIST_VIRTUAL_KBS))
+        if (sOption.equals(SHOW_ANDROID_PROPS))
+        {
+        	Class buildClass = Class.forName("android.os.Build");
+        	// java.lang.reflect.Field f = buildClass.getDeclaredField("MODEL");
+        	//String value = (String)f.get(null);
+        	//dssAlert("android.os.Build=" + value);
+        	
+        	Object build = buildClass.newInstance();
+        	dssAlert("android.os.Build=" + build);
+        	dssAlert("android.os.Build - toString()=" + build.toString());
+        }
+        else if (sOption.equals(TEST_MIDP_FORM))
+        {
+        	TestbedForm tf = new TestbedForm(this);
+            OccleveMobileMidlet.getInstance().setCurrentForm(tf);        	        	
+        }
+        else if (sOption.equals(LIST_VIRTUAL_KBS))
         {
         	//com.sun.lwuit.impl.midp.VKBImplementationFactory.init();
         	
         	com.sun.lwuit.Display disp =
         		com.sun.lwuit.Display.getInstance();
-        	//String[] kbs = disp.getSupportedVirtualKeyboard();
+        	String[] kbs = disp.getSupportedVirtualKeyboard();
+
+        	String deft =
+        		disp.getDefaultVirtualKeyboard().toString();
         	
-        	//String msg = "";
-        	//for (int i=0; i<kbs.length; i++) msg += kbs[i] + " ";        	
-        	//dssAlert(msg);
+        	String msg = "Default=" + deft + ", supported=";
+        	for (int i=0; i<kbs.length; i++) msg += kbs[i] + " ";        	
+        	dssAlert(msg);
         	
-        	dssAlert("showing virtual keyboard");
+        	disp.setDefaultVirtualKeyboard(null);
         	disp.setShowVirtualKeyboard(true);
         	System.out.println("Showing virtual keyboard");
         }

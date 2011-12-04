@@ -94,18 +94,21 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         // Give the derived class a chance to add other controls.
         addSubclassControls();
 
-        addPromptAndField("Question to start from:",
+        addPromptAndNumField("Question to start from:",
         		m_FirstQuestionTextField,"1");
 
-        addPromptAndField("Question to end at:",
+        addPromptAndNumField("Question to end at:",
         		m_LastQuestionTextField,"1");
 
-        addPromptAndField("Restart if score below:",
+        addPromptAndNumField("Restart if score below:",
         		m_RestartOnPercentageBelowTextField,"0");
     }
 
-    private void addPromptAndField(String sPrompt,TextField field,String sInitialValue)
+    private void addPromptAndNumField(String sPrompt,TextField field,String sInitialValue)
     {
+        field.setConstraint(TextField.NUMERIC);
+        field.setInputModeOrder(new String[] {"123"});
+
         Label prompt = new Label(sPrompt);
         Container promptAndField = new Container(new BoxLayout(BoxLayout.X_AXIS));
         promptAndField.addComponent(prompt);
@@ -147,7 +150,10 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         	
         	new Thread(this).start();
         }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        catch (Exception e) {
+        	OccleveMobileMidlet.getInstance().onError(
+        		"TestOptionsScreen.createRunTestThread",e);
+        }
     }
 
     /**Implementation of Runnable.*/
@@ -157,20 +163,26 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
     		runTest();
     	}
     	catch (Exception e) {
-    		OccleveMobileMidlet.getInstance().onError(e);
+    		OccleveMobileMidlet.getInstance().onError(
+    			"TestOptionsScreen.run: gotTo=" + gotTo,e);
     	}
     }
     
+public static String gotTo = "start";    
     
     protected void runTest() throws Exception
     {    	
         String sChoice = (String)m_SequentialOrRandomChoiceGroup.getSelectedItem();
         boolean bRandom = (sChoice.equals(RANDOM));
-
+    	
         QADirection direction = getQADirection();
-        
+
+gotTo = "created QADirection";
+
         boolean mnemonics = m_MnemonicCheckbox.isSelected();
 
+gotTo = "checked mnemnoic checkbox";        
+        
     	String sFirstQuestion = m_FirstQuestionTextField.getText();
     	int iFirstQuestion;
     	try
@@ -183,6 +195,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
     		iFirstQuestion = 1;
     	}
 
+gotTo = "got first question";    	
+    	
     	String sLastQuestion = m_LastQuestionTextField.getText();
     	int iLastQuestion;
     	try
@@ -195,6 +209,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
     		iLastQuestion = m_Test.getQACount();
     	}
 
+gotTo = "got last question";    	
+
     	String sMinScore = m_RestartOnPercentageBelowTextField.getText();
     	int iMinScore;
     	try
@@ -206,6 +222,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
     		System.err.println("Invalid value in textfield, setting to zero");
     		iMinScore = 0;
     	}
+
+gotTo = "got min score";    	
 
         TestController tc;
         if (bRandom)
@@ -220,6 +238,8 @@ public class TestOptionsScreen extends Form implements ActionListener,Runnable
         			iFirstQuestion-1,iLastQuestion-1,iMinScore,
         			mnemonics,m_ProgressAlert);
         }
+
+gotTo = "create test controller";    	
 
         tc.setVisible();
     }
@@ -270,12 +290,15 @@ m_Test = null;
     {
         try
         {
-            if (ae.getSource()==m_StartTestItem)
+            if (ae.getSource()==(Object)m_StartTestItem)
             {
                 createRunTestThread();
             }
         }
-        catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
+        catch (Exception e) {
+        	OccleveMobileMidlet.getInstance().onError(
+        		"TestOptionsScreen.actionPerformed()",e);
+        }
     }
 
     /*

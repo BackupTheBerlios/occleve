@@ -22,7 +22,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.testing;
 
-import com.sun.lwuit.*;
+import javax.microedition.lcdui.*;
 import java.util.*;
 
 import org.occleve.mobileclient.*;
@@ -34,6 +34,7 @@ import org.occleve.mobileclient.testing.qaview.*;
 import org.occleve.mobileclient.testing.test.*;
 
 public abstract class TestController
+implements CommandListener
 {
     protected Test m_Test;    
     protected QADirection m_QADirection;
@@ -60,11 +61,16 @@ public abstract class TestController
     protected boolean m_bShowMnemonics;
     public boolean getShowMnemonics() {return m_bShowMnemonics;}
     
+    protected boolean m_bTestCompleted;
+    public boolean isTestCompleted() {return m_bTestCompleted;}
+    
     public TestController(Test theTest,QADirection direction,
     		int iFirstQuestionIndex,int iLastQuestionIndex,int iMinScore,
     		boolean showMnemonics,ProgressAlert pa)
     throws Exception
     {
+    	m_bTestCompleted = false;
+    	
     	for (int i=0; i<theTest.getQACount(); i++)
     	{
     		if (theTest.getQA(i) instanceof SageQA)
@@ -73,8 +79,8 @@ public abstract class TestController
     			theTest.getQA(i).getAnswer();
     		}
     	}
-    	
-    	// 0.9.6: Only include QAs in the test which contain the desired
+
+    	// Only include QAs in the test which contain the desired
     	// question and answer fields. For example, if testing on english-to-hanzi,
     	// make sure all the QAs actually contain hanzi.
         theTest = theTest.restrictToQADirectionTypes(direction);
@@ -99,38 +105,35 @@ public abstract class TestController
             m_View = new MultipleChoiceSRFormView(mcc);
         }
         else
-        {
+        {        	
             MagicTypewriterController mtc =
                     new MagicTypewriterController(this,theTest,direction,m_TestResults);
-            m_View = new MagicTypewriterLWUITFormView(mtc);
+            m_View = new MagicTypewriterFormView(mtc);
         }
 
-        Form disp = (Form)m_View.getDisplayable();
-        addCommandsToDisplayable(disp);
+        Form frm = (Form)m_View.getDisplayable();
+        addCommandsToDisplayable(frm);
     }
 
     /**More than one Displayable may be used through the course of a test,
     corresponding to different question types.*/
     protected void addCommandsToDisplayable(Form disp)
     {
-        m_NewTestCommand = new Command("New test");
-        disp.addCommand(m_NewTestCommand);
+        m_NewTestCommand = addCommand("New test",disp);
+        m_ExitCommand = addCommand("Exit Occleve",disp);
+        m_RestartCommand = addCommand("Restart",disp);
+        m_PauseCommand = addCommand("Pause",disp);
+        m_TestOptionsCommand = addCommand("Test options",disp);
 
-        m_ExitCommand = new Command("Exit Occleve");
-        disp.addCommand(m_ExitCommand);
-
-        m_RestartCommand = new Command("Restart");
-        disp.addCommand(m_RestartCommand);
-
-        m_PauseCommand = new Command("Pause");
-        disp.addCommand(m_PauseCommand);
-
-        // Disabled in 0.9.6 - see earlier comment
         //m_EditThisQACommand = new Command("Edit this QA",Command.ITEM,1);
         //disp.addCommand(m_EditThisQACommand);
-
-        m_TestOptionsCommand = new Command("Test options");
-        disp.addCommand(m_TestOptionsCommand);
+    }
+    
+    private Command addCommand(String label,Form frm)
+    {
+        Command c = new Command(label,Command.ITEM,0);
+        frm.addCommand(c);
+    	return c;
     }
 
     public QA getCurrentQA()
@@ -179,19 +182,20 @@ public abstract class TestController
         return sAccuracyDisplay;
     }
 
-    public void actionCommand(Command c)
+    public void commandAction(Command c,Displayable d)
     {      
     	try
     	{
-    		commandAction_Inner(c);
+    		commandAction_Inner(c,d);
     	}
     	catch (Exception e)
     	{
-    		OccleveMobileMidlet.getInstance().onError(e);
+    		OccleveMobileMidlet.getInstance().onError(
+    			"TestController.commandAction",e);
     	}
     }
 
-	private void commandAction_Inner(Command c)
+	private void commandAction_Inner(Command c,Displayable d)
 	throws Exception
 	{        
     	if (c==m_ExitCommand)
@@ -234,10 +238,11 @@ public abstract class TestController
         OccleveMobileMidlet.getInstance().setCurrentForm( m_View.getDisplayable() );
         m_View.doRepainting();
         
-        String os = System.getProperty("microedition.platform");
-        if (os.indexOf("microemulator-android")!=-1) {       
-        	com.sun.lwuit.Display.getInstance().setShowVirtualKeyboard(true);
-        }
+        //String os = System.getProperty("microedition.platform");
+        //if (os.indexOf("microemulator-android")!=-1) {       
+        //	com.sun.lwuit.Display disp = com.sun.lwuit.Display.getInstance();
+        //	disp.setShowVirtualKeyboard(true);
+        //}
     }
 
     /*Clear out the test results, and jump to the first question.*/
@@ -257,7 +262,8 @@ public abstract class TestController
         }
         catch (Exception e)
         {
-            OccleveMobileMidlet.getInstance().onError(e);
+            OccleveMobileMidlet.getInstance().
+            	onError("TestController.restart",e);
         }
     }
 

@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,18 +17,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.6
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.testing;
 
-import javax.microedition.lcdui.*;
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.testing.test.*;
 
-public class TestResultsForm extends Form implements CommandListener
+public class TestResultsForm extends Form
 {
 	private Test m_Test;
+	private Command m_NewTestCommand;
 	private Command m_RestartCommand;
 	
 	public TestResultsForm
@@ -39,66 +43,39 @@ public class TestResultsForm extends Form implements CommandListener
         super("Results");
         m_Test = theTest;
 
-        String text;
-        StringItem si;
+        Label si;
 
-        text = "Total responses = " + testResults.getTotalResponseCount() +
-               Constants.NEWLINE;
-        si = new StringItem(null,text);
-        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
-        append(si);
+        si = new Label("Total responses = " + testResults.getTotalResponseCount());
+        addComponent(si);
 
-        text = "Wrong responses = " + testResults.getWrongResponseCount() +
-               Constants.NEWLINE;
-        si = new StringItem(null,text);
-        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
-        append(si);
+        si = new Label("Wrong responses = " + testResults.getWrongResponseCount());
+        addComponent(si);
 
-        text =
-            "Accuracy = " +
-            testResults.getAccuracyPercentage() + "%" +
-            Constants.NEWLINE;
-        si = new StringItem(null,text);
-        StaticHelpers.safeSetFont(si,OccleveMobileFonts.DETAILS_FONT);
-        append(si);
+        si = new Label("Accuracy = " + testResults.getAccuracyPercentage() + "%");
+        addComponent(si);
 
-        m_RestartCommand = new Command("Restart", Command.ITEM, 0);
+        m_RestartCommand = new Command("Restart",0);
         addCommand(m_RestartCommand);
 
-        addCommand(new Command("New test", Command.BACK, 0));
-        setCommandListener(this);
+        m_NewTestCommand = new Command("New test",0);
+        addCommand(m_NewTestCommand);
     }
 
-    /**Implementation of CommandListener.
-    Handler for BACK and EXIT commands.*/
-    public void commandAction(Command c, Displayable s)
+    public void actionCommand(Command c)
     {
-    	/*
-        if (c.getCommandType() == Command.EXIT)
-        {
-            OccleveMobileMidlet.getInstance().notifyDestroyed();
-        }
-        */
-    	
     	try
     	{
 	    	if (c==m_RestartCommand)
-	    	{
 	    		OccleveMobileMidlet.getInstance().displayTestOptions(m_Test);
-	    	}
-	        else if (c.getCommandType() == Command.BACK)
-	        {
+	        else if (c==m_NewTestCommand)
 	            OccleveMobileMidlet.getInstance().displayFileChooser();
-	        }
 	        else
-	        {
-	            System.err.println("Unknown command type!");
-	            System.exit( -1);
-	        }
+	        	OccleveMobileMidlet.getInstance().onError("Unknown command type!");
     	}
     	catch (Exception e)
     	{
-    		OccleveMobileMidlet.getInstance().onError(e);
+    		OccleveMobileMidlet.getInstance().onError(
+    			"TestResultsForm.actionCommand",e);
     	}
     }
 }

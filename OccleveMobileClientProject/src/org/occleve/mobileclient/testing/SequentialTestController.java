@@ -22,7 +22,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 package org.occleve.mobileclient.testing;
 
-import com.sun.lwuit.*;
+import javax.microedition.lcdui.*;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
 import org.occleve.mobileclient.screens.*;
@@ -43,11 +44,17 @@ public class SequentialTestController extends TestController
         super(theTest,direction,iFirstQuestionIndex,
         		iLastQuestionIndex,iMinScore,showMnemonics,progressAlert);
 
+org.occleve.mobileclient.screens.options.
+TestOptionsScreen.gotTo = "SequentialTestController.super called";        
+        
         int iMaxIndex = m_Test.getQACount()-1;
         if (iFirstQuestionIndex <= iMaxIndex)
             m_iCurrentQAIndex = iFirstQuestionIndex;
         else
             m_iCurrentQAIndex = 0;
+
+org.occleve.mobileclient.screens.options.
+TestOptionsScreen.gotTo = "set currentQAindex";        
 
         getCurrentQA().initialize(direction);
 
@@ -55,14 +62,14 @@ public class SequentialTestController extends TestController
         // midlet go BACK) is a cheat to make
         // it appear on the sub-bar and not on the menu,
         // ie. to make it get its own button on the phone.
-        m_SkipForwardCommand = new Command(">> 5 >> forward");
+        m_SkipForwardCommand = new Command(">> 5 >> forward",Command.ITEM,0);
         ((Form)m_View.getDisplayable()).addCommand(m_SkipForwardCommand);
 
-        m_JumpToCommand = new Command("Jump to");
+        m_JumpToCommand = new Command("Jump to",Command.ITEM,0);
         ((Form)m_View.getDisplayable()).addCommand(m_JumpToCommand);
     }
 
-    public void actionCommand(Command c)
+    public void commandAction(Command c,Displayable d)
     {
         if (c==m_SkipForwardCommand)
         {
@@ -78,16 +85,13 @@ public class SequentialTestController extends TestController
         }
         else
         {
-            super.actionCommand(c);
+            super.commandAction(c,d);
         }
-
     }
 
     /*Implementation of TestForm.nextQuestion().*/
     public void moveToNextQuestion() throws Exception
     {    	
-        //////if (m_iCurrentQAIndex < (m_Test.getQACount()-1))
-
         if (m_iCurrentQAIndex < m_iLastQuestionIndex)
         {
             m_iCurrentQAIndex++;
@@ -104,6 +108,8 @@ public class SequentialTestController extends TestController
         }
         else
         {
+        	m_bTestCompleted = true;
+        	
             TestResultsForm resultsForm =
                 new TestResultsForm(m_Test,m_TestResults);
             OccleveMobileMidlet.getInstance().setCurrentForm(resultsForm);

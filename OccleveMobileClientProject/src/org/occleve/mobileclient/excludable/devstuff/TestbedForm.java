@@ -1,8 +1,6 @@
-/////////// DEFUNCT /////////////////
-
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -32,6 +30,8 @@ public class TestbedForm extends Form implements CommandListener
 {
 	protected DevStuffChildScreenHelper m_Helper;
 
+	public static TextField tf;
+	
     public TestbedForm(Object parentDisplayable) throws Exception
     {
         super(null);
@@ -40,12 +40,17 @@ public class TestbedForm extends Form implements CommandListener
                 
         setCommandListener(this);
 
+        tf = new TextField(null,"hello hello",100,TextField.ANY);
+        append(tf);
+
         TestbedCustomItem tci = new TestbedCustomItem();
         append(tci);
 
-        TextField tf = new TextField(null,"hello",6,TextField.ANY);
-        append(tf);
-
+        TextField tfOneSize =
+        	new TextField("ZZ one-length tf: ","",1,TextField.ANY);
+        append(tfOneSize);
+        tfOneSize.setPreferredSize(0,0);
+        
         TextField tfMax = new TextField(null,"abc",6000,TextField.ANY);
                 
         String sMsg = "Textfield max size = " + tfMax.getMaxSize();

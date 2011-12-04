@@ -87,6 +87,8 @@ public class RandomTestController extends TestController
         }
         else
         {
+        	m_bTestCompleted = true;
+        	
             TestResultsForm resultsForm =
                 new TestResultsForm(m_Test,m_TestResults);
             OccleveMobileMidlet.getInstance().setCurrentForm(resultsForm);

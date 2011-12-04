@@ -1,6 +1,6 @@
 /**
 This file is part of the Occleve (Open Content Learning Environment) mobile client
-Copyright (C) 2007-9  Joe Gittings
+Copyright (C) 2007-11  Joe Gittings
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 @author Joe Gittings
-@version 0.9.7
+@version 0.9.10
 */
 
 package org.occleve.mobileclient.excludable.devstuff;
@@ -28,6 +28,8 @@ import org.occleve.mobileclient.*;
 
 public class TestbedCustomItem extends CustomItem
 {
+	int lastKeyCode = -1;
+	
     public TestbedCustomItem()
     {
         super("test custom item");
@@ -64,12 +66,18 @@ public class TestbedCustomItem extends CustomItem
 
         int iKeyPressMode = (intModes & CustomItem.KEY_PRESS);
         boolean bSupported = (iKeyPressMode==CustomItem.KEY_PRESS);
-        graphics.drawString("Is KEY_PRESS supported? = " + bSupported,
-                            0,0,Graphics.TOP|Graphics.LEFT);
+        graphics.drawString(
+        	"KEY_PRESS? = " + bSupported +
+        	" lastKeyCode=" + lastKeyCode,
+            0,0,Graphics.TOP|Graphics.LEFT);
     }
 
     protected void keyPressed(int keyCode)
     {
+    	lastKeyCode = keyCode;
+
+    	TestbedForm.tf.setString("KEY:" + keyCode);
+    	
         try
         {
             Manager.playTone(69, 200, 100);
