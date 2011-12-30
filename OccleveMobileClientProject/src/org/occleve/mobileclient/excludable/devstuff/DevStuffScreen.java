@@ -28,7 +28,6 @@ import java.util.*;
 import com.sun.lwuit.*;
 import com.sun.lwuit.events.*;
 import com.sun.lwuit.layouts.*;
-
 import javax.microedition.io.Connector;
 import javax.microedition.io.file.*;
 import javax.microedition.rms.*;
@@ -70,6 +69,7 @@ implements ActionListener,Excludable,Runnable
     /**Should be one of the prompt values.*/
     protected String m_sThreadAction;
 
+    protected final String LIST_SLASH_FILES = "Show files in /";
     protected final String SHOW_ANDROID_PROPS = "Show android props";
     protected final String TEST_MIDP_FORM = "Test MIDP Form";
     protected final String LIST_VIRTUAL_KBS = "List virtual keyboards";
@@ -134,6 +134,7 @@ implements ActionListener,Excludable,Runnable
         append(PRINT_TO_FILE,null);
 
         append("----------------------",null);
+        append(LIST_SLASH_FILES,null);
         append(SHOW_ANDROID_PROPS,null);
         append(TEST_MIDP_FORM,null);
         append(LIST_VIRTUAL_KBS,null);
@@ -278,7 +279,12 @@ implements ActionListener,Excludable,Runnable
     protected void onSelectCommand_GlobalOptions(String sOption)
     throws Exception
     {        
-        if (sOption.equals(SHOW_ANDROID_PROPS))
+        if (sOption.equals(LIST_SLASH_FILES))
+        {
+            m_sThreadAction = LIST_SLASH_FILES;
+            new Thread(this).start();        	
+        }
+        else if (sOption.equals(SHOW_ANDROID_PROPS))
         {
         	Class buildClass = Class.forName("android.os.Build");
         	// java.lang.reflect.Field f = buildClass.getDeclaredField("MODEL");
@@ -700,31 +706,40 @@ implements ActionListener,Excludable,Runnable
 		dssAlert(sMsg);
     }
 
+    private void showFiles(String url) throws Exception
+    {
+        String sMsg = "Files and dirs under:" + url + Constants.NEWLINE;
+        
+		FileConnection fc = (FileConnection)
+		Connector.open(url);
+		
+		// Include hidden files.
+		Enumeration filelist = fc.list("*", true);
+		while(filelist.hasMoreElements())
+		{
+		    String fileName = (String) filelist.nextElement();
+		    System.out.println(fileName);
+		    sMsg += fileName + Constants.NEWLINE;
+		}   
+		fc.close();
+
+		dssAlert(sMsg);
+    }
+
+    private void showSlashFiles() throws Exception
+    {
+		showFiles("file:///");
+    }
+
     /**From http://developers.sun.com/techtopics/mobility/apis/articles/fileconnection/*/
     private void showRootFilesAndDirs() throws Exception
     {
-        String sMsg = "All files and directories under roots:" + Constants.NEWLINE;
-
     	Enumeration drives = FileSystemRegistry.listRoots();
 		while (drives.hasMoreElements())
 		{
 			String root = (String) drives.nextElement();
-			
-			FileConnection fc = (FileConnection)
-			Connector.open("file:///" + root);
-			
-			// Include hidden files.
-			System.out.println("List of files and directories under " + root);
-			Enumeration filelist = fc.list("*", true);
-			while(filelist.hasMoreElements())
-			{
-			    String fileName = (String) filelist.nextElement();
-			    System.out.println(fileName);
-			    sMsg += fileName + Constants.NEWLINE;
-			}   
-			fc.close();
+			showFiles("file:///" + root);
 		}
-		dssAlert(sMsg);
     }
 
     private void showWikipediaStrokeFiles() throws Exception
@@ -790,6 +805,10 @@ implements ActionListener,Excludable,Runnable
                 Test test = new Test(m_SelectedListOfTestsEntry);
                 VocabViewerScreen viewer = new VocabViewerScreen("",test);
                 viewer.printToFile();
+            }
+            else if (m_sThreadAction.equals(LIST_SLASH_FILES))
+            {
+                showSlashFiles();
             }
             else if (m_sThreadAction.equals(SHOW_FILESYSTEM_ROOTS))
             {
