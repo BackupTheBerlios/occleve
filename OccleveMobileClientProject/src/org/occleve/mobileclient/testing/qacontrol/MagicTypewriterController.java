@@ -159,7 +159,8 @@ public class MagicTypewriterController extends QAController
         // hash/pound for the rest of the line.
 
     	String sMatchingFragment = lastLineFragmentEndingInKeypress(iKeycode);
-    	
+
+    	boolean skipLineCompletion = false;
         if (sMatchingFragment!=null)
         {
             trace("Setting last line of answer to: " + sMatchingFragment);
@@ -175,6 +176,7 @@ public class MagicTypewriterController extends QAController
         else if (iKeycode==Canvas.KEY_POUND) // Hash key
         {
             cheatQuestion();
+            skipLineCompletion = true;
         }
         else
         {
@@ -183,29 +185,36 @@ public class MagicTypewriterController extends QAController
             m_TestResults.addResponse(false);
         }
 
-        checkForLineCompletionAndQuestionCompletion();
+        checkForLineCompletionAndQuestionCompletion(skipLineCompletion);
     }
 
-    public void checkForLineCompletionAndQuestionCompletion() throws Exception
+    public void checkForLineCompletionAndQuestionCompletion() throws Exception {
+    	checkForLineCompletionAndQuestionCompletion(false);
+    }
+
+    public void checkForLineCompletionAndQuestionCompletion(boolean skipLineCompletion)
+    throws Exception
     {
-        // 0.9.6 - if there are no matching unanswered lines with testable characters,
-        // the current line has been completed. Move past any punctuation at the end
-        // of that line by retrieving the whole line.
-        Vector vTestableLastLines =
-            m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
-        if (vTestableLastLines.size()==0)
-        {
-        	Vector vLastLines =
-                m_TestController.getCurrentQA().getMatchingUnansweredLines();
-        	if (vLastLines.size()!=0)
-        	{
-        		String s = (String)vLastLines.firstElement();
-                m_TestController.getCurrentQA().setAnswerFragmentLastLine(s);        		
-                m_TestController.getQuestionView().doRepainting();
-        	}
-        }
+    	if (!skipLineCompletion) {
+	        // If there are no matching unanswered lines with testable characters,
+	        // the current line has been completed. Move past any punctuation at the end
+	        // of that line by retrieving the whole line.
+	        Vector vTestableLastLines =
+	            m_TestController.getCurrentQA().getMatchingLastLinesUpToNextTestableChars();
+	        if (vTestableLastLines.size()==0)
+	        {
+	        	Vector vLastLines =
+	                m_TestController.getCurrentQA().getMatchingUnansweredLines();
+	        	if (vLastLines.size()!=0)
+	        	{
+	        		String s = (String)vLastLines.firstElement();
+	                m_TestController.getCurrentQA().setAnswerFragmentLastLine(s);        		
+	                m_TestController.getQuestionView().doRepainting();
+	        	}
+	        }
+    	}
         
-        // 0.9.6 - if the question's now been answered, move on.
+        // If the question's now been answered, move on.
         // Prior to 0.9.6 this was in the now-defunct skipPunctuation().
         if (m_TestController.getCurrentQA().isAnswered())
         {
@@ -246,6 +255,10 @@ public class MagicTypewriterController extends QAController
     public void cheatQuestion() throws Exception
     {
         Vector vWholeAnswer = m_TestController.getCurrentQA().getAnswer();
+
+        //org.occleve.mobileclient.testing.qaview.
+        //   MagicTypewriterFormView.debug += " vWholeAnswer.size=" + vWholeAnswer.size();
+        
         int wholeAnswerLength = totalLengthOfStrings(vWholeAnswer);
 
         Vector vAnswerFrag = m_TestController.getCurrentQA().getAnswerFragment();
@@ -295,9 +308,10 @@ public class MagicTypewriterController extends QAController
         return null;
     }
 
-    /**Tests whether the specified mobile phone keycode (0,1,2, etc)
+    /**MIDP: Tests whether the specified mobile phone keycode (0,1,2, etc)
     matches the supplied character.
-    For example, '2' matches a,b,c,A,B,C,2.*/
+    For example, '2' matches a,b,c,A,B,C,2.
+    On Android, the keycode is just the ASCII code.*/
     protected boolean keypressEqualsChar(int iKeycode,char theChar)
     {
         trace("Entering keypressEqualsChar()");
@@ -307,21 +321,31 @@ public class MagicTypewriterController extends QAController
     	org.occleve.mobileclient.testing.qaview.
     		MagicTypewriterCanvas.extraDebugInfo = os;        
         if (os.indexOf("microemulator-android")!=-1) {
-        	char[] keyArray = {(char)iKeycode};
-        	String lowerKey = new String(keyArray).toLowerCase();
 
-        	char[] charArray = {theChar};
-        	String lowerChar = new String(charArray).toLowerCase();
+            char lowerKey = Character.toLowerCase((char)iKeycode);
+            char lowerChar = Character.toLowerCase(theChar);
 
+        	// For physical keyboard phones with shifted numerics
+        	if (lowerKey=='q' && theChar=='1' ||
+        		lowerKey=='w' && theChar=='2' ||
+        		lowerKey=='e' && theChar=='3' ||
+        		lowerKey=='r' && theChar=='4' ||
+        		lowerKey=='t' && theChar=='5' ||
+        		lowerKey=='y' && theChar=='6' ||
+        		lowerKey=='u' && theChar=='7' ||
+        		lowerKey=='i' && theChar=='8' ||
+        		lowerKey=='o' && theChar=='9' ||
+        		lowerKey=='p' && theChar=='0') return true;
+        	
         	org.occleve.mobileclient.testing.qaview.
         		MagicTypewriterCanvas.extraDebugInfo += lowerKey + " " + lowerChar;
         	
-        	return (lowerKey.charAt(0)==lowerChar.charAt(0));
+        	return (lowerKey==lowerChar);
         }
         
         char lowercaseChar = Character.toLowerCase(theChar);
         lowercaseChar = StaticHelpers.removeAccent(lowercaseChar);
-
+        
         trace("Testing keypress against char: " + theChar);
         trace("In lowercase and minus accent: " + lowercaseChar);
 

@@ -24,6 +24,7 @@ package org.occleve.mobileclient.testing.qaview;
 
 import javax.microedition.lcdui.*;
 import java.util.*;
+
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.testing.*;
 import org.occleve.mobileclient.testing.qacontrol.*;
@@ -42,14 +43,13 @@ implements QuestionView, Runnable
     {
         super("");
 
+        m_ResultsItem = new StringItem("","");
         m_QuestionItem = new StringItem("","");
 
         m_AnswerTextFields = new Vector();
         TextField firstAnswerField =
         	new TextField("","",1000,TextField.ANY);
         m_AnswerTextFields.addElement(firstAnswerField);
-        
-        m_ResultsItem = new StringItem("","");
 
         m_Controller = mtc;
 
@@ -62,9 +62,9 @@ implements QuestionView, Runnable
         //TextField foo = new TextField("foo","foo12345",10,TextField.ANY);
         //append(foo);
         
+        append(m_ResultsItem);
         append(m_QuestionItem);
         append(firstAnswerField);
-        append(m_ResultsItem);
 
         new Thread(this).start();
         
@@ -90,20 +90,51 @@ implements QuestionView, Runnable
     /**Implementation of MagicTypewriterView method.*/
     public void doRepainting()
     {
+    	try {
+    		doRepainting_Inner();
+    	}
+    	catch (Exception e) {
+    		OccleveMobileMidlet.getInstance().onError(
+        			"MagicTypewriterFormView.doRepainting",e);
+    	}
+    }
+
+    //public static String debug = "";    
+    
+    private void doRepainting_Inner() throws Exception
+    {
+    	//debug += "#";    	
         MagicTypewriterController mtc = m_Controller;
 
         String sQuestion =
             vectorToString( mtc.getTestController().getCurrentQuestion() );
 
-
         Vector answerLines =
             mtc.getTestController().getCurrentAnswerFragment();
         
         int diff = answerLines.size() - m_AnswerTextFields.size();
-        for (int i=0; i<diff; i++) {
-            TextField tf = new TextField("","",1000,TextField.ANY);
-            m_AnswerTextFields.addElement(tf);
-            append(tf);
+
+        //if (diff!=0) {
+        //	debug += "alsize=" + answerLines.size() +
+        //	" atfsize=" + m_AnswerTextFields.size() +
+        //	" diff=" + diff;
+        //}
+        
+		if (diff>0) {
+	        for (int i=0; i<diff; i++) {
+	            TextField tf = new TextField("","",1000,TextField.ANY);
+	            m_AnswerTextFields.addElement(tf);
+	
+	            append(tf);
+	
+	            //debug += " i=" + i;            
+	        }
+		}
+		else if (diff<0) {
+            for (int i=0; i>diff; i--) {
+            	m_AnswerTextFields.removeElementAt(m_AnswerTextFields.size()-1);
+            	delete(size()-1);
+            }
         }
         
         for (int i=0; i<answerLines.size(); i++) {
@@ -119,13 +150,16 @@ implements QuestionView, Runnable
 
         	tf.setString("");
         	tf.insert(line,0);
-            
-        	Display.getDisplay(OccleveMobileMidlet.getInstance()).
-        		setCurrentItem(tf);
         }
 
+        TextField lastTF = (TextField)m_AnswerTextFields.lastElement();
+
         m_QuestionItem.setText("Q: " + sQuestion );
-        m_ResultsItem.setText( mtc.getTestController().getCurrentScore() );
+        m_ResultsItem.setText( // debug + " " +
+        		mtc.getTestController().getCurrentScore() );
+        
+    	Display.getDisplay(OccleveMobileMidlet.getInstance()).
+    		setCurrentItem(lastTF);        
     }
 
     protected String vectorToString(Vector v)
@@ -159,8 +193,12 @@ implements QuestionView, Runnable
     private void run_Inner() throws Throwable {
 		String lastContents = null;
     	
-    	do {
+    	do {        	
     		TextField tf = (TextField)m_AnswerTextFields.lastElement();
+
+Display.getDisplay(OccleveMobileMidlet.getInstance()).
+   setCurrentItem(tf);
+    		
     		String contents = tf.getString();
     		if (lastContents==null) lastContents = contents;
 
