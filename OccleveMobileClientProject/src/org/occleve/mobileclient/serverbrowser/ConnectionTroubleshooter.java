@@ -23,10 +23,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package org.occleve.mobileclient.serverbrowser;
 
 import java.util.*;
-
 import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
-import javax.microedition.lcdui.*;
+
+import com.sun.lwuit.*;
+import com.sun.lwuit.events.*;
+import com.sun.lwuit.layouts.*;
 
 import org.occleve.mobileclient.*;
 import org.occleve.mobileclient.qa.*;
@@ -36,22 +38,26 @@ import org.occleve.mobileclient.testing.test.*;
 /**One connection troubleshooter to rule them all.
 Lets you try all conceivable combinations of parameters.*/
 public class ConnectionTroubleshooter extends Form
-implements CommandListener,ItemCommandListener,Runnable
+	implements Runnable,ActionListener
 {
-    protected StringItem m_TestItem =
-            new StringItem(null,"Test connection",Item.BUTTON);
-
+    protected Button m_TestItem = new Button("Test connection");
     protected String HTTP_CONNECTION = "HTTP connection";
     protected String SOCKET_CONNECTION = "Plain socket connection";
-    protected ChoiceGroup m_ConnectionTypeChoiceGroup;
+    protected ComboBox m_ConnectionTypeChoiceGroup;
 
     private ParamFieldCollection m_ParamFields;
     
     private class ParamField extends TextField
     {
+    	private Label m_Label;
+    	public Label getLabel() {return m_Label;}
+    	public String getLabelText() {return m_Label.getText();}
+    	
     	public ParamField(String sParamName,String sDefaultValue)
     	{
-    		super(sParamName,sDefaultValue,100,TextField.ANY);
+    		super(sDefaultValue);
+    		
+    		m_Label = new Label(sParamName);
     	}
     }
 
@@ -63,7 +69,8 @@ implements CommandListener,ItemCommandListener,Runnable
     	{
     		ParamField field = new ParamField(sParamName,sDefaultValue);
     		m_Fields.addElement(field);
-    		append(field);
+    		addComponent(field.getLabel());
+    		addComponent(field);
     	}
     	
         public void setRequestProperties(HttpConnection cxn)
@@ -73,13 +80,13 @@ implements CommandListener,ItemCommandListener,Runnable
         	while (e.hasMoreElements())
         	{
         		ParamField field = (ParamField)e.nextElement();
-	        	String sParamValue = field.getString();
+	        	String sParamValue = field.getText();
 	        	if (sParamValue!=null)
 	        	{
 	        		if (sParamValue.length()!=0)
 	        		{
-	        			System.out.println("Setting " + field.getLabel() + "=" + field.getString());
-	        			cxn.setRequestProperty(field.getLabel(),field.getString());
+	        			System.out.println("Setting " + field.getLabelText() + "=" + field.getText());
+	        			cxn.setRequestProperty(field.getLabelText(),field.getText());
 	        		}
 	        	}
         	}
@@ -88,7 +95,7 @@ implements CommandListener,ItemCommandListener,Runnable
     }
     
     protected TextField m_URLField =
-    	new TextField("URL","http://occleve.berlios.de/wiki/index.php?title=ListOfTests&action=raw",100,TextField.ANY);
+    	new TextField("http://occleve.berlios.de/wiki/index.php?title=ListOfTests&action=raw");
 
     /*
     protected ParamField m_ConnectionField = new ParamField("Connection","close");
@@ -105,25 +112,22 @@ implements CommandListener,ItemCommandListener,Runnable
     {
         super(Constants.PRODUCT_NAME);
 
-        m_OKCommand = new Command("OK",Command.OK,0);
-        m_CancelCommand = new Command("Cancel",Command.CANCEL,0);
+        m_OKCommand = new Command("OK");
+        m_CancelCommand = new Command("Cancel");
 
         addCommand(m_OKCommand);
         addCommand(m_CancelCommand);
-        setCommandListener(this);
 
         // Append items to this form.
 
-        append(m_TestItem);
-        m_TestItem.setItemCommandListener(this);
-        m_TestItem.setDefaultCommand(m_OKCommand);
+        addComponent(m_TestItem);
+        m_TestItem.addActionListener(this);
 
         String[] cxnTypeChoices = {HTTP_CONNECTION,SOCKET_CONNECTION};
-        m_ConnectionTypeChoiceGroup =
-            new ChoiceGroup(null,ChoiceGroup.POPUP,cxnTypeChoices,null);
-        append(m_ConnectionTypeChoiceGroup);
+        m_ConnectionTypeChoiceGroup = new ComboBox(cxnTypeChoices);
+        addComponent(m_ConnectionTypeChoiceGroup);
 
-        append(m_URLField);
+        addComponent(m_URLField);
 
         /*
         append(m_ConnectionField);
@@ -147,7 +151,7 @@ implements CommandListener,ItemCommandListener,Runnable
     }
 
     /**Implementation of CommandListener.*/
-    public void commandAction(Command c, Displayable s)
+    public void actionCommand(Command c)
     {
         if (c==m_OKCommand)
         {
@@ -185,28 +189,29 @@ implements CommandListener,ItemCommandListener,Runnable
 
     protected void runTest() throws Exception
     {
-        int i = m_ConnectionTypeChoiceGroup.getSelectedIndex();
-        String sChoice = m_ConnectionTypeChoiceGroup.getString(i);
+        String sChoice = (String)m_ConnectionTypeChoiceGroup.getSelectedItem();
 
         if (sChoice.equals(HTTP_CONNECTION)) runHttpConnectionTest();
     }
 
     protected void runHttpConnectionTest() throws Exception
     {
-    	String sURL = m_URLField.getString();
+    	String sURL = m_URLField.getText();
 
-    	Alert progressAlert = new Alert(null, "Connecting to " + sURL,null, null);
-		progressAlert.setTimeout(Alert.FOREVER);
-		StaticHelpers.safeAddGaugeToAlert(progressAlert);
-		Displayable previousDisplayable =
-			OccleveMobileMidlet.getInstance().getCurrentDisplayable();
-		OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
-    	
+    	// Alert progressAlert = new Alert(null, "Connecting to " + sURL,null, null);
+		// progressAlert.setTimeout(Alert.FOREVER);
+		// StaticHelpers.safeAddGaugeToAlert(progressAlert);
+		// Displayable previousDisplayable =
+		// 	OccleveMobileMidlet.getInstance().getCurrentDisplayable();
+		// OccleveMobileMidlet.getInstance().setCurrentForm(progressAlert);
+
+    	ctAlert("Connecting to " + sURL);
+
     	HttpConnection cxn =
     		(HttpConnection)Connector.open(sURL,Connector.READ);
     	Thread.sleep(1000);
 
-    	progressAlert.setString("Setting request properties");
+    	ctAlert("Setting request properties");
     	m_ParamFields.setRequestProperties(cxn);
     	/*
     	setRequestProperty(cxn,m_ConnectionField);
@@ -216,19 +221,19 @@ implements CommandListener,ItemCommandListener,Runnable
     	*/
     	Thread.sleep(1000);
 
-    	progressAlert.setString("Getting response code");
+    	ctAlert("Getting response code");
         int rc = cxn.getResponseCode();
         String rm = cxn.getResponseMessage();
     	Thread.sleep(1000);
 
-    	progressAlert.setString("Response code=" + rc + ", response message=" + rm);
+    	ctAlert("Response code=" + rc + ", response message=" + rm);
     	Thread.sleep(5000);
 
-    	progressAlert.setString("Closing connection");
+    	ctAlert("Closing connection");
         cxn.close();
     	Thread.sleep(1000);
         
-        OccleveMobileMidlet.getInstance().setCurrentForm(previousDisplayable);
+        // OccleveMobileMidlet.getInstance().setCurrentForm(previousDisplayable);
     }
 
     /*
@@ -245,18 +250,23 @@ implements CommandListener,ItemCommandListener,Runnable
     	}
     }
     */
-    
-    /*Implementation of ItemCommandListener.*/
-    public void commandAction(Command c, Item item)
+
+    /**Implementation of ActionListener.*/
+    public void actionPerformed(ActionEvent ae)
     {
         try
         {
-            if (item==m_TestItem)
+            if (ae.getSource()==(Object)m_TestItem)
             {
 		        new Thread(this).start();
             }
         }
         catch (Exception e) {OccleveMobileMidlet.getInstance().onError(e);}
     }
+    
+    protected void ctAlert(String msg)
+    {
+    	Dialog.show(Constants.PRODUCT_NAME,msg,"OK","");
+    }    
 }
 
